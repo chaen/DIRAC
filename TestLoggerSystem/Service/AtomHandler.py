@@ -21,7 +21,15 @@ class AtomHandler(RequestHandler):
   def initialize(self):
     """ Response initialization
     """
+    self.logger = gLogger.getSubLogger('AtomHandlerLogger')
     try:
+      self.logger.always("AtomHandler.initialize.selflogger")
+      
+      gLogger.always("AtomHandler.initialize.gLogger")
+
+      log = self.logger.getSubLogger('AtomHandlerLog')
+      log.always("AtomHandler.initialize.log")
+
       self.atomdb = AtomDB()
     except Exception:
       gLogger.error("Oops. Something went wrong...")
@@ -33,5 +41,12 @@ class AtomHandler(RequestHandler):
   def export_addStuff(self, stuff):
     """ Add a row in AtomDB : atomDB_table : stuff
     """
+    self.logger.always("AtomHandler.addStuff.selflogger")
+      
+    gLogger.always("AtomHandler.addStuff.gLogger")
+
+    log = self.logger.getSubLogger('AtomHandlerLog')
+    log.always("AtomHandler.addStuff.log")
+    
     result = self.atomdb.addStuff(stuff)
     return result
