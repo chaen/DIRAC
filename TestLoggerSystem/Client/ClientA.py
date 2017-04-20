@@ -37,7 +37,4 @@ class ClientA:
   def addStuff(self, something):
     atomService = RPCClient('TestLogger/Atom')
     result = atomService.addStuff(something)
-    if not result['OK']:
-      self.logger.error("Error while calling the service:", result['Message'])
-    else:
-      self.logger.info(result[ 'Value' ])
+    return result

@@ -4,9 +4,11 @@
 """
 
 # # imports
-from DIRAC import S_OK, S_ERROR
+from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Base.AgentModule import AgentModule
 from DIRAC.Core.DISET.RPCClient import RPCClient
+
+from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
 
 
 __RCSID__ = "Id: $"
@@ -26,7 +28,10 @@ class SimplestAgent(AgentModule):
     :param self: self reference
     """
     self.message = self.am_getOption('Message', "SimplestAgent is working...")
+    
     self.log.info("message = %s" % self.message)
+
+    self.logger = gLogger.getSubLogger("SimplestAgentSelfLogger")
     return S_OK()
 
   def execute(self):
@@ -34,9 +39,25 @@ class SimplestAgent(AgentModule):
 
     :param self: self reference
     """
-    self.log.info("message is: %s" % self.message)
-    simpleMessageService = RPCClient('TestLogger/Hello')
-    result = simpleMessageService.sayHello(self.message)
+
+    self.log.info("SimplestAgentLogInherit.execute.message is: %s" % self.message)
+
+    self.logger.info("SimplestAgentSelfLogger.execute.message is: %s" % self.message)
+
+    gLogger.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
+
+    subLogInherit = self.log.getSubLogger("SimplestAgentSubInheritLogger")
+    subLogInherit.info("SimplestAgentSubLogInherit.execute.message is: %s" % self.message)
+
+    subLog = self.logger.getSubLogger("SimplestAgentSubLogger")
+    self.logger.info("SimplestAgentSubLog.execute.message is: %s" % self.message)
+
+    client = ClientA()
+
+    client.logSomething()
+    client.logSomethingFromB()
+
+    result = client.addStuff("somethingWithAgent")
     if not result['OK']:
       self.log.error("Error while calling the service: %s" % result['Message'])
       return result
