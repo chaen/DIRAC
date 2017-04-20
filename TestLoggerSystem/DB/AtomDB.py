@@ -6,6 +6,8 @@ class AtomDB(DB):
 
   def __init__(self):
     DB.__init__(self, 'AtomDB', 'TestLogger/AtomDB', 10)
+
+    self.logger = gLogger.getSubLogger('AtomDBLogger')
     retVal = self.__initializeDB()
     if not retVal['OK']:
       raise Exception("Can't create tables: %s" % retVal['Message'])
@@ -29,5 +31,11 @@ class AtomDB(DB):
     return self._createTables(tablesD)
 
   def addStuff(self, something):
-    gLogger.error("coucou2")
+    self.logger.always("Atomdb.addStuff.selflogger")
+
+    gLogger.always("AtomDB.addStuff.gLogger")
+
+    log = self.logger.getSubLogger('AtomHandlerLog')
+    log.always("AtomDB.addStuff.log")
+
     return self._insert('atom_mytable', ['stuff'], [something])
