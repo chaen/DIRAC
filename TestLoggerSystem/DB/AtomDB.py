@@ -32,7 +32,7 @@ class AtomDB(DB):
 
   def addStuff(self, something):
     self.logger.always("Atomdb.addStuff.selflogger")
-
+    
     gLogger.always("AtomDB.addStuff.gLogger")
 
     log = self.logger.getSubLogger('AtomHandlerLog')
