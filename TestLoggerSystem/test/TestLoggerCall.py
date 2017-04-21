@@ -11,129 +11,121 @@ from DIRAC.TestLoggerSystem.test.TestLogger import TestLogger, captured_output
 class TestLoggerCall(TestLogger):
 
   def test_always(self):
-    #todo:
-    with captured_output() as (out, err):
-      gLogger.always("always")  
-    output = out.getvalue().strip()
-    
-    with captured_output() as (out, err):
-      logging.always("always")
-    output2 = err.getvalue().strip()
-    
-    self.assertEqual(output, output2)
+    gLogger.always("gLoggeralways")  
+    logging.always("Loggingalways")
 
   def test_notice(self):
-    gLogger.notice("notice")
-    logging.notice("notice")
+    gLogger.notice("gLoggernotice")
+    logging.notice("Loggingnotice")
 
   def test_info(self):
-    gLogger.info("info")
-    logging.info("info")
+    gLogger.info("gLoggerinfo")
+    logging.info("Logginginfo")
 
   def test_verbose(self):
-    gLogger.verbose("verbose")
-    logging.verbose("verbose")
+    gLogger.verbose("gLoggerverbose")
+    logging.verbose("Loggingverbose")
 
   def test_debug(self):
-    gLogger.debug("debug")
-    logging.debug("debug")
+    gLogger.debug("gLoggerdebug")
+    logging.debug("Loggingdebug")
 
   def test_warn(self):
-    gLogger.warn("warn")
-    logging.warn("warn")
+    gLogger.warn("gLoggerwarn")
+    logging.warn("Loggingwarn")
 
   def test_error(self):
-    gLogger.error("error")
-    logging.error("error")
+    gLogger.error("gLoggererror")
+    logging.error("Loggingerror")
 
   def test_fatal(self):
-    gLogger.fatal("fatal")
-    logging.fatal("fatal")
+    gLogger.fatal("gLoggerfatal")
+    logging.fatal("Loggingfatal")
 
   def test_exception(self):
     try:
       a = 1 / 0
     except Exception:
-      gLogger.exception('exception')
+      gLogger.exception('gLoggerexception')
 
     try:
       a = 1 / 0
     except Exception:
       # this does not display as expected
-      logging.exception("exception", exc_info=True)
+      logging.exception("Loggingexception", exc_info=True)
 
 
 class TestSubLoggerCall(TestLogger):
 
   def test_always(self):
     log = gLogger.getSubLogger('log')
-    log.always("always")
+    log.always("gLoggeralways")
 
     log = logging.getLogger('log')
-    log.always("always")
+    log.always("Loggingalways")
 
   def test_notice(self):
     log = gLogger.getSubLogger('log')
-    log.notice("notice")
+    log.notice("gLoggernotice")
 
     log = logging.getLogger('log')
-    log.notice("notice")
+    log.notice("Loggingnotice")
 
   def test_info(self):
     log = gLogger.getSubLogger('log')
-    log.info("info")
+    log.info("gLoggerinfo")
 
     log = logging.getLogger('log')
-    log.info("info")
+    log.info("Logginginfo")
 
   def test_verbose(self):
     log = gLogger.getSubLogger('log')
-    log.verbose("verbose")
+    log.verbose("gLoggerverbose")
 
     log = logging.getLogger('log')
-    log.verbose("verbose")
+    log.verbose("Loggingverbose")
 
   def test_debug(self):
     log = gLogger.getSubLogger('log')
-    log.debug("debug")
+    log.debug("gLoggerdebug")
 
     log = logging.getLogger('log')
-    log.debug("debug")
+    log.debug("Loggingdebug")
 
   def test_warn(self):
     log = gLogger.getSubLogger('log')
-    log.warn("warn")
+    log.warn("gLoggerwarn")
 
     log = logging.getLogger('log')
-    log.warn("warn")
+    log.warn("Loggingwarn")
 
   def test_error(self):
     log = gLogger.getSubLogger('log')
-    log.error("error")
+    log.error("gLoggererror")
 
     log = logging.getLogger('log')
-    log.error("error")
+    log.error("Loggingerror")
 
   def test_fatal(self):
     log = gLogger.getSubLogger('log')
-    log.fatal("fatal")
+    log.fatal("gLoggerfatal")
 
     log = logging.getLogger('log')
-    log.fatal("fatal")
+    log.fatal("Loggingfatal")
 
   def test_exception(self):
     log = gLogger.getSubLogger('log')
     try:
       a = 1 / 0
     except Exception:
-      log.exception('exception')
+      log.exception('gLoggerexception')
 
     log = logging.getLogger('log')
     try:
       a = 1 / 0
     except Exception:
       # this does not display as expected
-      log.exception("exception", exc_info=True)
+      log.exception("Loggingexception", exc_info=True)
 
 
 if __name__ == '__main__':
