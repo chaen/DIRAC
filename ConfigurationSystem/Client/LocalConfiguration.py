@@ -17,6 +17,9 @@ from DIRAC.ConfigurationSystem.private.Refresher import gRefresher
 from DIRAC.ConfigurationSystem.Client.PathFinder import getServiceSection, getAgentSection, getExecutorSection
 from DIRAC.Core.Utilities.Devloader import Devloader
 
+#addLogging
+from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
+
 class LocalConfiguration( object ):
   """
   Main class to interface with Configuration of a running DIRAC Component.
@@ -186,6 +189,9 @@ class LocalConfiguration( object ):
 
   def __initLogger( self, componentName, logSection ):
     gLogger.initialize( componentName, logSection )
+    #addLogging
+    LoggingConfiguration.setComponentName(componentName)
+
     if self.__debugMode == 1:
       gLogger.setLevel( "VERBOSE" )
     elif self.__debugMode == 2:
