@@ -5,7 +5,7 @@ import logging
 import sys
 # sut
 from DIRAC import gLogger
-from DIRAC.TestLoggerSystem.test.TestLogger import TestLogger, captured_output
+from DIRAC.TestLoggerSystem.test.TestLogger import TestLogger
 
 
 class TestLoggerCall(TestLogger):

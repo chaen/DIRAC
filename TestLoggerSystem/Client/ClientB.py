@@ -1,3 +1,5 @@
+import logging
+
 from DIRAC.Core.DISET.RPCClient import RPCClient
 from DIRAC import gLogger
 
@@ -5,9 +7,13 @@ from DIRAC import gLogger
 class ClientB:
 
   def __init__(self):
+    #gLogger
     self.logger = gLogger.getSubLogger('loggerclientB')
+    #Logging
+    self.loggerL = logging.getLogger('loggerclientBL')
 
   def logSomething(self):
+    """Use gLogger"""
     gLogger.always("ClientB.log_something.gLogger")
     
     self.logger.always("ClientB.log_something.selflogger")
@@ -19,4 +25,22 @@ class ClientB:
     logG.always("ClientB.log_something.logG")
 
     logSL = gLogger.getSubLogger('loggerClientB')
+    logSL.always("ClientB.log_something.logSL")
+
+  def logSomethingNew(self):
+    """Use logging"""
+    logging.always("ClientB.log_something.logging")
+    
+    self.loggerL.always("ClientB.log_something.selflogger")
+
+    #Modification because in logging : log.getLogger is impossible.
+    #We can do getLogger(name).getChild() but it doesn't fit with 
+    #the behaviour of gLogger here. 
+    log = logging.getLogger('logClientBL')
+    log.always("ClientB.log_something.log")
+
+    logG = logging.getLogger('logGClientBL')
+    logG.always("ClientB.log_something.logG")
+
+    logSL = logging.getLogger('loggerClientBL')
     logSL.always("ClientB.log_something.logSL")

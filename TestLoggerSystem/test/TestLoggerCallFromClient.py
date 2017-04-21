@@ -5,7 +5,7 @@ import logging
 import sys
 # sut
 from DIRAC import gLogger
-from DIRAC.TestLoggerSystem.test.TestLogger import TestLogger, captured_output
+from DIRAC.TestLoggerSystem.test.TestLogger import TestLogger
 from DIRAC.TestLoggerSystem.Client.ClientB import ClientB
 from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
 
@@ -13,24 +13,29 @@ from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
 class TestLoggerCallFromClient(TestLogger):
 
   def setUp(self):
-    super(TestLogger, self).setUp()
+    super(TestLoggerCallFromClient, self).setUp()
+
     self.clientA = ClientA()
     self.clientB = ClientB()
 
   def tearDown(self):
-    pass
+    super(TestLoggerCallFromClient, self).tearDown()
+
 
   def test_clientA(self):
     self.clientA.logSomething()
+    self.clientA.logSomethingNew()
 
   def test_clientB(self):
     self.clientB.logSomething()
+    self.clientB.logSomethingNew()
 
   def test_clientBFromClientA(self):
     self.clientA.logSomethingFromB()
+    self.clientA.logSomethingFromBNew()
 
-  def test_atomHandlerFromClientA(self):
-    self.clientA.addStuff("test")
+  #def test_atomHandlerFromClientA(self):
+  #  self.clientA.addStuff("test")
 
 
 
