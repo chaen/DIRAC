@@ -9,6 +9,7 @@ from DIRAC import gLogger
 
 from contextlib import contextmanager
 from StringIO import StringIO
+from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
 
 
 @contextmanager
@@ -25,37 +26,11 @@ def captured_output():
 class TestLogger(unittest.TestCase):
 
   def setUp(self):
-    # basic configuration of root logger
-    logging.Formatter.converter = time.gmtime
-    logging.basicConfig(level=logging.DEBUG,
-                        #stream=sys.stdout,
-                        format='%(asctime)s UTC %(name)s  %(levelname)s: %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
-
-    # to do : path of the subLogger
-    logging.getLogger().name = 'Framework'
-    logger = logging.getLogger()
-
-    # addlevel
-    levelDict = {10: "ALWAYS",
-                 20: "NOTICE",
-                 30: "INFO",
-                 40: "VERBOSE",
-                 50: "DEBUG",
-                 60: "WARN",
-                 70: "ERROR",
-                 80: "EXCEPTION",
-                 90: "FATAL"}
-
-    for level in levelDict:
-      logging.addLevelName(level, levelDict[level])
-      setattr(logging, levelDict[level], level)
-      setattr(logging.Logger, levelDict[level].lower(),
-              (lambda level: lambda inst, msg, *args, **kwargs: inst.log(level, msg, *args, **kwargs))(level))
-      setattr(logging, levelDict[level].lower(), (lambda level: lambda msg,
-                                                  *args, **kwargs: logging.log(level, msg, *args, **kwargs))(level))
+    LoggingConfiguration.initializeLogging()
+    logging.getLogger().setLevel(logging.ALWAYS)
+    gLogger.setLevel('fatal')
 
   def tearDown(self):
-    pass
+    LoggingConfiguration.removeHandlers()
 
 
