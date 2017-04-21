@@ -1,5 +1,8 @@
+import logging 
+
 from DIRAC import gConfig, gLogger, S_OK, S_ERROR
 from DIRAC.Core.Base.DB import DB
+
 
 
 class AtomDB(DB):
@@ -7,7 +10,12 @@ class AtomDB(DB):
   def __init__(self):
     DB.__init__(self, 'AtomDB', 'TestLogger/AtomDB', 10)
 
+    #gLogger
     self.logger = gLogger.getSubLogger('AtomDBLogger')
+
+    #Logging
+    self.loggerL = logging.getLogger('AtomDBLoggerL')
+
     retVal = self.__initializeDB()
     if not retVal['OK']:
       raise Exception("Can't create tables: %s" % retVal['Message'])
@@ -31,11 +39,18 @@ class AtomDB(DB):
     return self._createTables(tablesD)
 
   def addStuff(self, something):
+    #gLogger
     self.logger.always("Atomdb.addStuff.selflogger")
-    
+
     gLogger.always("AtomDB.addStuff.gLogger")
 
     log = self.logger.getSubLogger('AtomHandlerLog')
     log.always("AtomDB.addStuff.log")
+
+    #Logging
+    self.loggerL.always("Atomdb.addStuff.selfloggerL")
+    logging.always("AtomDB.addStuff.Logging")
+
+
 
     return self._insert('atom_mytable', ['stuff'], [something])

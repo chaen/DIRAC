@@ -10,6 +10,9 @@ from DIRAC.FrameworkSystem.Client.Logger import gLogger
 from DIRAC.FrameworkSystem.Client.MonitoringClient import gMonitor
 from DIRAC.Core.Utilities.DErrno import includeExtensionErrors
 
+#addLogging
+from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
+
 __RCSID__ = "$Id$"
 
 localCfg = LocalConfiguration()
@@ -22,6 +25,9 @@ def parseCommandLine( script = False, ignoreErrors = False, initializeMonitor = 
   if gIsAlreadyInitialized:
     return False
   gLogger.showHeaders( False )
+  #addLogging
+  LoggingConfiguration.showHeaders(False)
+
   return initialize( script, ignoreErrors, initializeMonitor, True )
 
 def initialize( script = False, ignoreErrors = False, initializeMonitor = False, enableCommandLine = False ):

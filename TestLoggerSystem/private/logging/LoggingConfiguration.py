@@ -22,10 +22,21 @@ class ComponentFormatter(logging.Formatter):
 
   def format(self, record):
     """Override format to add System/Component name."""
+    
+
+
     if record.name != "root":
       record.name = self.componentName + "/" + record.name
     else:
       record.name = self.componentName
+
+    #TESTCOLOR
+    RESET_SEQ = "\033[0m"
+    COLOR_SEQ = "\033[1;%dm"
+    BOLD_SEQ = "\033[1m"
+    levelname_color = COLOR_SEQ % (30 + 5) + record.levelname + RESET_SEQ
+    record.levelname = levelname_color
+    
     return super(ComponentFormatter, self).format(record)
 
 
@@ -39,6 +50,8 @@ class LoggingConfiguration():
     """
     First logging configuration
     """
+    cls.headersIsDisplay = True
+
     cls.__initializeLoggingLevels()
     cls.__initializeHandlers()
     cls.setComponentName()
@@ -83,11 +96,26 @@ class LoggingConfiguration():
     """
     Create and set a new format with the component name to the handlers
     """
-    logging.Formatter.converter = time.gmtime
-    logger = logging.getLogger()
-    for handler in logger.handlers:
-      handler.setFormatter(ComponentFormatter(
-          '%(asctime)s UTC %(name)s %(levelname)s: %(message)s', '%Y-%m-%d %H:%M:%S', componentName))
+    if cls.headersIsDisplay:
+      logging.Formatter.converter = time.gmtime
+      logger = logging.getLogger()
+      for handler in logger.handlers:
+        handler.setFormatter(ComponentFormatter(
+            '%(asctime)s UTC %(name)s %(levelname)s: %(message)s', '%Y-%m-%d %H:%M:%S', componentName))
+
+  @classmethod
+  def showHeaders(cls, val):
+    """
+    Define if it shows all information about the log or only the message
+    """
+    # to test
+    cls.headersIsDisplay = val
+    if cls.headersIsDisplay:
+      setComponentName()
+    else:
+      logger = logging.getLogger()
+      for handler in logger.handlers:
+        handler.setFormatter(logging.Formatter('%(message)s'))
 
   @classmethod
   def removeHandlers(cls):

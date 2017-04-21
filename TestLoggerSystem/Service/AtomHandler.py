@@ -3,6 +3,8 @@
 
 __RCSID__ = "$Id: $"
 
+import logging
+
 import types
 from DIRAC.Core.DISET.RequestHandler import RequestHandler
 from DIRAC import gLogger, S_OK, S_ERROR
@@ -21,14 +23,23 @@ class AtomHandler(RequestHandler):
   def initialize(self):
     """ Response initialization
     """
+    #gLogger
     self.logger = gLogger.getSubLogger('AtomHandlerLogger')
+    #Logging
+    self.loggerL = logging.getLogger('AtomHandlerLoggerL')
     try:
+      #gLogger
       self.logger.always("AtomHandler.initialize.selflogger")
       
       gLogger.always("AtomHandler.initialize.gLogger")
 
       log = self.logger.getSubLogger('AtomHandlerLog')
       log.always("AtomHandler.initialize.log")
+
+      #Logging
+      self.loggerL.always("AtomHandler.initialize.selflogger")
+      
+      logging.always("AtomHandler.initialize.gLogger")
 
       self.atomdb = AtomDB()
     except Exception:

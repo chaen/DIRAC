@@ -34,8 +34,8 @@ class TestLoggerCallFromClient(TestLogger):
     self.clientA.logSomethingFromB()
     self.clientA.logSomethingFromBNew()
 
-  #def test_atomHandlerFromClientA(self):
-  #  self.clientA.addStuff("test")
+  def test_atomHandlerFromClientA(self):
+    self.clientA.addStuff("test")
 
 
 
