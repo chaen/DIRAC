@@ -3,13 +3,16 @@
     Simplest Agent send a simple log message
 """
 
-# # imports
+## imports
+import logging 
+
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Base.AgentModule import AgentModule
 from DIRAC.Core.DISET.RPCClient import RPCClient
 
 from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
 
+from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
 
 __RCSID__ = "Id: $"
 
@@ -31,7 +34,10 @@ class SimplestAgent(AgentModule):
     
     self.log.info("message = %s" % self.message)
 
+    #gLogger
     self.logger = gLogger.getSubLogger("SimplestAgentSelfLogger")
+    #Logging
+    self.loggerL = logging.getLogger("SimplestAgentSelfLogging")
     return S_OK()
 
   def execute(self):
@@ -44,7 +50,11 @@ class SimplestAgent(AgentModule):
 
     self.logger.info("SimplestAgentSelfLogger.execute.message is: %s" % self.message)
 
+    self.loggerL.info("SimplestAgentSelfLogging.execute.message is: %s" % self.message)
+
     gLogger.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
+
+    logging.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
 
     subLogInherit = self.log.getSubLogger("SimplestAgentSubInheritLogger")
     subLogInherit.info("SimplestAgentSubLogInherit.execute.message is: %s" % self.message)
