@@ -45,20 +45,20 @@ class SimplestAgent(AgentModule):
 
     :param self: self reference
     """
-
+    #gLogger
     self.log.info("SimplestAgentLogInherit.execute.message is: %s" % self.message)
 
     self.logger.info("SimplestAgentSelfLogger.execute.message is: %s" % self.message)
 
-    self.loggerL.info("SimplestAgentSelfLogging.execute.message is: %s" % self.message)
-
     gLogger.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
-
-    logging.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
 
     subLogInherit = self.log.getSubLogger("SimplestAgentSubInheritLogger")
     subLogInherit.info("SimplestAgentSubLogInherit.execute.message is: %s" % self.message)
 
+    self.loggerL.info("SimplestAgentSelfLogging.execute.message is: %s" % self.message)
+    logging.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
+
+    #Logging
     subLog = self.logger.getSubLogger("SimplestAgentSubLogger")
     self.logger.info("SimplestAgentSubLog.execute.message is: %s" % self.message)
 

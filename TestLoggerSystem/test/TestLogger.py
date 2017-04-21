@@ -11,8 +11,6 @@ from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingC
 class TestLogger(unittest.TestCase):
 
   def setUp(self):
-    LoggingConfiguration.initializeLogging()
-    logging.getLogger().setLevel(logging.ALWAYS)
-
+    pass
   def tearDown(self):
-    LoggingConfiguration.removeHandlers()
+    pass
