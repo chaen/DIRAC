@@ -18,6 +18,7 @@ from DIRAC.ConfigurationSystem.Client.PathFinder import getServiceSection, getAg
 from DIRAC.Core.Utilities.Devloader import Devloader
 
 #addLogging
+import logging
 from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
 
 class LocalConfiguration( object ):
@@ -190,16 +191,24 @@ class LocalConfiguration( object ):
   def __initLogger( self, componentName, logSection ):
     gLogger.initialize( componentName, logSection )
     #addLogging
-    LoggingConfiguration.setComponentName(componentName)
+    LoggingConfiguration.configureLogging(componentName, logSection)
 
     if self.__debugMode == 1:
       gLogger.setLevel( "VERBOSE" )
+      #addLogging
+      logging.getLogger().setLevel(logging.VERBOSE)
     elif self.__debugMode == 2:
       gLogger.setLevel( "VERBOSE" )
       gLogger.showHeaders( True )
+      #addLogging
+      logging.getLogger().setLevel(logging.VERBOSE)
+      LoggingConfiguration.showHeaders(True)
     elif self.__debugMode >= 3:
       gLogger.setLevel( "DEBUG" )
       gLogger.showHeaders( True )
+      #addlogging
+      logging.getLogger().setLevel(logging.DEBUG)
+      LoggingConfiguration.showHeaders(True)
 
   def loadUserData( self ):
     """
