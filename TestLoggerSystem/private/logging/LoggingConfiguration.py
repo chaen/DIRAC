@@ -1,5 +1,10 @@
 import logging
 import time
+import sys
+
+from DIRAC.TestLoggerSystem.private.logging.Formatter.BaseFormatter import BaseFormatter
+from DIRAC.TestLoggerSystem.private.logging.Formatter.ColoredBaseFormatter import ColoredBaseFormatter
+
 
 """
 Logging configuration script.
@@ -7,37 +12,6 @@ First new logging solution :
 Advantages  :  Minimise maintenability, minimise modification
 Drawbacks   :  Modify existing logging, alter standard
 """
-
-# to move in a new file if it works
-
-
-class ComponentFormatter(logging.Formatter):
-  """
-  Custom formatter which include System/Component in the log message.
-  """
-
-  def __init__(self, fmt, datefmt, componentName):
-    super(ComponentFormatter, self).__init__(fmt, datefmt)
-    self.componentName = componentName
-
-  def format(self, record):
-    """Override format to add System/Component name."""
-    
-
-
-    if record.name != "root":
-      record.name = self.componentName + "/" + record.name
-    else:
-      record.name = self.componentName
-
-    #TESTCOLOR
-    RESET_SEQ = "\033[0m"
-    COLOR_SEQ = "\033[1;%dm"
-    BOLD_SEQ = "\033[1m"
-    levelname_color = COLOR_SEQ % (30 + 5) + record.levelname + RESET_SEQ
-    record.levelname = levelname_color
-    
-    return super(ComponentFormatter, self).format(record)
 
 
 class LoggingConfiguration():
@@ -50,12 +24,20 @@ class LoggingConfiguration():
     """
     First logging configuration
     """
-    cls.headersIsDisplay = True
+    cls.options = {'showHeaders': True, 'showThreads': False}
 
+    cls.componentName = "Framework"
+    cls.cfgPath = None
+
+    logging.Formatter.converter = time.gmtime
+    cls.dictHandlersFormatters = {'StreamHandler': BaseFormatter(),
+                                  'FileHandler': BaseFormatter()}
+    # initialization
     cls.__initializeLoggingLevels()
     cls.__initializeHandlers()
-    cls.setComponentName()
-    logging.getLogger().setLevel(logging.DEBUG)
+    # configuration
+    cls.__configureLevel()
+    cls.configureLogging(cls.componentName, cls.cfgPath)
 
   @classmethod
   def __initializeLoggingLevels(cls):
@@ -89,39 +71,64 @@ class LoggingConfiguration():
     """
     Attach handler to the root logger
     """
-    logging.getLogger().addHandler(logging.StreamHandler())
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
   @classmethod
-  def setComponentName(cls, componentName="Framework"):
+  def configureLogging(cls, componentName, cfgPath):
     """
     Create and set a new format with the component name to the handlers
     """
-    if cls.headersIsDisplay:
-      logging.Formatter.converter = time.gmtime
-      logger = logging.getLogger()
-      for handler in logger.handlers:
-        handler.setFormatter(ComponentFormatter(
-            '%(asctime)s UTC %(name)s %(levelname)s: %(message)s', '%Y-%m-%d %H:%M:%S', componentName))
+    cls.componentName = componentName
+    cls.cfgPath = cfgPath
+    cls.__updateFormat()
 
   @classmethod
-  def showHeaders(cls, val):
+  def __configureLevel(cls):
+    debLevs = 0
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    for arg in sys.argv:
+      if arg.find("-d") == 0:
+        debLevs += arg.count("d")
+    if debLevs == 1:
+      logger.setLevel(logging.VERBOSE)
+    elif debLevs == 2:
+      logger.setLevel(logging.VERBOSE)
+      cls.showHeaders(True)
+    elif debLevs >= 3:
+      logger.setLevel(logging.DEBUG)
+      cls.showHeaders(True)
+      cls.showThreadIDs(True)
+
+  @classmethod
+  def __setFormatter(cls, fmt, datefmt):
+    logger = logging.getLogger()
+    for handler in logger.handlers:
+      formatter = cls.dictHandlersFormatters[handler.__class__.__name__]
+      formatter.setFormat(fmt, datefmt, cls.componentName, cls.options)
+      handler.setFormatter(formatter)
+
+  @classmethod
+  def showHeaders(cls, val=True):
     """
     Define if it shows all information about the log or only the message
     """
-    # to test
-    cls.headersIsDisplay = val
-    if cls.headersIsDisplay:
-      setComponentName()
-    else:
-      logger = logging.getLogger()
-      for handler in logger.handlers:
-        handler.setFormatter(logging.Formatter('%(message)s'))
+    cls.options['showHeaders'] = val
+    cls.__updateFormat()
 
   @classmethod
-  def removeHandlers(cls):
+  def showThreadIDs(cls, val=True):
     """
-    This method is only for testing
+    Define if it shows the thread id information about the log or not
     """
-    logger = logging.getLogger()
-    for handler in logger.handlers:
-      logger.removeHandler(handler)
+    cls.options['showThreads'] = val
+
+  @classmethod
+  def __updateFormat(cls):
+    if cls.options['showHeaders']:
+      fmt = '%(asctime)s UTC %(name)s %(levelname)s: %(message)s'
+      datefmt = '%Y-%m-%d %H:%M:%S'
+    else:
+      fmt = '%(message)s'
+      datefmt = None
+    cls.__setFormatter(fmt, datefmt)

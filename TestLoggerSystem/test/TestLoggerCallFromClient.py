@@ -9,12 +9,14 @@ from DIRAC.TestLoggerSystem.test.TestLogger import TestLogger
 from DIRAC.TestLoggerSystem.Client.ClientB import ClientB
 from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
 
+from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
+
 
 class TestLoggerCallFromClient(TestLogger):
 
   def setUp(self):
     super(TestLoggerCallFromClient, self).setUp()
-
+ 
     self.clientA = ClientA()
     self.clientB = ClientB()
 
@@ -36,6 +38,72 @@ class TestLoggerCallFromClient(TestLogger):
 
   def test_atomHandlerFromClientA(self):
     self.clientA.addStuff("test")
+
+  def test_clientAWithShowHeadersFalse(self):
+    gLogger.showHeaders(False)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showHeaders(False)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowHeadersTrue(self):
+    gLogger.showHeaders(True)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showHeaders(True)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowThreadIDFalse(self):
+    gLogger.showThreadIDs(False)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showThreadIDs(False)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowThreadIDTrue(self):
+    gLogger.showThreadIDs(True)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showThreadIDs(True)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowThreadIDFalseShowHeaderTrue(self):
+    gLogger.showHeaders(True)
+    gLogger.showThreadIDs(False)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showHeaders(True)
+    LoggingConfiguration.showThreadIDs(False)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowThreadIDFalseShowHeaderFalse(self):
+    gLogger.showHeaders(False)
+    gLogger.showThreadIDs(False)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showHeaders(False)
+    LoggingConfiguration.showThreadIDs(False)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowThreadIDTrueShowHeaderTrue(self):
+    gLogger.showHeaders(True)
+    gLogger.showThreadIDs(True)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showHeaders(True)
+    LoggingConfiguration.showThreadIDs(True)
+    self.clientA.logSomethingNew()
+
+  def test_clientAWithShowThreadIDTrueShowHeaderFalse(self):
+    gLogger.showHeaders(False)
+    gLogger.showThreadIDs(True)
+    self.clientA.logSomething()
+    
+    LoggingConfiguration.showHeaders(False)
+    LoggingConfiguration.showThreadIDs(True)
+    self.clientA.logSomethingNew()
+
+
 
 
 
