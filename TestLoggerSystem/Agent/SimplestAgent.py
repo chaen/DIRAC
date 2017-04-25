@@ -58,14 +58,38 @@ class SimplestAgent(AgentModule):
     self.loggerL.info("SimplestAgentSelfLogging.execute.message is: %s" % self.message)
     logging.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
 
-    #Logging
-    subLog = self.logger.getSubLogger("SimplestAgentSubLogger")
-    self.logger.info("SimplestAgentSubLog.execute.message is: %s" % self.message)
-
     client = ClientA()
 
     client.logSomething()
     client.logSomethingFromB()
+
+    self.logger.always(" ")
+    self.logger.notice(" ")
+    self.logger.info(" ")
+    self.logger.verbose(" ")
+    self.logger.debug(" ")
+    self.logger.warn(" ")
+    self.logger.error(" ")
+    self.logger.fatal(" ")
+
+    #Logging
+    subLog = self.logger.getSubLogger("SimplestAgentSubLogger")
+    self.logger.info("SimplestAgentSubLog.execute.message is: %s" % self.message)
+
+    self.loggerL.always(" ")
+    self.loggerL.notice(" ")
+    self.loggerL.info(" ")
+    self.loggerL.verbose(" ")
+    self.loggerL.debug(" ")
+    self.loggerL.warn(" ")
+    self.loggerL.error(" ")
+    self.loggerL.fatal(" ")
+
+    self.loggerL.exception(" ")
+
+
+
+
 
     result = client.addStuff("somethingWithAgent")
     if not result['OK']:
