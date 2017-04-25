@@ -29,6 +29,7 @@ class BaseFormatter(logging.Formatter):
 
   def format(self, record):
     """Override format to add System/Component name."""
+    #pre treatment
     if self.options['showHeaders']:
       if record.name != "root":
         record.name = self.componentName + "/" + record.name

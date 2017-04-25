@@ -1,10 +1,10 @@
 import logging
 import time
 import sys
+from os import getpid
 
 from DIRAC.TestLoggerSystem.private.logging.Formatter.BaseFormatter import BaseFormatter
 from DIRAC.TestLoggerSystem.private.logging.Formatter.ColoredBaseFormatter import ColoredBaseFormatter
-
 
 """
 Logging configuration script.
@@ -24,20 +24,21 @@ class LoggingConfiguration():
     """
     First logging configuration
     """
-    cls.options = {'showHeaders': True, 'showThreads': False}
+    cls.options = {'showHeaders': True, 'showThreads': False, 'Color' : False}
 
     cls.componentName = "Framework"
     cls.cfgPath = None
 
     logging.Formatter.converter = time.gmtime
-    cls.dictHandlersFormatters = {'StreamHandler': BaseFormatter(),
+    cls.dictHandlersFormatters = {'StreamHandler': ColoredBaseFormatter(),
                                   'FileHandler': BaseFormatter()}
     # initialization
     cls.__initializeLoggingLevels()
     cls.__initializeHandlers()
     # configuration
     cls.__configureLevel()
-    cls.configureLogging(cls.componentName, cls.cfgPath)
+    cls.__updateFormat()
+    #cls.configureLogging(cls.componentName, cls.cfgPath)
 
   @classmethod
   def __initializeLoggingLevels(cls):
@@ -78,8 +79,55 @@ class LoggingConfiguration():
     """
     Create and set a new format with the component name to the handlers
     """
+    # if not here. doesn't work because of loop dependancie
+    from DIRAC.ConfigurationSystem.Client.Config import gConfig
+
     cls.componentName = componentName
     cls.cfgPath = cfgPath
+
+    # NEW : TO MODIFY
+    #retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
+#
+    #if not retDict['OK']:
+    #  cfgoptions = {'FileName': 'Dirac-log_%s.log' % getpid(),
+    #                'Interactive': True, 'SleepTime': 150}
+    #else:
+    #  cfgoptions = retDict['Value']
+#
+    #cls.options.update(cfgoptions)
+
+    # Utility : for File Backend only ?
+    #if 'FileName' not in self.options:
+    #  self.options['FileName'] = 'Dirac-log_%s.log' % getpid()
+
+    ## Utility : for Remote Backend only ?
+    #sleepTime = 150
+    #try:
+    #  sleepTime = int(self.options['SleepTime'])
+    #except:
+    #  pass
+    #self.options['SleepTime'] = sleepTime
+    ## Utility : for Remote Backend only ?
+    #self.options['Interactive'] = gConfig.getValue(
+    #    "%s/BackendsOptions/Interactive" % cfgPath, True)
+    ## Utility : for Remote Backend only ?
+    #self.options['Site'] = DIRAC.siteName()
+
+    cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
+
+    ## Configure outputs
+    #desiredBackends = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
+    #self.registerBackends(List.fromChar(desiredBackends))
+    ## Configure verbosity
+    #defaultLevel = Logger.defaultLogLevel
+    #if "Scripts" in cfgPath:
+    #  defaultLevel = gConfig.getValue(
+    #      '/Systems/Scripts/LogLevel', Logger.defaultLogLevel)
+    #self.setLevel(gConfig.getValue("%s/LogLevel" % cfgPath, defaultLevel))
+    ## Configure framing
+    #self._showCallingFrame = gConfig.getValue(
+    #    "%s/LogShowLine" % cfgPath, self._showCallingFrame)
+
     cls.__updateFormat()
 
   @classmethod
@@ -126,7 +174,7 @@ class LoggingConfiguration():
   @classmethod
   def __updateFormat(cls):
     if cls.options['showHeaders']:
-      fmt = '%(asctime)s UTC %(name)s %(levelname)s: %(message)s'
+      fmt = 'Logging | %(asctime)s UTC %(name)s %(levelname)s: %(message)s'
       datefmt = '%Y-%m-%d %H:%M:%S'
     else:
       fmt = '%(message)s'
