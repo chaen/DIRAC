@@ -35,13 +35,30 @@ def main():
 
   #Logging
   log = logging.getLogger("scriptLogL")
-  log.always("scriptLog")
+  log.always("scriptLogL\nmultiple line")
 
   logging.always("logging")
 
   client = ClientA()
   client.logSomethingNew()
   client.logSomethingFromBNew()
+
+  log = gLogger.getSubLogger('log', True)
+  log.always("LoggingChildFalse")
+
+  log2 = log.getSubLogger('log2', False)
+  log2.always("LoggingChildFalse2")
+
+  log3 = log.getSubLogger('log3', True)
+  log3.always("LoggingChildFalse3")
+
+  log4 = log2.getSubLogger('log4', True)
+  log4.always("LoggingChildFalse4")
+
+  log5 = log4.getSubLogger('log5', True)
+  log5.always("LoggingChildFalse5")
+
+
 
 
 if __name__ == "__main__":
