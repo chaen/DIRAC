@@ -1,6 +1,7 @@
 import logging
 import threading
 
+
 class BaseFormatter(logging.Formatter):
   """
   Custom formatter which include System/Component in the log message.
@@ -29,14 +30,37 @@ class BaseFormatter(logging.Formatter):
 
   def format(self, record):
     """Override format to add System/Component name."""
-    #pre treatment
+    # pre treatment
+    logname = record.name
+    lines = []
+
     if self.options['showHeaders']:
       if record.name != "root":
         record.name = self.componentName + "/" + record.name
       else:
         record.name = self.componentName
-      
+
       if self.options['showThreads']:
         record.name += '[' + self.getThreadID() + ']'
 
-    return super(BaseFormatter, self).format(record)
+    # exception format
+    if record.exc_info is not None:
+      exceptionMsg = "== EXCEPTION == " + record.exc_info[0].__name__ + "\n\n" + \
+          record.exc_info[0].__name__ + ": " + \
+          str(record.exc_info[1]) + "\n" + "==============="
+      record.exc_info = None
+      # add to lines for multiple line format
+      lines.extend(exceptionMsg.split('\n'))
+
+    s = super(BaseFormatter, self).format(record)
+
+    lines = record.message.split('\n') + lines
+    # multi line message
+    if len(lines) >= 2:
+      s = ""
+      record.args = None
+      for line in lines:
+        record.msg = line
+        s += super(BaseFormatter, self).format(record) + "\n"
+
+    return s.strip()
