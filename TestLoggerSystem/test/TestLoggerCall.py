@@ -127,6 +127,38 @@ class TestSubLoggerCall(TestLogger):
       # this does not display as expected
       log.exception("Loggingexception", exc_info=True)
 
+  def test_childFalse(self):
+    log = gLogger.getSubLogger('log', False)
+    log.always("LoggingChildFalse")
+
+    log2 = log.getSubLogger('log2', False)
+    log2.always("LoggingChildFalse2")
+
+    log3 = log.getSubLogger('log3', False)
+    log3.always("LoggingChildFalse3")
+
+    log4 = log2.getSubLogger('log4', True)
+    log4.always("LoggingChildFalse4")
+
+    log5 = log4.getSubLogger('log5', False)
+    log5.always("LoggingChildFalse5")
+
+  def test_onMultipleLines(self):
+    log = gLogger.getSubLogger('logMultipleLines')
+    log.always('this\nis\na\nmessage\non\nmultiple\nlines.')
+
+    log = logging.getLogger('logMultipleLines')
+    log.always('this\nis\na\nmessage\non\nmultiple\nlines.')
+
+  def test_onMultipleLinesWithExtrasArgs(self):
+    log = gLogger.getSubLogger('logMultipleLines')
+    log.always('this\nis\na\nmessage\non\n%s\nlines %s.' % ('multiple..', 'with extras.'))
+
+    log = logging.getLogger('logMultipleLines')
+    log.always('this\nis\na\nmessage\non\n%s\nlines %s.','multiple..', 'with extras.')
+    log.always('this\nis\na\nmessage\non\n%s\nlines %s.' %('multiple..', 'with extras.'))
+
+
 
 if __name__ == '__main__':
   suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestLogger)
