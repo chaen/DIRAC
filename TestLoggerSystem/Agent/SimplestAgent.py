@@ -102,6 +102,13 @@ class SimplestAgent(AgentModule):
 
     self.loggerL.exception(" ")
 
+    self.loggerL.verbose("message\non\nmultiple\nline")
+
+    try:
+      1/0
+    except:
+      self.loggerL.exception("division par 0", exc_info=True)
+
 
 
 
