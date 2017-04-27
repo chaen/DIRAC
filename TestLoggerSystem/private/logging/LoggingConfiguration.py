@@ -5,9 +5,10 @@ from os import getpid
 
 from DIRAC.TestLoggerSystem.private.logging.Formatter.BaseFormatter import BaseFormatter
 from DIRAC.TestLoggerSystem.private.logging.Formatter.ColoredBaseFormatter import ColoredBaseFormatter
+from DIRAC.TestLoggerSystem.private.logging.Backend import Backend
 
 """
-Logging configuration script.
+Logging configuration class.
 First new logging solution :
 Advantages  :  Minimise maintenability, minimise modification
 Drawbacks   :  Modify existing logging, alter standard
@@ -24,17 +25,11 @@ class LoggingConfiguration():
     """
     First logging configuration
     """
-    cls.options = {'showHeaders': True, 'showThreads': False, 'Color' : False}
-
-    cls.componentName = "Framework"
-    cls.cfgPath = None
-
-    logging.Formatter.converter = time.gmtime
-    cls.dictHandlersFormatters = {'StreamHandler': ColoredBaseFormatter(),
-                                  'FileHandler': BaseFormatter()}
     # initialization
     cls.__initializeLoggingLevels()
-    cls.__initializeHandlers()
+    cls.__initializeDefaultParameters()
+    cls.__initializeBackends()
+    cls.__configureHandlers(['stdout'])
     # configuration
     cls.__configureLevel()
     cls.__updateFormat()
@@ -68,59 +63,83 @@ class LoggingConfiguration():
                                                   *args, **kwargs: logging.log(level, msg, *args, **kwargs))(level))
 
   @classmethod
-  def __initializeHandlers(cls):
+  def __initializeDefaultParameters(cls):
+    cls.options = {'showHeaders': True, 'showThreads': False,
+                   'Color': False, 'FileName': 'Dirac-log_%s.log' % getpid()}
+    cls.componentName = "Framework"
+    cls.cfgPath = None
+
+  @classmethod
+  def __initializeBackends(cls):
+    logging.Formatter.converter = time.gmtime
+    cls.backendsDict = {'stdout': ('stdout', logging.StreamHandler(sys.stdout), ColoredBaseFormatter()),
+                        'stderr': ('stderr', logging.StreamHandler(sys.stderr), BaseFormatter()),
+                        'file': ('file', logging.FileHandler(cls.options['FileName']), BaseFormatter())
+                        }
+    cls.backendsList = []
+
+  @classmethod
+  def __configureHandlers(cls, listHandler):
     """
     Attach handler to the root logger
     """
-    logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+    # update backends which can be modified
+    cls.backendsDict['file'] = ('file', logging.FileHandler(
+        cls.options['FileName']), BaseFormatter())
+
+    for stringHandler in listHandler:
+      stringHandler = stringHandler.lower()
+      stringHandler = stringHandler.strip(" ")
+      if stringHandler in cls.backendsDict:
+        name, handler, formatter = cls.backendsDict[stringHandler]
+        logging.getLogger().addHandler(handler)
+        cls.backendsList.append(Backend(name, handler, formatter))
+      else:
+        logging.warning("Unexistant method for showing messages Unexistant %s logging method", stringHandler)
 
   @classmethod
   def configureLogging(cls, componentName, cfgPath):
     """
     Create and set a new format with the component name to the handlers
     """
-    # if not here. doesn't work because of loop dependancie
+    # If not here. doesn't work because of loop dependancies
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
     cls.componentName = componentName
     cls.cfgPath = cfgPath
 
-    # NEW : TO MODIFY
-    #retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
-#
-    #if not retDict['OK']:
-    #  cfgoptions = {'FileName': 'Dirac-log_%s.log' % getpid(),
-    #                'Interactive': True, 'SleepTime': 150}
-    #else:
-    #  cfgoptions = retDict['Value']
-#
-    #cls.options.update(cfgoptions)
+    # Backend options
+    retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
+    if retDict['OK']:
+      newCfgOptions = retDict['Value']
+      if 'FileName' in newCfgOptions:
+        cls.options['FileName'] = newCfgOptions['Filename']
 
-    # Utility : for File Backend only ?
-    #if 'FileName' not in self.options:
-    #  self.options['FileName'] = 'Dirac-log_%s.log' % getpid()
-
-
-
+    # Log color options
     cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
 
-    ## Configure outputs
-    #desiredBackends = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
-    #self.registerBackends(List.fromChar(desiredBackends))
-    ## Configure verbosity
+    # Configure outputs
+    desiredBackends = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
+    cls.__configureHandlers(desiredBackends.split(','))
+
+    # Configure verbosity
     #defaultLevel = Logger.defaultLogLevel
-    #if "Scripts" in cfgPath:
+    # if "Scripts" in cfgPath:
     #  defaultLevel = gConfig.getValue(
     #      '/Systems/Scripts/LogLevel', Logger.defaultLogLevel)
     #self.setLevel(gConfig.getValue("%s/LogLevel" % cfgPath, defaultLevel))
-    ## Configure framing
-    #self._showCallingFrame = gConfig.getValue(
+    # Configure framing
+    # self._showCallingFrame = gConfig.getValue(
     #    "%s/LogShowLine" % cfgPath, self._showCallingFrame)
 
     cls.__updateFormat()
 
   @classmethod
   def __configureLevel(cls):
+    """
+    Configure the log level of the running program according to the argv parameter
+    It can be : -d, -dd, -ddd
+    """
     debLevs = 0
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
@@ -139,11 +158,14 @@ class LoggingConfiguration():
 
   @classmethod
   def __setFormatter(cls, fmt, datefmt):
+    """
+    Add the new formatter to the handlers' logger 
+    """
     logger = logging.getLogger()
-    for handler in logger.handlers:
-      formatter = cls.dictHandlersFormatters[handler.__class__.__name__]
+    for backend in cls.backendsList:
+      formatter = backend.formatter
       formatter.setFormat(fmt, datefmt, cls.componentName, cls.options)
-      handler.setFormatter(formatter)
+      backend.handler.setFormatter(formatter)
 
   @classmethod
   def showHeaders(cls, val=True):
@@ -162,6 +184,9 @@ class LoggingConfiguration():
 
   @classmethod
   def __updateFormat(cls):
+    """
+    Update the format according to the showHeader option
+    """
     if cls.options['showHeaders']:
       fmt = 'Logging | %(asctime)s UTC %(name)s %(levelname)s: %(message)s'
       datefmt = '%Y-%m-%d %H:%M:%S'

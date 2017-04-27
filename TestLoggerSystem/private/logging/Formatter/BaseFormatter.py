@@ -32,6 +32,9 @@ class BaseFormatter(logging.Formatter):
     """Override format to add System/Component name."""
     # pre treatment
     logname = record.name
+    logmsg = record.msg
+    logargs = record.args
+    logexcinfo = record.exc_info
     lines = []
 
     if self.options['showHeaders']:
@@ -62,5 +65,12 @@ class BaseFormatter(logging.Formatter):
       for line in lines:
         record.msg = line
         s += super(BaseFormatter, self).format(record) + "\n"
+
+    # this is important because handler creates the record and the same
+    # handler use the same record for different backends
+    record.name = logname
+    record.msg = logmsg
+    record.args = logargs
+    record.exc_info = logexcinfo
 
     return s.strip()
