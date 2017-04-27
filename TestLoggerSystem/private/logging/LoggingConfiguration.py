@@ -100,18 +100,7 @@ class LoggingConfiguration():
     #if 'FileName' not in self.options:
     #  self.options['FileName'] = 'Dirac-log_%s.log' % getpid()
 
-    ## Utility : for Remote Backend only ?
-    #sleepTime = 150
-    #try:
-    #  sleepTime = int(self.options['SleepTime'])
-    #except:
-    #  pass
-    #self.options['SleepTime'] = sleepTime
-    ## Utility : for Remote Backend only ?
-    #self.options['Interactive'] = gConfig.getValue(
-    #    "%s/BackendsOptions/Interactive" % cfgPath, True)
-    ## Utility : for Remote Backend only ?
-    #self.options['Site'] = DIRAC.siteName()
+
 
     cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
 
