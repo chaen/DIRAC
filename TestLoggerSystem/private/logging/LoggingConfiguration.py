@@ -3,9 +3,11 @@ import time
 import sys
 from os import getpid
 
-from DIRAC.TestLoggerSystem.private.logging.Formatter.BaseFormatter import BaseFormatter
-from DIRAC.TestLoggerSystem.private.logging.Formatter.ColoredBaseFormatter import ColoredBaseFormatter
-from DIRAC.TestLoggerSystem.private.logging.Backend import Backend
+from DIRAC.TestLoggerSystem.private.logging.Backend.StdoutBackend import StdoutBackend
+from DIRAC.TestLoggerSystem.private.logging.Backend.StderrBackend import StderrBackend
+from DIRAC.TestLoggerSystem.private.logging.Backend.FileBackend import FileBackend
+
+
 
 """
 Logging configuration class.
@@ -64,17 +66,21 @@ class LoggingConfiguration():
 
   @classmethod
   def __initializeDefaultParameters(cls):
-    cls.options = {'showHeaders': True, 'showThreads': False,
-                   'Color': False, 'FileName': 'Dirac-log_%s.log' % getpid()}
+    cls.options = {'showHeaders': True, 
+                   'showThreads': False,
+                   'Color': False }
+
+    cls.handlerOptions={'file': 'Dirac-log_%s.log'% getpid()}
+
     cls.componentName = "Framework"
     cls.cfgPath = None
 
   @classmethod
   def __initializeBackends(cls):
     logging.Formatter.converter = time.gmtime
-    cls.backendsDict = {'stdout': ('stdout', logging.StreamHandler(sys.stdout), ColoredBaseFormatter()),
-                        'stderr': ('stderr', logging.StreamHandler(sys.stderr), BaseFormatter()),
-                        'file': ('file', logging.FileHandler(cls.options['FileName']), BaseFormatter())
+    cls.backendsDict = {'stdout': StdoutBackend(),
+                        'stderr': StderrBackend(),
+                        'file': FileBackend()
                         }
     cls.backendsList = []
 
@@ -83,18 +89,21 @@ class LoggingConfiguration():
     """
     Attach handler to the root logger
     """
-    # update backends which can be modified
-    cls.backendsDict['file'] = ('file', logging.FileHandler(
-        cls.options['FileName']), BaseFormatter())
-
     for stringHandler in listHandler:
       stringHandler = stringHandler.lower()
       stringHandler = stringHandler.strip(" ")
+      
       if stringHandler in cls.backendsDict:
-        name, handler, formatter = cls.backendsDict[stringHandler]
-        logging.getLogger().addHandler(handler)
-        cls.backendsList.append(Backend(name, handler, formatter))
+        backend = cls.backendsDict[stringHandler]
+        if stringHandler in cls.handlerOptions:
+          backend.setParameters(cls.handlerOptions[stringHandler])
+        
+        if backend not in cls.backendsList:
+          logging.getLogger().addHandler(backend.handler)
+          cls.backendsList.append(backend)
       else:
+        #we update the format here, else the warning message will not be formatted for all handlers
+        cls.__updateFormat()
         logging.warning("Unexistant method for showing messages Unexistant %s logging method", stringHandler)
 
   @classmethod
@@ -109,11 +118,11 @@ class LoggingConfiguration():
     cls.cfgPath = cfgPath
 
     # Backend options
-    retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
-    if retDict['OK']:
-      newCfgOptions = retDict['Value']
-      if 'FileName' in newCfgOptions:
-        cls.options['FileName'] = newCfgOptions['Filename']
+    #retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
+    #if retDict['OK']:
+    #  newCfgOptions = retDict['Value']
+    #  if 'file' in newCfgOptions:
+    #    cls.options['FileName'] = newCfgOptions['Filename']
 
     # Log color options
     cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
@@ -131,7 +140,6 @@ class LoggingConfiguration():
     # Configure framing
     # self._showCallingFrame = gConfig.getValue(
     #    "%s/LogShowLine" % cfgPath, self._showCallingFrame)
-
     cls.__updateFormat()
 
   @classmethod
