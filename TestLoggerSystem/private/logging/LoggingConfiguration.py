@@ -8,7 +8,6 @@ from DIRAC.TestLoggerSystem.private.logging.Backend.StderrBackend import StderrB
 from DIRAC.TestLoggerSystem.private.logging.Backend.FileBackend import FileBackend
 
 
-
 """
 Logging configuration class.
 First new logging solution :
@@ -66,11 +65,11 @@ class LoggingConfiguration():
 
   @classmethod
   def __initializeDefaultParameters(cls):
-    cls.options = {'showHeaders': True, 
+    cls.options = {'showHeaders': True,
                    'showThreads': False,
-                   'Color': False }
+                   'Color': False}
 
-    cls.handlerOptions={'file': 'Dirac-log_%s.log'% getpid()}
+    cls.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()}}
 
     cls.componentName = "Framework"
     cls.cfgPath = None
@@ -92,19 +91,21 @@ class LoggingConfiguration():
     for stringHandler in listHandler:
       stringHandler = stringHandler.lower()
       stringHandler = stringHandler.strip(" ")
-      
+
       if stringHandler in cls.backendsDict:
         backend = cls.backendsDict[stringHandler]
         if stringHandler in cls.handlerOptions:
           backend.setParameters(cls.handlerOptions[stringHandler])
-        
+
         if backend not in cls.backendsList:
           logging.getLogger().addHandler(backend.handler)
           cls.backendsList.append(backend)
       else:
-        #we update the format here, else the warning message will not be formatted for all handlers
+        # we update the format here, else the warning message will not be
+        # formatted for all handlers
         cls.__updateFormat()
-        logging.warning("Unexistant method for showing messages Unexistant %s logging method", stringHandler)
+        logging.warning(
+            "Unexistant method for showing messages Unexistant %s logging method", stringHandler)
 
   @classmethod
   def configureLogging(cls, componentName, cfgPath):
@@ -117,19 +118,19 @@ class LoggingConfiguration():
     cls.componentName = componentName
     cls.cfgPath = cfgPath
 
-    # Backend options
-    #retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
-    #if retDict['OK']:
-    #  newCfgOptions = retDict['Value']
-    #  if 'file' in newCfgOptions:
-    #    cls.options['FileName'] = newCfgOptions['Filename']
+    # get and add options to the different backends
+    desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
+    desiredBackends = desiredBackendsStr.split(',')
+    for backend in desiredBackends:
+      retDict = gConfig.getOptionsDict(
+          "%s/NewBackendsOptions/%s" % (cfgPath, backend))
+      if retDict['OK'] and backend in cls.handlerOptions:
+        cls.handlerOptions[backend].update(retDict['Value'])
 
     # Log color options
     cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
-
     # Configure outputs
-    desiredBackends = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
-    cls.__configureHandlers(desiredBackends.split(','))
+    cls.__configureHandlers(desiredBackends)
 
     # Configure verbosity
     #defaultLevel = Logger.defaultLogLevel
