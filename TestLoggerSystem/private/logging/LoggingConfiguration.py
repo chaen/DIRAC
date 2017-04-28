@@ -69,11 +69,11 @@ class LoggingConfiguration():
                    'showThreads': False,
                    'Color': False,
                    'Path': False}
-
     cls.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()}}
-
     cls.componentName = "Framework"
     cls.cfgPath = None
+    
+    logging.getLogger().setLevel(logging.NOTICE)
 
   @classmethod
   def __initializeBackends(cls):
@@ -133,13 +133,6 @@ class LoggingConfiguration():
     cls.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
     # Configure outputs
     cls.__configureHandlers(desiredBackends)
-
-    # Configure verbosity
-    #defaultLevel = Logger.defaultLogLevel
-    # if "Scripts" in cfgPath:
-    #  defaultLevel = gConfig.getValue(
-    #      '/Systems/Scripts/LogLevel', Logger.defaultLogLevel)
-    #self.setLevel(gConfig.getValue("%s/LogLevel" % cfgPath, defaultLevel))
 
     cls.__updateFormat()
 
