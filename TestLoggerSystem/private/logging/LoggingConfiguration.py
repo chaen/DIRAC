@@ -67,7 +67,8 @@ class LoggingConfiguration():
   def __initializeDefaultParameters(cls):
     cls.options = {'showHeaders': True,
                    'showThreads': False,
-                   'Color': False}
+                   'Color': False,
+                   'Path': False}
 
     cls.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()}}
 
@@ -118,7 +119,7 @@ class LoggingConfiguration():
     cls.componentName = componentName
     cls.cfgPath = cfgPath
 
-    # get and add options to the different backends
+    # Backend options
     desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
     desiredBackends = desiredBackendsStr.split(',')
     for backend in desiredBackends:
@@ -127,8 +128,9 @@ class LoggingConfiguration():
       if retDict['OK'] and backend in cls.handlerOptions:
         cls.handlerOptions[backend].update(retDict['Value'])
 
-    # Log color options
+    # Format options
     cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
+    cls.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
     # Configure outputs
     cls.__configureHandlers(desiredBackends)
 
@@ -138,9 +140,7 @@ class LoggingConfiguration():
     #  defaultLevel = gConfig.getValue(
     #      '/Systems/Scripts/LogLevel', Logger.defaultLogLevel)
     #self.setLevel(gConfig.getValue("%s/LogLevel" % cfgPath, defaultLevel))
-    # Configure framing
-    # self._showCallingFrame = gConfig.getValue(
-    #    "%s/LogShowLine" % cfgPath, self._showCallingFrame)
+
     cls.__updateFormat()
 
   @classmethod

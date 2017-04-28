@@ -43,6 +43,8 @@ class BaseFormatter(logging.Formatter):
       else:
         record.name = self.componentName
 
+      if self.options['Path']:
+        record.name += '['+ record.pathname + ':' + str(record.lineno) + ']'
       if self.options['showThreads']:
         record.name += '[' + self.getThreadID() + ']'
 
