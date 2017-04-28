@@ -91,6 +91,7 @@ class SimplestAgent(AgentModule):
     subLog = self.logger.getSubLogger("SimplestAgentSubLogger")
     self.logger.info("SimplestAgentSubLog.execute.message is: %s" % self.message)
 
+    #Test color option
     self.loggerL.always(" ")
     self.loggerL.notice(" ")
     self.loggerL.info(" ")
@@ -102,12 +103,18 @@ class SimplestAgent(AgentModule):
 
     self.loggerL.exception(" ")
 
+    #Test multi line messages
     self.loggerL.verbose("message\non\nmultiple\nline")
 
     try:
       1/0
     except:
       self.loggerL.exception("division par 0", exc_info=True)
+
+    # Test showLine option
+    gLogger.setLevel('debug')
+
+    gLogger.always("this is a message with showLine option at True")
 
 
 
