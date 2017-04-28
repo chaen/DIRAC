@@ -11,4 +11,4 @@ class FileBackend(Backend):
     super(FileBackend, self).__init__(None, BaseFormatter())
 
   def setParameters(self, parameters):
-    self.handler = logging.FileHandler(parameters)
+    self.handler = logging.FileHandler(parameters['FileName'])
