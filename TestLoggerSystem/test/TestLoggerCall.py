@@ -117,8 +117,18 @@ class TestSubLoggerCall(TestLogger):
     log = gLogger.getSubLogger('log')
     try:
       a = 1 / 0
+    except ZeroDivisionError as e:
+      log.exception('gLoggerexception')
+      log.exception('gLoggerexception', 'exceptionZeroDivError', e)
     except Exception:
       log.exception('gLoggerexception')
+      log.exception('gLoggerexception', 'exception1')
+      log.exception('gLoggerexception', 'exception2', NameError())
+      log.exception('gLoggerexception', 'exception3', False, True)
+      log.exception('gLoggerexception', 'exception4', True, True)
+
+
+
 
     log = logging.getLogger('log')
     try:
@@ -126,6 +136,7 @@ class TestSubLoggerCall(TestLogger):
     except Exception:
       # this does not display as expected
       log.exception("Loggingexception", exc_info=True)
+      log.exception("Loggingexception exc_info False", exc_info=False)
 
   def test_childFalse(self):
     log = gLogger.getSubLogger('log', False)
