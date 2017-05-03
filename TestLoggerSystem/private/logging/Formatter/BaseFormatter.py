@@ -1,5 +1,6 @@
 import logging
 import threading
+import traceback
 
 
 class BaseFormatter(logging.Formatter):
@@ -44,13 +45,14 @@ class BaseFormatter(logging.Formatter):
         record.name = self.componentName
 
       if self.options['Path']:
-        record.name += '['+ record.pathname + ':' + str(record.lineno) + ']'
+        record.name += '[' + record.pathname + ':' + str(record.lineno) + ']'
       if self.options['showThreads']:
         record.name += '[' + self.getThreadID() + ']'
 
     # exception format
-    if record.exc_info is not None:
-      exceptionMsg = "== EXCEPTION == " + record.exc_info[0].__name__ + "\n\n" + \
+    if record.exc_info is not None and record. exc_info is not False:
+      exceptionMsg = "== EXCEPTION == " + record.exc_info[0].__name__ + "\n" + \
+          traceback.format_tb(record.exc_info[2])[-1] + "\n" + \
           record.exc_info[0].__name__ + ": " + \
           str(record.exc_info[1]) + "\n" + "==============="
       record.exc_info = None
