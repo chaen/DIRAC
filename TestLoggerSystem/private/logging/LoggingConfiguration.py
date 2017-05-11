@@ -36,32 +36,6 @@ class LoggingConfiguration():
     cls.__updateFormat()
     #cls.configureLogging(cls.componentName, cls.cfgPath)
 
-  @classmethod
-  def __initializeLoggingLevels(cls):
-    """
-    Give new level definition to logging. 
-    Warning : 
-    -difference between gLogger : not in V
-    -maybe not important because gLogger never set level superior to DEBUG
-    """
-    levelDict = {10: "DEBUG",
-                 20: "VERBOSE",
-                 30: "WARN",
-                 40: "INFO",
-                 50: "EXCEPTION",
-                 60: "NOTICE",
-                 70: "ERROR",
-                 80: "ALWAYS",
-                 90: "FATAL",
-                 }
-
-    for level in levelDict:
-      logging.addLevelName(level, levelDict[level])
-      setattr(logging, levelDict[level], level)
-      setattr(logging.Logger, levelDict[level].lower(),
-              (lambda level: lambda inst, msg, *args, **kwargs: inst.log(level, msg, *args, **kwargs))(level))
-      setattr(logging, levelDict[level].lower(), (lambda level: lambda msg,
-                                                  *args, **kwargs: logging.log(level, msg, *args, **kwargs))(level))
 
   @classmethod
   def __initializeDefaultParameters(cls):
