@@ -15,6 +15,7 @@ class LogLevels:
                         "fatal": logging.CRITICAL}
 
   def getLevelValue(self, sName):
+    sName = sName.lower()
     if self.__levelDict.has_key(sName):
       return self.__levelDict[sName]
     else:

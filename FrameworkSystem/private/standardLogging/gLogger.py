@@ -27,7 +27,7 @@ class gLogger():
 
       gLogger._initializedLogging = True
     else:
-      self._minLevel = logging.INFO
+      self._minLevel = logging.getLogger().getEffectiveLevel()
       self._systemName = LoggingConfiguration.componentName
 
   def initialized(self):
@@ -46,6 +46,7 @@ class gLogger():
     if not gLogger._configuredLogging:
       LoggingConfiguration.configureLogging(systemName, cfgPath)
 
+      self._minLevel = logging.getLogger().getEffectiveLevel()
       self._systemName = LoggingConfiguration.componentName
 
       gLogger._configuredLogging = True
