@@ -1,5 +1,6 @@
 import logging
 from DIRAC.FrameworkSystem.private.standardLogging.LoggingConfiguration import LoggingConfiguration
+from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
 class gLogger():
@@ -7,25 +8,27 @@ class gLogger():
   Wrapper of the old gLogger object
   """
 
-  _levels = {"always": logging.INFO,
-             "notice": logging.INFO,
-             "info": logging.INFO,
-             "verbose": logging.INFO,
-             "debug": logging.DEBUG,
-             "warn": logging.WARN,
-             "exception": logging.ERROR,
-             "error": logging.ERROR,
-             "fatal": logging.CRITICAL}
-
   _initializedLogging = False
   _configuredLogging = False
+  _levels = LogLevels()
 
   def __init__(self, name=''):
+
+    self._logLevels = gLogger._levels
+    self._outputList = []
+
     self.logger = logging.getLogger(name)
+
     if not gLogger._initializedLogging:
       LoggingConfiguration.initializeLogging()
-      gLogger._initializedLogging = True
 
+      self._minLevel = logging.getLogger().getEffectiveLevel()
+      self._systemName = LoggingConfiguration.componentName
+
+      gLogger._initializedLogging = True
+    else:
+      self._minLevel = logging.INFO
+      self._systemName = LoggingConfiguration.componentName
 
   def initialized(self):
     return _initializedLogging
@@ -42,12 +45,17 @@ class gLogger():
   def initialize(self, systemName, cfgPath):
     if not gLogger._configuredLogging:
       LoggingConfiguration.configureLogging(systemName, cfgPath)
+
+      self._systemName = LoggingConfiguration.componentName
+
       gLogger._configuredLogging = True
 
   def setLevel(self, levelName):
     result = False
-    if levelName in gLogger._levels:
-      self.logger.setLevel(gLogger._levels[levelName])
+    if levelName in gLogger._levels.getLevels():
+      self.logger.setLevel(gLogger._levels.getLevelValue(levelName))
+      self._minLevel = gLogger._levels.getLevelValue(levelName)
+
       result = True
     return result
 
@@ -56,12 +64,12 @@ class gLogger():
 
   def shown(self, levelName):
     result = False
-    if levelName in gLogger._levels:
-      result = self.logger.isEnabledFor(gLogger._levels[levelName])
+    if levelName in gLogger._levels.getLevels():
+      result = self.logger.isEnabledFor(gLogger._levels.getLevelValue(levelName))
     return result
 
   def getName(self):
-    return self.logger.name
+    return self._systemName
 
   def always(self, sMsg, sVarMsg=''):
     self.logger.info("%s %s" % (sMsg, sVarMsg))
