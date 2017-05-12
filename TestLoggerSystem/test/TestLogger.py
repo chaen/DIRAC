@@ -5,8 +5,6 @@ import logging
 import sys
 # sut
 from DIRAC import gLogger
-from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
-
 
 class TestLogger(unittest.TestCase):
 

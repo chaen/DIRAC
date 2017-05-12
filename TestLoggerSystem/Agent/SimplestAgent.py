@@ -12,8 +12,6 @@ from DIRAC.Core.DISET.RPCClient import RPCClient
 
 from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
 
-from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
-
 __RCSID__ = "Id: $"
 
 
@@ -36,8 +34,6 @@ class SimplestAgent(AgentModule):
 
     #gLogger
     self.logger = gLogger.getSubLogger("SimplestAgentSelfLogger")
-    #Logging
-    self.loggerL = logging.getLogger("SimplestAgentSelfLogging")
     return S_OK()
 
   def execute(self):
@@ -54,9 +50,6 @@ class SimplestAgent(AgentModule):
 
     subLogInherit = self.log.getSubLogger("SimplestAgentSubInheritLogger")
     subLogInherit.info("SimplestAgentSubLogInherit.execute.message is: %s" % self.message)
-
-    self.loggerL.info("SimplestAgentSelfLogging.execute.message is: %s" % self.message)
-    logging.info("SimplestAgentGLogger.execute.message is: %s" % self.message)
 
     client = ClientA()
 
@@ -87,38 +80,10 @@ class SimplestAgent(AgentModule):
     log5 = log4.getSubLogger('log5', True)
     log5.always("LoggingChildFalse5")
 
-    #Logging
-    subLog = self.logger.getSubLogger("SimplestAgentSubLogger")
-    self.logger.info("SimplestAgentSubLog.execute.message is: %s" % self.message)
-
-    #Test color option
-    self.loggerL.always(" ")
-    self.loggerL.notice(" ")
-    self.loggerL.info(" ")
-    self.loggerL.verbose(" ")
-    self.loggerL.debug(" ")
-    self.loggerL.warn(" ")
-    self.loggerL.error(" ")
-    self.loggerL.fatal(" ")
-
-    self.loggerL.exception(" ")
-
-    #Test multi line messages
-    self.loggerL.verbose("message\non\nmultiple\nline")
-
-    try:
-      1/0
-    except:
-      self.loggerL.exception("division par 0", exc_info=True)
 
     # Test showLine option
     gLogger.setLevel('debug')
-
     gLogger.always("this is a message with showLine option at True")
-
-
-
-
 
     result = client.addStuff("somethingWithAgent")
     if not result['OK']:
