@@ -64,31 +64,31 @@ class gLogger():
     return self.logger.name
 
   def always(self, sMsg, sVarMsg=''):
-    self.logger.info(sMsg + " " + sVarMsg)
+    self.logger.info("%s %s" % (sMsg, sVarMsg))
 
   def notice(self, sMsg, sVarMsg=''):
-    self.logger.info(sMsg + " " + sVarMsg)
+    self.logger.info("%s %s" % (sMsg, sVarMsg))
 
   def info(self, sMsg, sVarMsg=''):
-    self.logger.info(sMsg + " " + sVarMsg)
+    self.logger.info("%s %s" % (sMsg, sVarMsg))
 
   def verbose(self, sMsg, sVarMsg=''):
-    self.logger.info(sMsg + " " + sVarMsg)
+    self.logger.info("%s %s" % (sMsg, sVarMsg))
 
   def debug(self, sMsg, sVarMsg=''):
-    self.logger.debug(sMsg + " " + sVarMsg)
+    self.logger.debug("%s %s" % (sMsg, sVarMsg))
 
   def warn(self, sMsg, sVarMsg=''):
-    self.logger.warn(sMsg + " " + sVarMsg)
+    self.logger.warn("%s %s" % (sMsg, sVarMsg))
 
   def error(self, sMsg, sVarMsg=''):
-    self.logger.error(sMsg + " " + sVarMsg)
+    self.logger.error("%s %s" % (sMsg, sVarMsg))
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    self.logger.exception(sMsg + " " + sVarMsg)
+    self.logger.exception("%s %s" % (sMsg, sVarMsg))
 
   def fatal(self, sMsg, sVarMsg=''):
-    self.logger.critical(sMsg + " " + sVarMsg)
+    self.logger.critical("%s %s" % (sMsg, sVarMsg))
 
   def showStack(self):
     logging.info("Deleted method.")
