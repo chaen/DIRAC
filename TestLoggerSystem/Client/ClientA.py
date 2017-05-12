@@ -12,9 +12,7 @@ class ClientA:
 
     # gLogger
     self.logger = gLogger.getSubLogger('loggerClientA')
-    # Logging
-    self.loggerL = logging.getLogger('loggerClientAL')
-
+   
   def logSomething(self):
     """use gLogger"""
     gLogger.always("ClientA.log_something.gLogger")
@@ -30,24 +28,6 @@ class ClientA:
     logSL = gLogger.getSubLogger('loggerClientA')
     logSL.always("ClientA.log_something.logSL")
 
-  def logSomethingNew(self):
-    """use Logging"""
-    logging.always("ClientA.log_something.logging")
-
-    self.loggerL.always("ClientA.log_something.selflogger")
-
-    #Modification because in logging : log.getLogger is impossible.
-    #We can do getLogger(name).getChild() but it doesn't fit with 
-    #the behaviour of gLogger here. 
-    log = logging.getLogger('logClientAL')
-    log.always("ClientA.log_something.log")
-
-    logG = logging.getLogger('logGClientAL')
-    logG.always("ClientA.log_something.logG")
-
-    logSL = logging.getLogger('loggerClientAL')
-    logSL.always("ClientA.log_something.logSL")
-
   def logSomethingFromB(self):
     """use gLogger"""
     self.clientB.logSomething()
@@ -60,22 +40,8 @@ class ClientA:
     logSL = gLogger.getSubLogger("loggerClientB")
     logSL.always('clientA.logSomethingFromB.clientB.logSL')
 
-  def logSomethingFromBNew(self):
-    """use Logging"""
-    self.clientB.logSomethingNew()
-
-    self.clientB.loggerL.always("clientA.logSomethingFromB.clientB.logger")
-
-    #Modification because in logging : log.getLogger is impossible.
-    #We can do getLogger(name).getChild() but it doesn't fit with 
-    #the behaviour of gLogger here. 
-    log = logging.getLogger("logClientBFromClientAL")
-    log.always("clientA.logSomethingFromB.clientB.log")
-
-    logSL = logging.getLogger("loggerClientBL")
-    logSL.always('clientA.logSomethingFromB.clientB.logSL')
-
   def addStuff(self, something):
     atomService = RPCClient('TestLogger/Atom')
+    print "###########################", str(atomService)
     result = atomService.addStuff(something)
     return result
