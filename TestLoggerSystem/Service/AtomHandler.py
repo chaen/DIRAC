@@ -18,6 +18,7 @@ class AtomHandler(RequestHandler):
   def initializeHandler(cls, serviceInfo):
     """ Handler initialization
     """
+    self.atomdb = AtomDB()
     return S_OK()
 
   def initialize(self):
