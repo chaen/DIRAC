@@ -33,16 +33,6 @@ def main():
   client.logSomething()
   client.logSomethingFromB()
 
-  #Logging
-  log = logging.getLogger("scriptLogL")
-  log.always("scriptLogL\nmultiple line")
-
-  logging.always("logging")
-
-  client = ClientA()
-  client.logSomethingNew()
-  client.logSomethingFromBNew()
-
   log = gLogger.getSubLogger('log', True)
   log.always("LoggingChildFalse")
 

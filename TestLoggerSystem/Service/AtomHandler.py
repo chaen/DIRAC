@@ -25,8 +25,6 @@ class AtomHandler(RequestHandler):
     """
     #gLogger
     self.logger = gLogger.getSubLogger('AtomHandlerLogger')
-    #Logging
-    self.loggerL = logging.getLogger('AtomHandlerLoggerL')
     try:
       #gLogger
       self.logger.always("AtomHandler.initialize.selflogger")
@@ -35,11 +33,6 @@ class AtomHandler(RequestHandler):
 
       log = self.logger.getSubLogger('AtomHandlerLog')
       log.always("AtomHandler.initialize.log")
-
-      #Logging
-      self.loggerL.always("AtomHandler.initialize.selflogger")
-      
-      logging.always("AtomHandler.initialize.gLogger")
 
       self.atomdb = AtomDB()
     except Exception:
