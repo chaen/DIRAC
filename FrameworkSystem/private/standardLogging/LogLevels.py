@@ -4,18 +4,17 @@ import logging
 class LogLevels:
 
   def __init__(self):
-    self.__levelDict = {"always": logging.INFO,
-                        "notice": logging.INFO,
-                        "info": logging.INFO,
-                        "verbose": logging.INFO,
-                        "debug": logging.DEBUG,
-                        "warn": logging.WARN,
-                        "exception": logging.ERROR,
-                        "error": logging.ERROR,
-                        "fatal": logging.CRITICAL}
+    self.__levelDict = {"ALWAYS": logging.INFO,
+                        "NOTICE": logging.INFO,
+                        "INFO": logging.INFO,
+                        "VERBOSE": logging.INFO,
+                        "DEBUG": logging.DEBUG,
+                        "WARN": logging.WARN,
+                        "EXCEPTION": logging.ERROR,
+                        "ERROR": logging.ERROR,
+                        "FATAL": logging.CRITICAL}
 
   def getLevelValue(self, sName):
-    sName = sName.lower()
     if self.__levelDict.has_key(sName):
       return self.__levelDict[sName]
     else:

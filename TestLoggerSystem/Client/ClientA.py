@@ -42,6 +42,5 @@ class ClientA:
 
   def addStuff(self, something):
     atomService = RPCClient('TestLogger/Atom')
-    print "###########################", str(atomService)
     result = atomService.addStuff(something)
     return result
