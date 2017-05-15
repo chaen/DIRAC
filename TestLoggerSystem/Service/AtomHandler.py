@@ -11,6 +11,9 @@ from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.Utilities import Time
 from DIRAC.TestLoggerSystem.DB.AtomDB import AtomDB
 
+from DIRAC.Interfaces.API.Job import Job
+from DIRAC.Core.Utilities.Time import timeThis
+
 
 class AtomHandler(RequestHandler):
 
@@ -18,7 +21,8 @@ class AtomHandler(RequestHandler):
   def initializeHandler(cls, serviceInfo):
     """ Handler initialization
     """
-    self.atomdb = AtomDB()
+    job = Job()
+    job.setLogLevel('NOTICE')
     return S_OK()
 
   def initialize(self):
@@ -26,6 +30,7 @@ class AtomHandler(RequestHandler):
     """
     #gLogger
     self.logger = gLogger.getSubLogger('AtomHandlerLogger')
+    self.log = gLogger.getSubLogger('logo')
     try:
       #gLogger
       self.logger.always("AtomHandler.initialize.selflogger")
@@ -36,6 +41,7 @@ class AtomHandler(RequestHandler):
       log.always("AtomHandler.initialize.log")
 
       self.atomdb = AtomDB()
+      self.test_time()
     except Exception:
       gLogger.error("Oops. Something went wrong...")
       raise
@@ -55,3 +61,7 @@ class AtomHandler(RequestHandler):
     
     result = self.atomdb.addStuff(stuff)
     return result
+
+  @timeThis
+  def test_time(self):
+    a = 5 + 3
