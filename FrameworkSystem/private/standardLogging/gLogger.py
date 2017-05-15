@@ -19,6 +19,12 @@ class gLogger():
 
     if not gLogger._initializedLogging:
       LoggingConfiguration.initializeLogging()
+      
+      #add levels which has not equivalent in logging, in logging
+      oldLevels = gLogger._levels.getOldLevelNamesValues()
+      for lvlName in oldLevels:
+        logging.addLevelName(oldLevels[lvlName], lvlName)
+
       gLogger._initializedLogging = True
 
   def initialized(self):
@@ -109,16 +115,16 @@ class gLogger():
     return gLogger._levels.getLevels()
 
   def always(self, sMsg, sVarMsg=''):
-    self.logger.info("%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('ALWAYS'),"%s %s" % (sMsg, sVarMsg))
 
   def notice(self, sMsg, sVarMsg=''):
-    self.logger.info("%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('NOTICE'),"%s %s" % (sMsg, sVarMsg))
 
   def info(self, sMsg, sVarMsg=''):
     self.logger.info("%s %s" % (sMsg, sVarMsg))
 
   def verbose(self, sMsg, sVarMsg=''):
-    self.logger.info("%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('VERBOSE'),"%s %s" % (sMsg, sVarMsg))
 
   def debug(self, sMsg, sVarMsg=''):
     self.logger.debug("%s %s" % (sMsg, sVarMsg))
@@ -130,10 +136,10 @@ class gLogger():
     self.logger.error("%s %s" % (sMsg, sVarMsg))
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    self.logger.exception("%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('EXCEPTION'),"%s %s" % (sMsg, sVarMsg), exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
-    self.logger.critical("%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('FATAL'),"%s %s" % (sMsg, sVarMsg))
 
   def showStack(self):
     logging.info("Deleted method.")

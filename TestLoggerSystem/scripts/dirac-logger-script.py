@@ -52,7 +52,6 @@ def main():
   LoggingConfiguration.showThreadIDs(True)
 
   gLogger.always('logWithThreadID')
-  logging.always('logWithThreadID')
 
 
 
@@ -62,7 +61,7 @@ if __name__ == "__main__":
   import logging
   from DIRAC.Interfaces.API.Dirac import Dirac
   from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
-  from DIRAC.TestLoggerSystem.private.logging.LoggingConfiguration import LoggingConfiguration
+  from DIRAC.FrameworkSystem.private.standardLogging.LoggingConfiguration import LoggingConfiguration
 
   # Run the script
   main()

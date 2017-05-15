@@ -6,23 +6,28 @@ from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter impor
 class ColoredBaseFormatter(BaseFormatter):
 
   COLOR_MAP = {
-      'black': 0,
-      'red': 1,
-      'green': 2,
-      'yellow': 3,
-      'blue': 4,
-      'magenta': 5,
-      'cyan': 6,
-      'white': 7
-  }
+      'black'   : 0,
+      'red'     : 1,
+      'green'   : 2,
+      'yellow'  : 3,
+      'blue'    : 4,
+      'magenta' : 5,
+      'cyan'    : 6,
+      'white'   : 7
+    }
+
 
   LEVEL_MAP = {
-      'DEBUG': (None, 'blue', False),
-      'INFO': (None, 'green', False),      
-      'WARNING': (None, 'yellow', False),
-      'ERROR': (None, 'red', False),
-      'CRITICAL': ('red', 'black', False)
-  }
+      'ALWAYS' : ( 'black', 'white', False ),
+      'NOTICE' : ( None, 'magenta', False ),
+      'INFO'   : ( None, 'green', False ),
+      'VERBOSE'   : ( None, 'cyan', False),
+      'DEBUG'  : ( None, 'blue', False ),
+      'WARNING'   : ( None, 'yellow', False ),
+      'ERROR'  : ( None, 'red', False ),
+      'EXCEPTION' : ( 'red', 'white', False ),
+      'FATAL'  : ( 'red', 'black', False )
+    }
 
   def setFormat(self, fmt, datefmt, componentName, options):
     super(ColoredBaseFormatter, self).setFormat(
