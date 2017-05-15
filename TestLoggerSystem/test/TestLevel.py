@@ -34,8 +34,7 @@ class TestLevel(TestLogger):
     gLog.setLevel('debug')
 
     print gLog.getLevel()
-    print log.getEffectiveLevel()
-
+    
     gLogger.always("gLoggeralways")  
 
     gLog.debug("debug")

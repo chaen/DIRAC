@@ -4,15 +4,19 @@ import logging
 class LogLevels:
 
   def __init__(self):
-    self.__levelDict = {"ALWAYS": logging.INFO,
-                        "NOTICE": logging.INFO,
-                        "INFO": logging.INFO,
-                        "VERBOSE": logging.INFO,
+    self.__oldLevels = {"ALWAYS": 46,
+                        "NOTICE": 35,
+                        "VERBOSE": 15,
+                        "EXCEPTION": 44, 
+                        "FATAL": 50
+                        }
+
+    self.__levelDict = {"INFO": logging.INFO,
                         "DEBUG": logging.DEBUG,
                         "WARN": logging.WARN,
-                        "EXCEPTION": logging.ERROR,
                         "ERROR": logging.ERROR,
-                        "FATAL": logging.CRITICAL}
+                        }
+    self.__levelDict.update(self.__oldLevels)
 
   def getLevelValue(self, sName):
     if self.__levelDict.has_key(sName):
@@ -30,3 +34,9 @@ class LogLevels:
 
   def getLevels(self):
     return self.__levelDict.keys()
+
+  def getOldLevelNamesValues(self):
+    oldLevels = {}
+    for lvl in self.__oldLevels:
+      oldLevels[lvl] = self.__oldLevels[lvl]
+    return oldLevels
