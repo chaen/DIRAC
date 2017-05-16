@@ -13,13 +13,12 @@ class gLogger():
   _initializedLogging = False
   _configuredLogging = False
   _levels = LogLevels()
+  _loggingConfiguration = LoggingConfiguration()
 
   def __init__(self, name=''):
     self.logger = logging.getLogger(name)
 
-    if not gLogger._initializedLogging:
-      LoggingConfiguration.initializeLogging()
-      
+    if not gLogger._initializedLogging:      
       #add levels which has not equivalent in logging, in logging
       oldLevels = gLogger._levels.getOldLevelNamesValues()
       for lvlName in oldLevels:
@@ -36,7 +35,7 @@ class gLogger():
     input: 
     - yesno: boolean determining the behaviour of the display
     """
-    LoggingConfiguration.showHeaders(yesno)
+    gLogger._loggingConfiguration.showHeaders(yesno)
 
   def showThreadIDs(self, yesno=True):
     """
@@ -44,7 +43,7 @@ class gLogger():
     input: 
     - yesno: boolean determining the behaviour of the display
     """
-    LoggingConfiguration.showThreadIDs(yesno)
+    gLogger._loggingConfiguration.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
     logging.info("Logging register its backends itself.")
@@ -57,7 +56,7 @@ class gLogger():
     - cfgPath: string of the cfg file path
     """
     if not gLogger._configuredLogging:
-      LoggingConfiguration.configureLogging(systemName, cfgPath)
+      gLogger._loggingConfiguration.configureLogging(systemName, cfgPath)
 
       gLogger._configuredLogging = True
 
@@ -100,7 +99,7 @@ class gLogger():
     """
     Return "system name/component name"
     """
-    return LoggingConfiguration.componentName
+    return gLogger._loggingConfiguration.componentName
 
   def getSubName(self):
     """
