@@ -9,7 +9,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter impor
 class StderrBackend(Backend):
 
   def __init__(self):   
-    super(StderrBackend, self).__init__(logging.StreamHandler(sys.stderr), BaseFormatter())
+    super(StderrBackend, self).__init__(None, BaseFormatter())
 
   def setParameters(self, parameters):
-    pass
+    self.handler = logging.StreamHandler(sys.stderr)
