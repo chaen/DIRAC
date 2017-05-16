@@ -11,7 +11,7 @@ class TestLevel(TestLogger):
 
   def test_loggerSetLevel0(self):
     gLogger.setLevel('debug')
-
+    
     gLogger.debug("gLoggerdebug")  
 
   def test_loggerSetLevel1(self):
