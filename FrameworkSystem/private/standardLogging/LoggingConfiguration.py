@@ -17,7 +17,7 @@ class LoggingConfiguration(object):
   """
   Configuration of the standard Python logging to fit with the dirac gLogger 
   """
-
+  __configuredLogging = False
 
   __instance = None
   def __new__(cls):
@@ -92,24 +92,27 @@ class LoggingConfiguration(object):
     # If not here. doesn't work because of loop dependancies
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
-    self.componentName = componentName
-    self.cfgPath = cfgPath
+    if not LoggingConfiguration.__configuredLogging :
+      self.componentName = componentName
+      self.cfgPath = cfgPath
 
-    # Backend options
-    desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
-    desiredBackends = desiredBackendsStr.split(',')
-    for backend in desiredBackends:
-      retDict = gConfig.getOptionsDict(
-          "%s/NewBackendsOptions/%s" % (cfgPath, backend))
-      if retDict['OK'] and backend in self.handlerOptions:
-        self.handlerOptions[backend].update(retDict['Value'])
+      # Backend options
+      desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
+      desiredBackends = desiredBackendsStr.split(',')
+      for backend in desiredBackends:
+        retDict = gConfig.getOptionsDict(
+            "%s/NewBackendsOptions/%s" % (cfgPath, backend))
+        if retDict['OK'] and backend in self.handlerOptions:
+          self.handlerOptions[backend].update(retDict['Value'])
 
-    # Format options
-    self.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
-    self.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
-    # Configure outputs
-    self.__configureHandlers(desiredBackends)
-    self.__updateFormat()
+      # Format options
+      self.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
+      self.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
+      # Configure outputs
+      self.__configureHandlers(desiredBackends)
+      self.__updateFormat()
+
+      LoggingConfiguration.__configuredLogging = True
 
   
   def __configureLevel(self):

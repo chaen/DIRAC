@@ -11,7 +11,6 @@ class gLogger():
   """
 
   _initializedLogging = False
-  _configuredLogging = False
   _levels = LogLevels()
   _loggingConfiguration = LoggingConfiguration()
 
@@ -55,10 +54,7 @@ class gLogger():
     - systemName: string represented as "system name/component name"
     - cfgPath: string of the cfg file path
     """
-    if not gLogger._configuredLogging:
-      gLogger._loggingConfiguration.configureLogging(systemName, cfgPath)
-
-      gLogger._configuredLogging = True
+    gLogger._loggingConfiguration.configureLogging(systemName, cfgPath)
 
   def setLevel(self, levelName):
     """
