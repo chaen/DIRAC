@@ -44,7 +44,7 @@ class BaseFormatter(logging.Formatter):
       else:
         record.name = self.componentName
 
-      if self.options['Path']:
+      if self.options['Path'] and logging.getLogger().getEffectiveLevel() == 10:
         record.name += '[' + record.pathname + ':' + str(record.lineno) + ']'
       if self.options['showThreads']:
         record.name += '[' + self.getThreadID() + ']'
@@ -71,7 +71,7 @@ class BaseFormatter(logging.Formatter):
         s += super(BaseFormatter, self).format(record) + "\n"
 
     # this is important because handler creates the record and the same
-    # handler use the same record for different backends
+    # record is used by different handlers
     record.name = logname
     record.msg = logmsg
     record.args = logargs
