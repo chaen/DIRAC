@@ -38,7 +38,11 @@ class LoggingConfiguration():
                    'showThreads': False,
                    'Color': False,
                    'Path': False}
-    cls.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()}}
+    
+    cls.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()},
+                          'stderr': {},
+                          'stdout': {}}
+    
     cls.componentName = "Framework"
     cls.cfgPath = None
     
@@ -64,8 +68,7 @@ class LoggingConfiguration():
 
       if stringHandler in cls.backendsDict:
         backend = cls.backendsDict[stringHandler]
-        if stringHandler in cls.handlerOptions:
-          backend.setParameters(cls.handlerOptions[stringHandler])
+        backend.setParameters(cls.handlerOptions[stringHandler])
 
         if backend not in cls.backendsList:
           logging.getLogger().addHandler(backend.handler)
@@ -159,7 +162,7 @@ class LoggingConfiguration():
     Update the format according to the showHeader option
     """
     if cls.options['showHeaders']:
-      fmt = 'Logging | %(asctime)s UTC %(name)s %(levelname)s: %(message)s'
+      fmt = '%(asctime)s UTC %(name)s %(levelname)s: %(message)s'
       datefmt = '%Y-%m-%d %H:%M:%S'
     else:
       fmt = '%(message)s'
