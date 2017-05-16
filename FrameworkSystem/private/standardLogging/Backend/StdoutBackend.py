@@ -9,7 +9,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.Formatter.ColoredBaseFormatte
 class StdoutBackend(Backend):
 
   def __init__(self): 
-    super(StdoutBackend, self).__init__(logging.StreamHandler(sys.stdout) , ColoredBaseFormatter())
+    super(StdoutBackend, self).__init__(None , ColoredBaseFormatter())
 
   def setParameters(self, parameters):
-    pass
+    self.handler = logging.StreamHandler(sys.stderr)
