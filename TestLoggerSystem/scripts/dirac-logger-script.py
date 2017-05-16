@@ -8,19 +8,20 @@
       dirac-logger-script
 """
 
-from DIRAC           import S_OK, S_ERROR, gLogger, exit as DIRACExit
+from DIRAC import S_OK, S_ERROR, gLogger, exit as DIRACExit
 from DIRAC.Core.Base import Script
 
 
 __RCSID__ = '$Id$'
 
+
 def main():
   '''
     This is the script main method, which will hold all the logic.
   '''
-  Script.parseCommandLine( ignoreErrors = False )
-  
-  #gLogger
+  Script.parseCommandLine(ignoreErrors=False)
+
+  # gLogger
   log = gLogger.getSubLogger("scriptLog")
   log.always("scriptLog")
 
@@ -54,10 +55,8 @@ def main():
   gLogger.always('logWithThreadID')
 
 
-
-
 if __name__ == "__main__":
-  #Import the required DIRAC modules
+  # Import the required DIRAC modules
   import logging
   from DIRAC.Interfaces.API.Dirac import Dirac
   from DIRAC.TestLoggerSystem.Client.ClientA import ClientA
@@ -67,4 +66,4 @@ if __name__ == "__main__":
   main()
 
   # Bye
-  DIRACExit( 0 )
+  DIRACExit(0)
