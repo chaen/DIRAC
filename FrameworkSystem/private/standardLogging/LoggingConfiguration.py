@@ -13,52 +13,56 @@ Logging configuration class
 """
 
 
-class LoggingConfiguration():
+class LoggingConfiguration(object):
   """
   Configuration of the standard Python logging to fit with the dirac gLogger 
   """
 
-  @classmethod
-  def initializeLogging(cls):
-    """
-    First logging configuration
-    """
+
+  __instance = None
+  def __new__(cls):
+    if LoggingConfiguration.__instance is None:
+      LoggingConfiguration.__instance = object.__new__(cls)
+      LoggingConfiguration.__instance.initializeLogging()
+    return LoggingConfiguration.__instance
+
+
+  def initializeLogging(self):
     # initialization
-    cls.__initializeDefaultParameters()
-    cls.__initializeBackends()
-    cls.__configureHandlers(['stdout'])
+    self.__initializeDefaultParameters()
+    self.__initializeBackends()
+    self.__configureHandlers(['stdout'])
     # configuration
-    cls.__configureLevel()
-    cls.__updateFormat()
+    self.__configureLevel()
+    self.__updateFormat()
 
-
-  @classmethod
-  def __initializeDefaultParameters(cls):
-    cls.options = {'showHeaders': True,
+  
+  def __initializeDefaultParameters(self):
+    self.options = {'showHeaders': True,
                    'showThreads': False,
                    'Color': False,
                    'Path': False}
     
-    cls.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()},
+    self.handlerOptions = {'file': {'FileName': 'Dirac-log_%s.log' % getpid()},
                           'stderr': {},
                           'stdout': {}}
     
-    cls.componentName = "Framework"
-    cls.cfgPath = None
+    self.componentName = "Framework"
+    self.cfgPath = None
     
     logging.getLogger().setLevel(logging.INFO)
 
-  @classmethod
-  def __initializeBackends(cls):
+  
+  def __initializeBackends(self):
     logging.Formatter.converter = time.gmtime
-    cls.backendsDict = {'stdout': StdoutBackend(),
+    self.backendsDict = {'stdout': StdoutBackend(),
                         'stderr': StderrBackend(),
                         'file': FileBackend()
                         }
-    cls.backendsList = []
+    self.backendsList = []
 
-  @classmethod
-  def __configureHandlers(cls, listHandler):
+  
+  def __configureHandlers(self, listHandler):
     """
     Attach handler to the root logger
     """
@@ -66,30 +70,30 @@ class LoggingConfiguration():
       stringHandler = stringHandler.lower()
       stringHandler = stringHandler.strip(" ")
 
-      if stringHandler in cls.backendsDict:
-        backend = cls.backendsDict[stringHandler]
-        backend.setParameters(cls.handlerOptions[stringHandler])
+      if stringHandler in self.backendsDict:
+        backend = self.backendsDict[stringHandler]
+        backend.setParameters(self.handlerOptions[stringHandler])
 
-        if backend not in cls.backendsList:
+        if backend not in self.backendsList:
           logging.getLogger().addHandler(backend.handler)
-          cls.backendsList.append(backend)
+          self.backendsList.append(backend)
       else:
         # we update the format here, else the warning message will not be
         # formatted for all handlers
-        cls.__updateFormat()
+        self.__updateFormat()
         logging.warning(
             "Unexistant method for showing messages Unexistant %s logging method", stringHandler)
 
-  @classmethod
-  def configureLogging(cls, componentName, cfgPath):
+  
+  def configureLogging(self, componentName, cfgPath):
     """
     Create and set a new format with the component name to the handlers
     """
     # If not here. doesn't work because of loop dependancies
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
-    cls.componentName = componentName
-    cls.cfgPath = cfgPath
+    self.componentName = componentName
+    self.cfgPath = cfgPath
 
     # Backend options
     desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
@@ -97,19 +101,19 @@ class LoggingConfiguration():
     for backend in desiredBackends:
       retDict = gConfig.getOptionsDict(
           "%s/NewBackendsOptions/%s" % (cfgPath, backend))
-      if retDict['OK'] and backend in cls.handlerOptions:
-        cls.handlerOptions[backend].update(retDict['Value'])
+      if retDict['OK'] and backend in self.handlerOptions:
+        self.handlerOptions[backend].update(retDict['Value'])
 
     # Format options
-    cls.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
-    cls.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
+    self.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
+    self.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
     # Configure outputs
-    cls.__configureHandlers(desiredBackends)
+    self.__configureHandlers(desiredBackends)
 
-    cls.__updateFormat()
+    self.__updateFormat()
 
-  @classmethod
-  def __configureLevel(cls):
+  
+  def __configureLevel(self):
     """
     Configure the log level of the running program according to the argv parameter
     It can be : -d, -dd, -ddd
@@ -124,47 +128,47 @@ class LoggingConfiguration():
       logger.setLevel(logging.INFO)
     elif debLevs == 2:
       logger.setLevel(logging.INFO)
-      cls.showHeaders(True)
+      self.showHeaders(True)
     elif debLevs >= 3:
       logger.setLevel(logging.DEBUG)
-      cls.showHeaders(True)
-      cls.showThreadIDs(True)
+      self.showHeaders(True)
+      self.showThreadIDs(True)
 
-  @classmethod
-  def __setFormatter(cls, fmt, datefmt):
+  
+  def __setFormatter(self, fmt, datefmt):
     """
     Add the new formatter to the handlers' logger 
     """
     logger = logging.getLogger()
-    for backend in cls.backendsList:
+    for backend in self.backendsList:
       formatter = backend.formatter
-      formatter.setFormat(fmt, datefmt, cls.componentName, cls.options)
+      formatter.setFormat(fmt, datefmt, self.componentName, self.options)
       backend.handler.setFormatter(formatter)
 
-  @classmethod
-  def showHeaders(cls, val=True):
+  
+  def showHeaders(self, val=True):
     """
     Define if it shows all information about the log or only the message
     """
-    cls.options['showHeaders'] = val
-    cls.__updateFormat()
+    self.options['showHeaders'] = val
+    self.__updateFormat()
 
-  @classmethod
-  def showThreadIDs(cls, val=True):
+  
+  def showThreadIDs(self, val=True):
     """
     Define if it shows the thread id information about the log or not
     """
-    cls.options['showThreads'] = val
+    self.options['showThreads'] = val
 
-  @classmethod
-  def __updateFormat(cls):
+  
+  def __updateFormat(self):
     """
     Update the format according to the showHeader option
     """
-    if cls.options['showHeaders']:
+    if self.options['showHeaders']:
       fmt = '%(asctime)s UTC %(name)s %(levelname)s: %(message)s'
       datefmt = '%Y-%m-%d %H:%M:%S'
     else:
       fmt = '%(message)s'
       datefmt = None
-    cls.__setFormatter(fmt, datefmt)
+    self.__setFormatter(fmt, datefmt)
