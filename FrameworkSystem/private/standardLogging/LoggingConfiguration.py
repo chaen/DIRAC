@@ -109,7 +109,6 @@ class LoggingConfiguration(object):
     self.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
     # Configure outputs
     self.__configureHandlers(desiredBackends)
-
     self.__updateFormat()
 
   
@@ -120,7 +119,6 @@ class LoggingConfiguration(object):
     """
     debLevs = 0
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
     for arg in sys.argv:
       if arg.find("-d") == 0:
         debLevs += arg.count("d")
