@@ -5,17 +5,27 @@ import traceback
 
 class BaseFormatter(logging.Formatter):
   """
-  Custom formatter which include System/Component in the log message.
+  Formatter of logging
+
+  Format messages to correspond with the gLogger format
   """
 
   def setFormat(self, fmt, datefmt, componentName, options):
+    """
+    Initialize the formatter with new arguments
+    input:
+    - fmt : string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
+    - datefmt : string representing the date format: "%Y-%m-%d %H:%M:%S"
+    - componentName: string represented as "System/Component"
+    - options: dictionary of logging DIRAC options
+    """
     super(BaseFormatter, self).__init__(fmt, datefmt)
     self.componentName = componentName
     self.options = options
 
   def getThreadID(self):
     """
-    Return the ID of the current thread : this is the gLogger method
+    Return a custom ID of the current thread : this is the gLogger method
     """
     _charData = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     rid = ""
@@ -30,7 +40,11 @@ class BaseFormatter(logging.Formatter):
     return rid
 
   def format(self, record):
-    """Override format to add System/Component name."""
+    """
+    Overriding
+
+    Format for DIRAC use
+    """
     # pre treatment
     logname = record.name
     logmsg = record.msg

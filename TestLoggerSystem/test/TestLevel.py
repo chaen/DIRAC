@@ -23,8 +23,8 @@ class TestLevel(TestLogger):
 
     gLogger.debug("gLoggerdebug")  
 
-    gLog.always("always")
-    gLog.notice('notice')
+    gLog.always("appears")
+    gLog.notice('appears')
 
   def test_loggerSetLevel2(self):
     gLogger.setLevel('always')
@@ -35,10 +35,10 @@ class TestLevel(TestLogger):
 
     print gLog.getLevel()
     
-    gLogger.always("gLoggeralways")  
+    gLogger.always("appears")  
 
-    gLog.debug("debug")
-    gLog.notice('notice')
+    gLog.debug("not appears")
+    gLog.notice('not appears')
 
   def test_loggerSetLevel3(self):
     gLogger.setLevel('debug')
@@ -47,10 +47,10 @@ class TestLevel(TestLogger):
 
     gLog.setLevel('always')
 
-    gLogger.debug("gLoggerdebug")  
+    gLogger.debug("appears")  
 
-    gLog.always("always")
-    gLog.notice('notice')
+    gLog.always("appears")
+    gLog.notice('appears')
 
   def test_loggerSetLevel4(self):
     gLogger.setLevel('always')
@@ -61,8 +61,8 @@ class TestLevel(TestLogger):
 
     gLogger.always("gLoggeralways")  
 
-    gLog.debug("debug")
-    gLog.notice('notice')
+    gLog.debug("not appears")
+    gLog.notice('not appears')
 
   def test_loggerSetLevel5(self):
     gLogger.setLevel('always')
@@ -74,12 +74,12 @@ class TestLevel(TestLogger):
     gLogLog = gLog.getSubLogger('loglog')
     gLogLog.setLevel('notice')
 
-    gLogger.always("gLoggeralways")  
+    gLogger.always("appears")  
 
-    gLog.debug("debug")
-    gLog.notice('notice')
+    gLog.debug("not appears")
+    gLog.notice('not appears')
 
-    gLogLog.notice("notice")
+    gLogLog.notice("not appears")
 
   def test_loggerSetLevel6(self):
     gLogger.setLevel('debug')
@@ -91,12 +91,14 @@ class TestLevel(TestLogger):
     gLogLog = gLog.getSubLogger('loglog')
     gLogLog.setLevel('notice')
 
-    gLogger.debug("gLoggerdebug")  
+    gLogger.debug("appears")  
 
-    gLog.always("always")
-    gLog.notice('notice')
+    gLog.always("appears")
+    gLog.notice('appears')
 
-    gLogLog.notice('notice')
+    gLogLog.notice('appears')
+
+    
 
 
 
