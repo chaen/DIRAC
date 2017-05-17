@@ -66,6 +66,7 @@ class SimplestAgent(AgentModule):
     self.logger.fatal(" ")
 
     log = gLogger.getSubLogger('log', False)
+    log.showHeaders(False)
     log.always("LoggingChildFalse")
 
     log2 = log.getSubLogger('log2', False)
@@ -79,6 +80,10 @@ class SimplestAgent(AgentModule):
 
     log5 = log4.getSubLogger('log5', True)
     log5.always("LoggingChildFalse5")
+
+    logtest = gLogger.getSubLogger('logTest')
+    logtest.always("LoggingTestChildGLobal")
+
 
 
     # Test showLine option
