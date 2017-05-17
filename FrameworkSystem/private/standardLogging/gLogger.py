@@ -17,8 +17,8 @@ class gLogger():
   def __init__(self, name=''):
     self.logger = logging.getLogger(name)
 
-    if not gLogger._initializedLogging:      
-      #add levels which has not equivalent in logging, in logging
+    if not gLogger._initializedLogging:
+      # add levels which has no equivalent in logging, in logging
       oldLevels = gLogger._levels.getOldLevelNamesValues()
       for lvlName in oldLevels:
         logging.addLevelName(oldLevels[lvlName], lvlName)
@@ -110,16 +110,16 @@ class gLogger():
     return gLogger._levels.getLevels()
 
   def always(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('ALWAYS'),"%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('ALWAYS'), "%s %s" % (sMsg, sVarMsg))
 
   def notice(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('NOTICE'),"%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('NOTICE'), "%s %s" % (sMsg, sVarMsg))
 
   def info(self, sMsg, sVarMsg=''):
     self.logger.info("%s %s" % (sMsg, sVarMsg))
 
   def verbose(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('VERBOSE'),"%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('VERBOSE'), "%s %s" % (sMsg, sVarMsg))
 
   def debug(self, sMsg, sVarMsg=''):
     self.logger.debug("%s %s" % (sMsg, sVarMsg))
@@ -131,19 +131,19 @@ class gLogger():
     self.logger.error("%s %s" % (sMsg, sVarMsg))
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    self.logger.log(gLogger._levels.getLevelValue('EXCEPTION'),"%s %s" % (sMsg, sVarMsg), exc_info=True)
+    self.logger.log(gLogger._levels.getLevelValue('EXCEPTION'), "%s %s" % (sMsg, sVarMsg), exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('FATAL'),"%s %s" % (sMsg, sVarMsg))
+    self.logger.log(gLogger._levels.getLevelValue('FATAL'), "%s %s" % (sMsg, sVarMsg))
 
   def showStack(self):
-    logging.info("Deleted method.")
+    logging.info("showStack: Deleted method.")
 
   def processMessage(self, messageObject):
-    logging.info("Logging process its messages itself.")
+    logging.info("processMessage: Deleted method. Logging process its messages itself.")
 
   def flushAllMessages(self, exitCode=0):
-    logging.info("Logging flush all messages itself.")
+    logging.info("flushAllMessages: Deleted method. Logging flush all messages itself.")
 
   def getSubLogger(self, subName, child=True):
     """

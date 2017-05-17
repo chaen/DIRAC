@@ -5,10 +5,13 @@ from DIRAC.FrameworkSystem.private.standardLogging.Backend.Backend import Backen
 from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter import BaseFormatter
 
 
-
 class StderrBackend(Backend):
+  """
+  Stderr backend wrapper
+  StreamHandler(stderr) + BaseFormatter
+  """
 
-  def __init__(self):   
+  def __init__(self):
     super(StderrBackend, self).__init__(None, BaseFormatter())
 
   def setParameters(self, parameters):
