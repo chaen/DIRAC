@@ -36,7 +36,5 @@ class LogLevels:
     return self.__levelDict.keys()
 
   def getOldLevelNamesValues(self):
-    oldLevels = {}
-    for lvl in self.__oldLevels:
-      oldLevels[lvl] = self.__oldLevels[lvl]
+    oldLevels = self.__oldLevels.copy()
     return oldLevels
