@@ -12,7 +12,7 @@ class LogLevels:
     Initialize a dictionary of levels
     """
     self.__oldLevels = {"ALWAYS": 45,
-                        "NOTICE": 25,
+                        "NOTICE": 35,
                         "VERBOSE": 15,
                         }
 
