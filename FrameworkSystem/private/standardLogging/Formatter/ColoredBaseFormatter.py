@@ -42,8 +42,7 @@ class ColoredBaseFormatter(BaseFormatter):
     - componentName: string represented as "System/Component"
     - options: dictionary of logging DIRAC options
     """
-    super(ColoredBaseFormatter, self).setFormat(
-        fmt, datefmt, componentName, options)
+    super(ColoredBaseFormatter, self).setFormat(fmt, datefmt, componentName, options)
     self.options = options
 
   def format(self, record):
