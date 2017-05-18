@@ -98,6 +98,12 @@ class TestLevel(TestLogger):
 
     gLogLog.notice('appears')
 
+  def test_loggerSetLevel7(self):
+    gLogger.setLevel('always')
+
+    print gLogger.always("true")
+    print gLogger.info("false")
+
     
 
 

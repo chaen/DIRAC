@@ -38,7 +38,7 @@ class BaseFormatter(logging.Formatter):
       else:
         record.name = self.componentName
 
-      if self.options['Path'] and logging.getLogger().getEffectiveLevel() == 10:
+      if self.options['Path'] and logging.getLogger().getEffectiveLevel() == logging.DEBUG:
         record.name += '[' + record.pathname + ':' + str(record.lineno) + ']'
       if self.options['showThreads']:
         record.name += '[' + str(record.thread) + ']'
