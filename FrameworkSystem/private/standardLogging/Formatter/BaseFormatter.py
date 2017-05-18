@@ -23,22 +23,6 @@ class BaseFormatter(logging.Formatter):
     self.componentName = componentName
     self.options = options
 
-  def getThreadID(self):
-    """
-    Return a custom ID of the current thread : this is the gLogger method
-    """
-    _charData = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    rid = ""
-    thid = str(threading.current_thread().ident)
-    segments = []
-    for iP in range(len(thid)):
-      if iP % 4 == 0:
-        segments.append("")
-      segments[-1] += thid[iP]
-    for seg in segments:
-      rid += _charData[int(seg) % len(_charData)]
-    return rid
-
   def format(self, record):
     """
     Overriding
@@ -57,7 +41,7 @@ class BaseFormatter(logging.Formatter):
       if self.options['Path'] and logging.getLogger().getEffectiveLevel() == 10:
         record.name += '[' + record.pathname + ':' + str(record.lineno) + ']'
       if self.options['showThreads']:
-        record.name += '[' + self.getThreadID() + ']'
+        record.name += '[' + str(record.thread) + ']'
 
     s = super(BaseFormatter, self).format(record)
 
