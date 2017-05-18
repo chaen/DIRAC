@@ -47,10 +47,6 @@ class BaseFormatter(logging.Formatter):
     """
     # pre treatment
     logname = record.name
-    logmsg = record.msg
-    logargs = record.args
-    logexcinfo = record.exc_info
-    lines = []
 
     if self.options['showHeaders']:
       if record.name != "root":
@@ -65,20 +61,8 @@ class BaseFormatter(logging.Formatter):
 
     s = super(BaseFormatter, self).format(record)
 
-    lines = record.message.split('\n') + lines
-    # multi line message
-    if len(lines) >= 2:
-      s = ""
-      record.args = None
-      for line in lines:
-        record.msg = line
-        s += super(BaseFormatter, self).format(record) + "\n"
-
     # this is important because handler creates the record and the same
     # record is used by different handlers
     record.name = logname
-    record.msg = logmsg
-    record.args = logargs
-    record.exc_info = logexcinfo
 
-    return s.strip()
+    return s
