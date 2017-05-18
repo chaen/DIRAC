@@ -63,6 +63,12 @@ class SimplestAgent(AgentModule):
     self.logger.debug(" ")
     self.logger.warn(" ")
     self.logger.error(" ")
+    self.logger.exception(" ")
+
+    try:
+        a = 1/0
+    except:
+        self.logger.exception(" ")
     self.logger.fatal(" ")
 
     log = gLogger.getSubLogger('log', False)
@@ -89,6 +95,7 @@ class SimplestAgent(AgentModule):
     # Test showLine option
     gLogger.setLevel('debug')
     gLogger.always("this is a message with showLine option at True")
+    gLogger.setLevel('verbose')
 
     result = client.addStuff("somethingWithAgent")
     if not result['OK']:

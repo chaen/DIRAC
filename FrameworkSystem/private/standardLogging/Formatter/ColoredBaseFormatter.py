@@ -29,8 +29,7 @@ class ColoredBaseFormatter(BaseFormatter):
       'DEBUG': (None, 'blue', False),
       'WARNING': (None, 'yellow', False),
       'ERROR': (None, 'red', False),
-      'EXCEPTION': ('red', 'white', False),
-      'FATAL': ('red', 'black', False)
+      'CRITICAL': ('red', 'black', False)
   }
 
   def setFormat(self, fmt, datefmt, componentName, options):

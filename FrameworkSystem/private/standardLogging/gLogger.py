@@ -131,10 +131,10 @@ class gLogger():
     self.logger.error("%s %s" % (sMsg, sVarMsg))
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    self.logger.log(gLogger._levels.getLevelValue('EXCEPTION'), "%s %s" % (sMsg, sVarMsg), exc_info=True)
+    self.logger.exception("%s %s" % (sMsg, sVarMsg))
 
   def fatal(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('FATAL'), "%s %s" % (sMsg, sVarMsg))
+    self.logger.critical("%s %s" % (sMsg, sVarMsg))
 
   def showStack(self):
     logging.info("showStack: Deleted method.")
