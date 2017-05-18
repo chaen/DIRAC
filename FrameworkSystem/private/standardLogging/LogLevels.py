@@ -14,14 +14,13 @@ class LogLevels:
     self.__oldLevels = {"ALWAYS": 46,
                         "NOTICE": 35,
                         "VERBOSE": 15,
-                        "EXCEPTION": 44,
-                        "FATAL": 50
                         }
 
     self.__levelDict = {"INFO": logging.INFO,
                         "DEBUG": logging.DEBUG,
                         "WARN": logging.WARN,
                         "ERROR": logging.ERROR,
+                        "CRITICAL": logging.CRITICAL
                         }
     self.__levelDict.update(self.__oldLevels)
 

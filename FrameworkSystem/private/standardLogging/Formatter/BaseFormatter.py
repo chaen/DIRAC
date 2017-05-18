@@ -63,16 +63,6 @@ class BaseFormatter(logging.Formatter):
       if self.options['showThreads']:
         record.name += '[' + self.getThreadID() + ']'
 
-    # exception format
-    if record.exc_info is not None and record. exc_info is not False:
-      exceptionMsg = "== EXCEPTION == " + record.exc_info[0].__name__ + "\n" + \
-          traceback.format_tb(record.exc_info[2])[-1] + "\n" + \
-          record.exc_info[0].__name__ + ": " + \
-          str(record.exc_info[1]) + "\n" + "==============="
-      record.exc_info = None
-      # add to lines for multiple line format
-      lines.extend(exceptionMsg.split('\n'))
-
     s = super(BaseFormatter, self).format(record)
 
     lines = record.message.split('\n') + lines
