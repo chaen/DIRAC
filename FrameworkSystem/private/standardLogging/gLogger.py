@@ -87,8 +87,7 @@ class gLogger():
     """
     result = False
     if levelName in gLogger._levels.getLevels():
-      result = self.logger.isEnabledFor(
-          gLogger._levels.getLevelValue(levelName))
+      result = self.logger.isEnabledFor(gLogger._levels.getLevelValue(levelName))
     return result
 
   def getName(self):
@@ -110,31 +109,48 @@ class gLogger():
     return gLogger._levels.getLevels()
 
   def always(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('ALWAYS'), "%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('ALWAYS')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
+    
 
   def notice(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('NOTICE'), "%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('NOTICE')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def info(self, sMsg, sVarMsg=''):
-    self.logger.info("%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('INFO')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def verbose(self, sMsg, sVarMsg=''):
-    self.logger.log(gLogger._levels.getLevelValue('VERBOSE'), "%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('VERBOSE')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def debug(self, sMsg, sVarMsg=''):
-    self.logger.debug("%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('DEBUG')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def warn(self, sMsg, sVarMsg=''):
-    self.logger.warn("%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('WARN')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def error(self, sMsg, sVarMsg=''):
-    self.logger.error("%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('ERROR')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    self.logger.exception("%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('ERROR')
+    return self.__createLogRecord(level, sMsg, sVarMsg, exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
-    self.logger.critical("%s %s" % (sMsg, sVarMsg))
+    level = gLogger._levels.getLevelValue('CRITICAL')
+    return self.__createLogRecord(level, sMsg, sVarMsg)
+
+  def __createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
+    result = False
+    if self.logger.isEnabledFor(level):
+      self.logger.log(level, "%s %s" % (sMsg, sVarMsg), exc_info=exc_info)
+      result = True
+    return result
 
   def showStack(self):
     logging.info("showStack: Deleted method.")
