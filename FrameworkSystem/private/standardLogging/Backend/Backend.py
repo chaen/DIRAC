@@ -19,3 +19,7 @@ class Backend:
   @abstractmethod
   def setParameters(self, parameters):
     pass
+
+  @abstractmethod
+  def configureHandler(self):
+    pass
