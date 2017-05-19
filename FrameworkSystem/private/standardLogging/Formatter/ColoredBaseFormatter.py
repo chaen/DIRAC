@@ -42,7 +42,6 @@ class ColoredBaseFormatter(BaseFormatter):
     - options: dictionary of logging DIRAC options
     """
     super(ColoredBaseFormatter, self).setFormat(fmt, datefmt, componentName, options)
-    self.options = options
 
   def format(self, record):
     """
@@ -51,7 +50,7 @@ class ColoredBaseFormatter(BaseFormatter):
     """
     s = super(ColoredBaseFormatter, self).format(record)
     # post treatment
-    if self.options['Color'] and sys.stdout.isatty():
+    if self._options['Color'] and sys.stdout.isatty():
       params = []
       bg, fg, bold = self.LEVEL_MAP[record.levelname]
       if bg in self.COLOR_MAP:
