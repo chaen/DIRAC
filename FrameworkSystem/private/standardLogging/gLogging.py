@@ -30,9 +30,8 @@ class gLogging(object):
     logging.getLogger().setLevel(LogLevels.getLevelValue('NOTICE'))
     logging.Formatter.converter = time.gmtime
 
-    self.options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
-    self.componentName = "Framework"
-    self.cfgPath = None
+    self.__options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
+    self.__componentName = "Framework"
 
     #initialization of levels
     levels = LogLevels.getLevels()
@@ -40,8 +39,8 @@ class gLogging(object):
       logging.addLevelName(levels[level],level)
 
     # initialization of the backends
-    self.backendsList = []
-    self.backendsDict = {'stdout': StdoutBackend(), 'stderr': StderrBackend(), 'file': FileBackend()}
+    self.__backendsList = []
+    self.__backendsDict = {'stdout': StdoutBackend(), 'stderr': StderrBackend(), 'file': FileBackend()}
     self.__configureHandlers(['stdout'])
     
     # configuration of the level and update of the format
@@ -55,7 +54,7 @@ class gLogging(object):
     input: 
     - val: boolean determining the behaviour of the display
     """
-    self.options['showHeaders'] = val
+    self.__options['showHeaders'] = val
     self.__updateFormat()
 
   def showThreadIDs(self, val=True):
@@ -64,7 +63,7 @@ class gLogging(object):
     input: 
     - val: boolean determining the behaviour of the display
     """
-    self.options['showThreads'] = val
+    self.__options['showThreads'] = val
 
   def loadConfigurationFromCFGFile(self, componentName, cfgPath):
     """
@@ -76,8 +75,7 @@ class gLogging(object):
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
     if not gLogging.__configuredLogging:
-      self.componentName = componentName
-      self.cfgPath = cfgPath
+      self.__componentName = componentName
 
       # Backend options
       desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
@@ -85,12 +83,12 @@ class gLogging(object):
       
       for backend in desiredBackends:
         retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
-        if retDict['OK'] and backend in self.backendsDict:
-          self.backendsDict[backend].setParameters(retDict['Value'])
+        if retDict['OK'] and backend in self.__backendsDict:
+          self.__backendsDict[backend].setParameters(retDict['Value'])
 
       # Format options
-      self.options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
-      self.options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
+      self.__options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
+      self.__options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
       
       currentLevelName = logging.getLevelName(logging.getLogger().getEffectiveLevel())
       levelname = gConfig.getValue("%s/LogLevel" % cfgPath, currentLevelName)
@@ -114,13 +112,13 @@ class gLogging(object):
       stringHandler = stringHandler.lower()
       stringHandler = stringHandler.strip(" ")
 
-      if stringHandler in self.backendsDict:
-        backend = self.backendsDict[stringHandler]
-        backend.configureHandler()
+      if stringHandler in self.__backendsDict:
+        backend = self.__backendsDict[stringHandler]
 
-        if backend not in self.backendsList:
-          logging.getLogger().addHandler(backend.handler)
-          self.backendsList.append(backend)
+        if backend not in self.__backendsList:
+          backend.configureHandler()
+          logging.getLogger().addHandler(backend.getHandler())
+          self.__backendsList.append(backend)
       else:
         self.__updateFormat()
         logging.warning("Unexistant method for showing messages Unexistant %s logging method", stringHandler)
@@ -154,11 +152,8 @@ class gLogging(object):
     - fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
     - datefmt: string representing the date format: "%Y-%m-%d %H:%M:%S"
     """
-    logger = logging.getLogger()
-    for backend in self.backendsList:
-      formatter = backend.formatter
-      formatter.setFormat(fmt, datefmt, self.componentName, self.options)
-      backend.handler.setFormatter(formatter)
+    for backend in self.__backendsList:
+      backend.setFormat(fmt, datefmt, self.__componentName, self.__options)
 
  
 
@@ -166,7 +161,7 @@ class gLogging(object):
     """
     Update the format according to the showHeader option
     """
-    if self.options['showHeaders']:
+    if self.__options['showHeaders']:
       fmt = '%(asctime)s UTC %(name)s %(levelname)s: %(message)s'
       datefmt = '%Y-%m-%d %H:%M:%S'
     else:

@@ -18,5 +18,6 @@ class StderrBackend(Backend):
     pass
 
   def configureHandler(self):
-    self.handler = logging.StreamHandler(sys.stderr)
+    if self._handler is None:
+      self._handler = logging.StreamHandler(sys.stderr)
 

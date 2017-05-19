@@ -13,11 +13,12 @@ class FileBackend(Backend):
 
   def __init__(self):
     super(FileBackend, self).__init__(None, BaseFormatter())
-    self.fileName = 'Dirac-log_%s.log' % getpid()
+    self.__fileName = 'Dirac-log_%s.log' % getpid()
 
   def setParameters(self, parameters):
     if 'FileName' in parameters:
-      self.fileName = parameters['FileName']
+      self.__fileName = parameters['FileName']
 
   def configureHandler(self):
-    self.handler = logging.FileHandler(self.fileName)
+    self._handler = logging.FileHandler(self.__fileName)
+
