@@ -15,4 +15,7 @@ class StdoutBackend(Backend):
     super(StdoutBackend, self).__init__(None, ColoredBaseFormatter())
 
   def setParameters(self, parameters):
+    pass
+
+  def configureHandler(self):
     self.handler = logging.StreamHandler(sys.stdout)
