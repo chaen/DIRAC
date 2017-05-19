@@ -50,11 +50,6 @@ def main():
   log5.always("LoggingChildFalse5")
 
   gLogger.showThreadIDs(True)
-  LoggingConfiguration().showThreadIDs(True)
-
-  print LoggingConfiguration()
-  print LoggingConfiguration()
-  print gLogger._loggingConfiguration
 
   gLogger.always('logWithThreadID')
 

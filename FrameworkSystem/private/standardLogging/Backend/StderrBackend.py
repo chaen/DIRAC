@@ -15,4 +15,8 @@ class StderrBackend(Backend):
     super(StderrBackend, self).__init__(None, BaseFormatter())
 
   def setParameters(self, parameters):
+    pass
+
+  def configureHandler(self):
     self.handler = logging.StreamHandler(sys.stderr)
+

@@ -1,5 +1,5 @@
 import logging
-from DIRAC.FrameworkSystem.private.standardLogging.LoggingConfiguration import LoggingConfiguration
+from DIRAC.FrameworkSystem.private.standardLogging.gLogging import gLogging
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
@@ -10,23 +10,23 @@ class gLogger():
   - offer standard logging functionalities
   """
 
-  _initializedLogging = False
-  _levels = LogLevels()
-  _loggingConfiguration = LoggingConfiguration()
+  __initializedLogging = False
+  __levels = LogLevels()
+  __gLogging = gLogging()
 
   def __init__(self, name=''):
     self.logger = logging.getLogger(name)
 
-    if not gLogger._initializedLogging:
+    if not gLogger.__initializedLogging:
       # add levels which has no equivalent in logging, in logging
-      oldLevels = gLogger._levels.getOldLevelNamesValues()
+      oldLevels = gLogger.__levels.getOldLevelNamesValues()
       for lvlName in oldLevels:
         logging.addLevelName(oldLevels[lvlName], lvlName)
 
-      gLogger._initializedLogging = True
+      gLogger.__initializedLogging = True
 
   def initialized(self):
-    return _initializedLogging
+    return __initializedLogging
 
   def showHeaders(self, yesno=True):
     """
@@ -34,7 +34,7 @@ class gLogger():
     input: 
     - yesno: boolean determining the behaviour of the display
     """
-    gLogger._loggingConfiguration.showHeaders(yesno)
+    gLogger.__gLogging.showHeaders(yesno)
 
   def showThreadIDs(self, yesno=True):
     """
@@ -42,7 +42,7 @@ class gLogger():
     input: 
     - yesno: boolean determining the behaviour of the display
     """
-    gLogger._loggingConfiguration.showThreadIDs(yesno)
+    gLogger.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
     logging.info("Logging register its backends itself.")
@@ -54,7 +54,7 @@ class gLogger():
     - systemName: string represented as "system name/component name"
     - cfgPath: string of the cfg file path
     """
-    gLogger._loggingConfiguration.configureLogging(systemName, cfgPath)
+    gLogger.__gLogging.loadConfigurationFromCFGFile(systemName, cfgPath)
 
   def setLevel(self, levelName):
     """
@@ -66,8 +66,8 @@ class gLogger():
     """
     result = False
     levelName = levelName.upper()
-    if levelName in gLogger._levels.getLevels():
-      self.logger.setLevel(gLogger._levels.getLevelValue(levelName))
+    if levelName in gLogger.__levels.getLevels():
+      self.logger.setLevel(gLogger.__levels.getLevelValue(levelName))
       result = True
     return result
 
@@ -75,7 +75,7 @@ class gLogger():
     """
     Return the name of the level
     """
-    return gLogger._levels.getLevel(self.logger.getEffectiveLevel())
+    return gLogger.__levels.getLevel(self.logger.getEffectiveLevel())
 
   def shown(self, levelName):
     """
@@ -86,15 +86,15 @@ class gLogger():
     - result : boolean which give the answer
     """
     result = False
-    if levelName in gLogger._levels.getLevels():
-      result = self.logger.isEnabledFor(gLogger._levels.getLevelValue(levelName))
+    if levelName in gLogger.__levels.getLevels():
+      result = self.logger.isEnabledFor(gLogger.__levels.getLevelValue(levelName))
     return result
 
   def getName(self):
     """
     Return "system name/component name"
     """
-    return gLogger._loggingConfiguration.componentName
+    return gLogger.__gLogging.componentName
 
   def getSubName(self):
     """
@@ -106,43 +106,43 @@ class gLogger():
     """
     Return a list of all levels available
     """
-    return gLogger._levels.getLevels()
+    return gLogger.__levels.getLevels()
 
   def always(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('ALWAYS')
+    level = gLogger.__levels.getLevelValue('ALWAYS')
     return self.__createLogRecord(level, sMsg, sVarMsg)
     
 
   def notice(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('NOTICE')
+    level = gLogger.__levels.getLevelValue('NOTICE')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def info(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('INFO')
+    level = gLogger.__levels.getLevelValue('INFO')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def verbose(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('VERBOSE')
+    level = gLogger.__levels.getLevelValue('VERBOSE')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def debug(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('DEBUG')
+    level = gLogger.__levels.getLevelValue('DEBUG')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def warn(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('WARN')
+    level = gLogger.__levels.getLevelValue('WARN')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def error(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('ERROR')
+    level = gLogger.__levels.getLevelValue('ERROR')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    level = gLogger._levels.getLevelValue('ERROR')
+    level = gLogger.__levels.getLevelValue('ERROR')
     return self.__createLogRecord(level, sMsg, sVarMsg, exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
-    level = gLogger._levels.getLevelValue('CRITICAL')
+    level = gLogger.__levels.getLevelValue('CRITICAL')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def __createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
