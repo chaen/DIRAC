@@ -10,23 +10,14 @@ class gLogger():
   - offer standard logging functionalities
   """
 
-  __initializedLogging = False
-  __levels = LogLevels()
   __gLogging = gLogging()
 
   def __init__(self, name=''):
     self.logger = logging.getLogger(name)
 
-    if not gLogger.__initializedLogging:
-      # add levels which has no equivalent in logging, in logging
-      oldLevels = gLogger.__levels.getOldLevelNamesValues()
-      for lvlName in oldLevels:
-        logging.addLevelName(oldLevels[lvlName], lvlName)
-
-      gLogger.__initializedLogging = True
-
   def initialized(self):
-    return __initializedLogging
+    logging.info("Initialized: Deleted method.")
+    return True
 
   def showHeaders(self, yesno=True):
     """
@@ -45,7 +36,7 @@ class gLogger():
     gLogger.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
-    logging.info("Logging register its backends itself.")
+    logging.info("registerBackends: Deleted method. Logging register its backends itself.")
 
   def initialize(self, systemName, cfgPath):
     """
@@ -66,8 +57,8 @@ class gLogger():
     """
     result = False
     levelName = levelName.upper()
-    if levelName in gLogger.__levels.getLevels():
-      self.logger.setLevel(gLogger.__levels.getLevelValue(levelName))
+    if levelName in LogLevels.getLevelNames():
+      self.logger.setLevel(LogLevels.getLevelValue(levelName))
       result = True
     return result
 
@@ -75,7 +66,7 @@ class gLogger():
     """
     Return the name of the level
     """
-    return gLogger.__levels.getLevel(self.logger.getEffectiveLevel())
+    return LogLevels.getLevel(self.logger.getEffectiveLevel())
 
   def shown(self, levelName):
     """
@@ -86,8 +77,8 @@ class gLogger():
     - result : boolean which give the answer
     """
     result = False
-    if levelName in gLogger.__levels.getLevels():
-      result = self.logger.isEnabledFor(gLogger.__levels.getLevelValue(levelName))
+    if levelName in LogLevels.getLevelNames():
+      result = self.logger.isEnabledFor(LogLevels.getLevelValue(levelName))
     return result
 
   def getName(self):
@@ -106,43 +97,42 @@ class gLogger():
     """
     Return a list of all levels available
     """
-    return gLogger.__levels.getLevels()
+    return LogLevels.getLevelNames()
 
   def always(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('ALWAYS')
+    level = LogLevels.getLevelValue('ALWAYS')
     return self.__createLogRecord(level, sMsg, sVarMsg)
-    
 
   def notice(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('NOTICE')
+    level = LogLevels.getLevelValue('NOTICE')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def info(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('INFO')
+    level = LogLevels.getLevelValue('INFO')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def verbose(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('VERBOSE')
+    level = LogLevels.getLevelValue('VERBOSE')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def debug(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('DEBUG')
+    level = LogLevels.getLevelValue('DEBUG')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def warn(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('WARN')
+    level = LogLevels.getLevelValue('WARNING')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def error(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('ERROR')
+    level = LogLevels.getLevelValue('ERROR')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
-    level = gLogger.__levels.getLevelValue('ERROR')
+    level = LogLevels.getLevelValue('ERROR')
     return self.__createLogRecord(level, sMsg, sVarMsg, exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
-    level = gLogger.__levels.getLevelValue('CRITICAL')
+    level = LogLevels.getLevelValue('CRITICAL')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def __createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
