@@ -6,51 +6,47 @@ class LogLevels:
   Wrapper of the old LogLevels class:
   - made to replace transparently gLogger
   """
+  __levelDict = {"DEBUG": logging.DEBUG,
+                 "VERBOSE": 15,
+                 "INFO": logging.INFO,
+                 "WARNING": logging.WARN,
+                 "NOTICE": 35,
+                 "ERROR": logging.ERROR,
+                 "ALWAYS": 45,
+                 "CRITICAL": logging.CRITICAL
+                 }
 
-  def __init__(self):
-    """
-    Initialize a dictionary of levels
-    """
-    self.__oldLevels = {"ALWAYS": 45,
-                        "NOTICE": 35,
-                        "VERBOSE": 15,
-                        }
-
-    self.__levelDict = {"INFO": logging.INFO,
-                        "DEBUG": logging.DEBUG,
-                        "WARN": logging.WARN,
-                        "ERROR": logging.ERROR,
-                        "CRITICAL": logging.CRITICAL
-                        }
-    self.__levelDict.update(self.__oldLevels)
-
-  def getLevelValue(self, sName):
+  @classmethod
+  def getLevelValue(cls, sName):
     """
     Return a level value according to a level name
     """
-    if self.__levelDict.has_key(sName):
-      return self.__levelDict[sName]
+    sName = sName.upper()
+    if cls.__levelDict.has_key(sName):
+      return cls.__levelDict[sName]
     else:
       return None
 
-  def getLevel(self, level):
+  @classmethod
+  def getLevel(cls, level):
     """ 
     Return a level name according to a level value
     """
-    for lev in self.__levelDict:
-      if self.__levelDict[lev] == level:
+    for lev in cls.__levelDict:
+      if cls.__levelDict[lev] == level:
         return lev
     return "Unknown"
 
-  def getLevels(self):
+  @classmethod
+  def getLevelNames(cls):
     """
     Return all level names available in the wrapper
     """
-    return self.__levelDict.keys()
+    return cls.__levelDict.keys()
 
-  def getOldLevelNamesValues(self):
+  @classmethod
+  def getLevels(cls):
     """
-    Return a dictionary of old levels from gLogger
+    Return a copy of the dictionary
     """
-    oldLevels = self.__oldLevels.copy()
-    return oldLevels
+    return cls.__levelDict.copy()

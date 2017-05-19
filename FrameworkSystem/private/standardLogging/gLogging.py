@@ -5,7 +5,7 @@ import sys
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StdoutBackend import StdoutBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StderrBackend import StderrBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.FileBackend import FileBackend
-from DIRAC.FrameworkSystem.private.standardLogging.Backend.LogLevels import LogLevels
+from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
 class gLogging(object):
@@ -27,12 +27,17 @@ class gLogging(object):
     Initialization and first configuration of the root logger
     """
     # initialization default parameters
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(LogLevels.getLevelValue('NOTICE'))
     logging.Formatter.converter = time.gmtime
 
     self.options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
     self.componentName = "Framework"
     self.cfgPath = None
+
+    #initialization of levels
+    levels = LogLevels.getLevels()
+    for level in levels:
+      logging.addLevelName(levels[level],level)
 
     # initialization of the backends
     self.backendsList = []
@@ -133,12 +138,12 @@ class gLogging(object):
       if arg.find("-d") == 0:
         debLevs += arg.count("d")
     if debLevs == 1:
-      logger.setLevel(logging.INFO)
+      logger.setLevel(LogLevels.getLevelValue('VERBOSE'))
     elif debLevs == 2:
-      logger.setLevel(logging.INFO)
+      logger.setLevel(LogLevels.getLevelValue('VERBOSE'))
       self.showHeaders(True)
     elif debLevs >= 3:
-      logger.setLevel(logging.DEBUG)
+      logger.setLevel(LogLevels.getLevelValue('DEBUG'))
       self.showHeaders(True)
       self.showThreadIDs(True)
 
