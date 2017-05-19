@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
+import logging
 
 
-class Backend:
+class Backend(object):
   __metaclass__ = ABCMeta
   """
   Backend wrapper
@@ -13,8 +14,8 @@ class Backend:
   """
 
   def __init__(self, handler, formatter):
-    self.handler = handler
-    self.formatter = formatter
+    self._handler = handler
+    self._formatter = formatter
 
   @abstractmethod
   def setParameters(self, parameters):
@@ -23,3 +24,10 @@ class Backend:
   @abstractmethod
   def configureHandler(self):
     pass
+
+  def getHandler(self):
+    return self._handler
+
+  def setFormat(self, fmt, datefmt, component, options):
+    self._formatter.setFormat(fmt, datefmt, component, options)
+    self._handler.setFormatter(self._formatter)

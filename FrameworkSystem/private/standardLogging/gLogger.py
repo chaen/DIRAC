@@ -13,7 +13,7 @@ class gLogger():
   __gLogging = gLogging()
 
   def __init__(self, name=''):
-    self.logger = logging.getLogger(name)
+    self.__logger = logging.getLogger(name)
 
   def initialized(self):
     logging.info("Initialized: Deleted method.")
@@ -58,7 +58,7 @@ class gLogger():
     result = False
     levelName = levelName.upper()
     if levelName in LogLevels.getLevelNames():
-      self.logger.setLevel(LogLevels.getLevelValue(levelName))
+      self.__logger.setLevel(LogLevels.getLevelValue(levelName))
       result = True
     return result
 
@@ -66,7 +66,7 @@ class gLogger():
     """
     Return the name of the level
     """
-    return LogLevels.getLevel(self.logger.getEffectiveLevel())
+    return LogLevels.getLevel(self.__logger.getEffectiveLevel())
 
   def shown(self, levelName):
     """
@@ -78,7 +78,7 @@ class gLogger():
     """
     result = False
     if levelName in LogLevels.getLevelNames():
-      result = self.logger.isEnabledFor(LogLevels.getLevelValue(levelName))
+      result = self.__logger.isEnabledFor(LogLevels.getLevelValue(levelName))
     return result
 
   def getName(self):
@@ -91,7 +91,7 @@ class gLogger():
     """
     Return the name of the logger
     """
-    return self.logger.name
+    return self.__logger.name
 
   def getAllPossibleLevels(self):
     """
@@ -137,8 +137,8 @@ class gLogger():
 
   def __createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
     result = False
-    if self.logger.isEnabledFor(level):
-      self.logger.log(level, "%s %s" % (sMsg, sVarMsg), exc_info=exc_info)
+    if self.__logger.isEnabledFor(level):
+      self.__logger.log(level, "%s %s" % (sMsg, sVarMsg), exc_info=exc_info)
       result = True
     return result
 

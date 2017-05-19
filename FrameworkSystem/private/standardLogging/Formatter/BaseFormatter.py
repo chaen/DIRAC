@@ -20,8 +20,8 @@ class BaseFormatter(logging.Formatter):
     - options: dictionary of logging DIRAC options
     """
     super(BaseFormatter, self).__init__(fmt, datefmt)
-    self.componentName = componentName
-    self.options = options
+    self._componentName = componentName
+    self._options = options
 
   def format(self, record):
     """
@@ -32,15 +32,15 @@ class BaseFormatter(logging.Formatter):
     # pre treatment
     logname = record.name
 
-    if self.options['showHeaders']:
+    if self._options['showHeaders']:
       if record.name != "root":
-        record.name = self.componentName + "/" + record.name
+        record.name = self._componentName + "/" + record.name
       else:
-        record.name = self.componentName
+        record.name = self._componentName
 
-      if self.options['Path'] and logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+      if self._options['Path'] and logging.getLogger().getEffectiveLevel() == logging.DEBUG:
         record.name += '[' + record.pathname + ':' + str(record.lineno) + ']'
-      if self.options['showThreads']:
+      if self._options['showThreads']:
         record.name += '[' + str(record.thread) + ']'
 
     s = super(BaseFormatter, self).format(record)
