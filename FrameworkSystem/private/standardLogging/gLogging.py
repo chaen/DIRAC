@@ -5,6 +5,7 @@ import sys
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StdoutBackend import StdoutBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StderrBackend import StderrBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.FileBackend import FileBackend
+from DIRAC.FrameworkSystem.private.standardLogging.Backend.LogLevels import LogLevels
 
 
 class gLogging(object):
@@ -78,7 +79,7 @@ class gLogging(object):
       desiredBackends = desiredBackendsStr.split(',')
       
       for backend in desiredBackends:
-        retDict = gConfig.getOptionsDict("%s/NewBackendsOptions/%s" % (cfgPath, backend))
+        retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
         if retDict['OK'] and backend in self.backendsDict:
           self.backendsDict[backend].setParameters(retDict['Value'])
 
