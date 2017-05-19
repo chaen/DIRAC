@@ -16,7 +16,8 @@ class FileBackend(Backend):
     self.fileName = 'Dirac-log_%s.log' % getpid()
 
   def setParameters(self, parameters):
-    self.fileName = parameters['FileName']
+    if 'FileName' in parameters:
+      self.fileName = parameters['FileName']
 
   def configureHandler(self):
     self.handler = logging.FileHandler(self.fileName)
