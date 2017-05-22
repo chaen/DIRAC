@@ -5,10 +5,11 @@ from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter impor
 
 class ColoredBaseFormatter(BaseFormatter):
   """
-  Formatter of logging
-
-  Color all messages with a certain color according to the level
-  of the messages
+  Formatter of logging:
+  - color all messages with a certain color according to the level
+  of the messages.
+  - useful to make the distinction between log records without colors like stderr
+    and log records with colors like stdout.
   """
   COLOR_MAP = {
       'black': 0,
@@ -34,12 +35,11 @@ class ColoredBaseFormatter(BaseFormatter):
 
   def setFormat(self, fmt, datefmt, componentName, options):
     """
-    Initialize the formatter with new arguments
-    input:
-    - fmt : string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
-    - datefmt : string representing the date format: "%Y-%m-%d %H:%M:%S"
-    - componentName: string represented as "System/Component"
-    - options: dictionary of logging DIRAC options
+    Initialize the formatter with new arguments.
+    :params fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
+    :params datefmt: string representing the date format: "%Y-%m-%d %H:%M:%S"
+    :params componentName: string represented as "System/Component"
+    :params options: dictionary of logging DIRAC options
     """
     super(ColoredBaseFormatter, self).setFormat(fmt, datefmt, componentName, options)
 

@@ -4,7 +4,8 @@ import logging
 class LogLevels:
   """
   Wrapper of the old LogLevels class:
-  - made to replace transparently gLogger
+  - useful for the conversion string-integer because developers use only the string 
+    form of levels at the moment, and logging need the integer form.
   """
   __levelDict = {"DEBUG": logging.DEBUG,
                  "VERBOSE": 15,
@@ -19,7 +20,7 @@ class LogLevels:
   @classmethod
   def getLevelValue(cls, sName):
     """
-    Return a level value according to a level name
+    :return: a level value according to a level name
     """
     sName = sName.upper()
     if cls.__levelDict.has_key(sName):
@@ -30,7 +31,7 @@ class LogLevels:
   @classmethod
   def getLevel(cls, level):
     """ 
-    Return a level name according to a level value
+    :return: a level name according to a level value
     """
     for lev in cls.__levelDict:
       if cls.__levelDict[lev] == level:
@@ -40,13 +41,13 @@ class LogLevels:
   @classmethod
   def getLevelNames(cls):
     """
-    Return all level names available in the wrapper
+    :return: all level names available in the wrapper
     """
     return cls.__levelDict.keys()
 
   @classmethod
   def getLevels(cls):
     """
-    Return a copy of the dictionary
+    :return: a copy of the dictionary
     """
     return cls.__levelDict.copy()
