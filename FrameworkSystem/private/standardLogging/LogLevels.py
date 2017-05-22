@@ -1,10 +1,13 @@
+"""
+LogLevels wrapper
+"""
 import logging
 
 
-class LogLevels:
+class LogLevels(object):
   """
   Wrapper of the old LogLevels class:
-  - useful for the conversion string-integer because developers use only the string 
+  - useful for the conversion string-integer because developers use only the string
     form of levels at the moment, and logging need the integer form.
   """
   __levelDict = {"DEBUG": logging.DEBUG,
@@ -14,8 +17,7 @@ class LogLevels:
                  "NOTICE": 35,
                  "ERROR": logging.ERROR,
                  "ALWAYS": 45,
-                 "CRITICAL": logging.CRITICAL
-                 }
+                 "CRITICAL": logging.CRITICAL}
 
   @classmethod
   def getLevelValue(cls, sName):
@@ -23,14 +25,14 @@ class LogLevels:
     :return: a level value according to a level name
     """
     sName = sName.upper()
+    result = None
     if cls.__levelDict.has_key(sName):
-      return cls.__levelDict[sName]
-    else:
-      return None
+      result = cls.__levelDict[sName]
+    return result
 
   @classmethod
   def getLevel(cls, level):
-    """ 
+    """
     :return: a level name according to a level value
     """
     for lev in cls.__levelDict:

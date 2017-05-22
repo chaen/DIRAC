@@ -1,3 +1,6 @@
+"""
+FileBackend wrapper
+"""
 import logging
 from os import getpid
 
@@ -12,7 +15,7 @@ class FileBackend(Backend):
   """
 
   def __init__(self):
-    super(FileBackend, self).__init__(None, BaseFormatter())
+    super(FileBackend, self).__init__(None, BaseFormatter)
     self.__fileName = 'Dirac-log_%s.log' % getpid()
 
   def setParameters(self, parameters):
@@ -28,4 +31,3 @@ class FileBackend(Backend):
     Initialize the handler with the parameters
     """
     self._handler = logging.FileHandler(self.__fileName)
-
