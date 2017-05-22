@@ -84,7 +84,7 @@ class gLogging(object):
       for backend in desiredBackends:
         retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
         if retDict['OK'] and backend in self.__backendsDict:
-          self.__backendsDict[backend].setParameters(retDict['Value'])
+          self.__backendsDict[backend].setParameters(retDict['Value'].copy())
 
       # Format options
       self.__options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
