@@ -1,10 +1,13 @@
+"""
+Logger wrapper for DIRAC use
+"""
 import logging
 
 from DIRAC.FrameworkSystem.private.standardLogging.LoggingWrapper import LoggingWrapper
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
-class LoggerWrapper():
+class LoggerWrapper(object):
   """
   Wrapper of the old Logger object:
   - made to replace transparently gLogger
@@ -22,7 +25,7 @@ class LoggerWrapper():
 
   def showHeaders(self, yesno=True):
     """
-    Depending on the value, display or not the prefix of the message. 
+    Depending on the value, display or not the prefix of the message.
     :params yesno: boolean determining the behaviour of the display
     """
     LoggerWrapper.__gLogging.showHeaders(yesno)
@@ -49,7 +52,7 @@ class LoggerWrapper():
     """
     Set a level to the logger.
     :params levelName: string representing the level to give to the logger
-    
+
     :return: boolean representing if the setting is done or not
     """
     result = False
@@ -80,7 +83,7 @@ class LoggerWrapper():
     """
     :return: "system name/component name"
     """
-    return LoggerWrapper.__gLogging.componentName
+    return LoggerWrapper.__gLogging.getComponent()
 
   def getSubName(self):
     """
@@ -142,7 +145,7 @@ class LoggerWrapper():
     """
     result = False
     if self.__logger.isEnabledFor(level):
-      self.__logger.log(level, "%s %s" % (sMsg, sVarMsg), exc_info=exc_info)
+      self.__logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info)
       result = True
     return result
 

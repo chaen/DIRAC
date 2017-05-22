@@ -1,3 +1,6 @@
+"""
+ColoredBaseFormatter
+"""
 import sys
 
 from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter import BaseFormatter
@@ -33,22 +36,12 @@ class ColoredBaseFormatter(BaseFormatter):
       'CRITICAL': ('red', 'black', False)
   }
 
-  def setFormat(self, fmt, datefmt, componentName, options):
-    """
-    Initialize the formatter with new arguments.
-    :params fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
-    :params datefmt: string representing the date format: "%Y-%m-%d %H:%M:%S"
-    :params componentName: string represented as "System/Component"
-    :params options: dictionary of logging DIRAC options
-    """
-    super(ColoredBaseFormatter, self).setFormat(fmt, datefmt, componentName, options)
-
   def format(self, record):
     """
     Overriding
     Format the record with colors
     """
-    s = super(ColoredBaseFormatter, self).format(record)
+    stringRecord = super(ColoredBaseFormatter, self).format(record)
     # post treatment
     if self._options['Color'] and sys.stdout.isatty():
       params = []
@@ -59,6 +52,6 @@ class ColoredBaseFormatter(BaseFormatter):
         params.append(str(self.COLOR_MAP[fg] + 30))
       if bold:
         params.append('1')
-      s = ("".join(('\x1b[', ";".join(params), 'm', s, '\x1b[0m')))
+      stringRecord = ("".join(('\x1b[', ";".join(params), 'm', stringRecord, '\x1b[0m')))
 
-    return s
+    return stringRecord

@@ -1,3 +1,6 @@
+"""
+StderrBackend wrapper
+"""
 import logging
 import sys
 
@@ -12,7 +15,7 @@ class StderrBackend(Backend):
   """
 
   def __init__(self):
-    super(StderrBackend, self).__init__(None, BaseFormatter())
+    super(StderrBackend, self).__init__(None, BaseFormatter)
 
   def setParameters(self, parameters):
     pass
@@ -22,4 +25,3 @@ class StderrBackend(Backend):
     Initialize the handler with the parameters
     """
     self._handler = logging.StreamHandler(sys.stderr)
-

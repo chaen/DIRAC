@@ -1,3 +1,6 @@
+"""
+StdoutBackend wrapper
+"""
 import logging
 import sys
 
@@ -12,7 +15,7 @@ class StdoutBackend(Backend):
   """
 
   def __init__(self):
-    super(StdoutBackend, self).__init__(None, ColoredBaseFormatter())
+    super(StdoutBackend, self).__init__(None, ColoredBaseFormatter)
 
   def setParameters(self, parameters):
     pass
