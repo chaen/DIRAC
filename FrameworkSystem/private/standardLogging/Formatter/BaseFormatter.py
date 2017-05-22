@@ -32,16 +32,10 @@ class BaseFormatter(logging.Formatter):
     # pre treatment
     logname = record.name
 
-    if self._options['showHeaders']:
-      if record.name != "root":
-        record.name = self._componentName + "/" + record.name
-      else:
-        record.name = self._componentName
-
-      if self._options['Path'] and logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-        record.name += '[' + record.pathname + ':' + str(record.lineno) + ']'
-      if self._options['showThreads']:
-        record.name += '[' + str(record.thread) + ']'
+    if record.name != "root":
+      record.name = self._componentName + "/" + record.name
+    else:
+      record.name = self._componentName
 
     s = super(BaseFormatter, self).format(record)
 
