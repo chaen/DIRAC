@@ -8,25 +8,33 @@ from DIRAC.FrameworkSystem.private.standardLogging.Backend.FileBackend import Fi
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
-class gLogging(object):
+class LoggingWrapper(object):
   """
-  Configuration of the standard Python logging for DIRAC use
+  Configuration of the standard Python logging for DIRAC use: 
+  - in 'logging' library, logging is used to initialize and configure loggers, handlers, formatters
+    and attributes for all loggers.
+  - necessary class to initialize amd configure logger and handlers with the cfg file.
+  - singleton class: only one instance possible because logging is a single object and require only
+    one initialization.
   """
   __configuredLogging = False
 
+  
   __instance = None
-
   def __new__(cls):
-    if gLogging.__instance is None:
-      gLogging.__instance = object.__new__(cls)
-      gLogging.__instance.initializeLogging()
-    return gLogging.__instance
+    """
+    Initialization of the singleton.
+    """
+    if LoggingWrapper.__instance is None:
+      LoggingWrapper.__instance = object.__new__(cls)
+      LoggingWrapper.__instance.initializeLogging()
+    return LoggingWrapper.__instance
 
   def initializeLogging(self):
     """
     Initialization and first configuration of the root logger
     """
-    # initialization default parameters
+    # initialization of the default parameters
     logging.getLogger().setLevel(LogLevels.getLevelValue('NOTICE'))
     logging.Formatter.converter = time.gmtime
 
@@ -50,31 +58,28 @@ class gLogging(object):
 
   def showHeaders(self, val=True):
     """
-    Depending on the value, display or not the prefix of the message
-    input: 
-    - val: boolean determining the behaviour of the display
+    Depending on the value, display or not the prefix of the message.
+    :params val: boolean determining the behaviour of the display
     """
     self.__options['showHeaders'] = val
     self.__updateFormat()
 
   def showThreadIDs(self, val=True):
     """
-    Depending on the value, display or not the thread ID
-    input: 
-    - val: boolean determining the behaviour of the display
+    Depending on the value, display or not the thread ID.
+    :params val: boolean determining the behaviour of the display
     """
     self.__options['showThreads'] = val
 
   def loadConfigurationFromCFGFile(self, componentName, cfgPath):
     """
-    Configure logging with a cfg file
-    input:
-    - systemName: string represented as "system name/component name"
-    - cfgPath: string of the cfg file path
+    Configure logging with a cfg file.
+    :params systemName: string represented as "system name/component name"
+    :params cfgPath: string of the cfg file path
     """
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
-    if not gLogging.__configuredLogging:
+    if not LoggingWrapper.__configuredLogging:
       self.__componentName = componentName
 
       # Backend options
@@ -98,15 +103,14 @@ class gLogging(object):
       self.__configureHandlers(desiredBackends)
       self.__updateFormat()
 
-      gLogging.__configuredLogging = True
+      LoggingWrapper.__configuredLogging = True
  
 
   def __configureHandlers(self, listHandler):
     """
     Attach a list of handlers to the root logger
-    input:
-    - listHandler: a list of different names attaching to differents backends 
-                   attaching to different handlers and formatters
+    :params listHandler: a list of different names attaching to differents backends.
+                         attaching to different handlers and formatters
     """
     for stringHandler in listHandler:
       stringHandler = stringHandler.lower()

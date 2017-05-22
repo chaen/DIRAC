@@ -18,5 +18,7 @@ class StdoutBackend(Backend):
     pass
 
   def configureHandler(self):
-    if self._handler is None:
-      self._handler = logging.StreamHandler(sys.stdout)
+    """
+    Initialize the handler with the parameters
+    """
+    self._handler = logging.StreamHandler(sys.stdout)

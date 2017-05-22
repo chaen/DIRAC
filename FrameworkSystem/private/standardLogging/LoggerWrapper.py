@@ -1,16 +1,17 @@
 import logging
-from DIRAC.FrameworkSystem.private.standardLogging.gLogging import gLogging
+
+from DIRAC.FrameworkSystem.private.standardLogging.LoggingWrapper import LoggingWrapper
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
-class gLogger():
+class LoggerWrapper():
   """
-  Wrapper of the old gLogger object:
+  Wrapper of the old Logger object:
   - made to replace transparently gLogger
-  - offer standard logging functionalities
+  - based on the standard library 'logging'
   """
 
-  __gLogging = gLogging()
+  __gLogging = LoggingWrapper()
 
   def __init__(self, name=''):
     self.__logger = logging.getLogger(name)
@@ -21,39 +22,35 @@ class gLogger():
 
   def showHeaders(self, yesno=True):
     """
-    Depending on the value, display or not the prefix of the message
-    input: 
-    - yesno: boolean determining the behaviour of the display
+    Depending on the value, display or not the prefix of the message. 
+    :params yesno: boolean determining the behaviour of the display
     """
-    gLogger.__gLogging.showHeaders(yesno)
+    LoggerWrapper.__gLogging.showHeaders(yesno)
 
   def showThreadIDs(self, yesno=True):
     """
-    Depending on the value, display or not the thread ID
-    input: 
-    - yesno: boolean determining the behaviour of the display
+    Depending on the value, display or not the thread ID.
+    :params yesno: boolean determining the behaviour of the display
     """
-    gLogger.__gLogging.showThreadIDs(yesno)
+    LoggerWrapper.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
     logging.warn("registerBackends: Deleted method. Logging register its backends itself.")
 
   def initialize(self, systemName, cfgPath):
     """
-    Configure gLogger depending on the component used
-    input:
-    - systemName: string represented as "system name/component name"
-    - cfgPath: string of the cfg file path
+    Configure gLogger depending on the component used.
+    :params systemName: string represented as "system name/component name"
+    :params cfgPath: string of the cfg file path
     """
-    gLogger.__gLogging.loadConfigurationFromCFGFile(systemName, cfgPath)
+    LoggerWrapper.__gLogging.loadConfigurationFromCFGFile(systemName, cfgPath)
 
   def setLevel(self, levelName):
     """
-    Set a level to the logger
-    input:
-    - levelName: string representing the level to give to the logger
-    output:
-    - result: boolean representing if the setting is done or not
+    Set a level to the logger.
+    :params levelName: string representing the level to give to the logger
+    
+    :return: boolean representing if the setting is done or not
     """
     result = False
     levelName = levelName.upper()
@@ -64,17 +61,15 @@ class gLogger():
 
   def getLevel(self):
     """
-    Return the name of the level
+    :return: the name of the level
     """
     return LogLevels.getLevel(self.__logger.getEffectiveLevel())
 
   def shown(self, levelName):
     """
-    Determine if messages with a certain level will be displayed or not
-    input: 
-    - levelName: string representing the level to analyse
-    output:
-    - result : boolean which give the answer
+    Determine if messages with a certain level will be displayed or not.
+    :params levelName: string representing the level to analyse
+    :return: boolean which give the answer
     """
     result = False
     if levelName in LogLevels.getLevelNames():
@@ -83,19 +78,19 @@ class gLogger():
 
   def getName(self):
     """
-    Return "system name/component name"
+    :return: "system name/component name"
     """
-    return gLogger.__gLogging.componentName
+    return LoggerWrapper.__gLogging.componentName
 
   def getSubName(self):
     """
-    Return the name of the logger
+    :return: the name of the logger
     """
     return self.__logger.name
 
   def getAllPossibleLevels(self):
     """
-    Return a list of all levels available
+    :return: a list of all levels available
     """
     return LogLevels.getLevelNames()
 
@@ -136,6 +131,15 @@ class gLogger():
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def __createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
+    """
+    Create a log record according to the level of the message.
+    :params level: positive integer representing the level of the log record
+    :params sMsg: string representing the message
+    :params sVarMsg: string representing an optional message
+    :params exc_info: boolean representing the stacktrace for the exception
+
+    :return: boolean representing the result of the log record creation
+    """
     result = False
     if self.__logger.isEnabledFor(level):
       self.__logger.log(level, "%s %s" % (sMsg, sVarMsg), exc_info=exc_info)
@@ -153,8 +157,7 @@ class gLogger():
 
   def getSubLogger(self, subName, child=True):
     """
-    Create a new gLogger object, child of this logger
-    input: 
-    - subName: the name of the child
+    Create a new gLogger object, child of this logger.
+    :params subName: the name of the child
     """
-    return gLogger(subName)
+    return LoggerWrapper(subName)

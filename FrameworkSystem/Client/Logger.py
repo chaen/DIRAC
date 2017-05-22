@@ -2,13 +2,13 @@
 __RCSID__ = "$Id$"
 from DIRAC.FrameworkSystem.private.logging.Logger import Logger
 # addLogging
-from DIRAC.FrameworkSystem.private.standardLogging.gLogger import gLogger
+from DIRAC.FrameworkSystem.private.standardLogging.LoggerWrapper import LoggerWrapper
 
 #old logger
 #gLogger = Logger()
 
 #intermediate solution
-gLogger = gLogger()
+gLogger = LoggerWrapper()
 
 
 def getLogger():

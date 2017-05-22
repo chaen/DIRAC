@@ -5,19 +5,17 @@ import traceback
 
 class BaseFormatter(logging.Formatter):
   """
-  Formatter of logging
-
-  Format messages to correspond with the gLogger format
+  Formatter of logging:
+  - format messages to correspond with the gLogger format.
   """
 
   def setFormat(self, fmt, datefmt, componentName, options):
     """
-    Initialize the formatter with new arguments
-    input:
-    - fmt : string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
-    - datefmt : string representing the date format: "%Y-%m-%d %H:%M:%S"
-    - componentName: string represented as "System/Component"
-    - options: dictionary of logging DIRAC options
+    Initialize the formatter with new arguments.
+    :params fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
+    :params datefmt: string representing the date format: "%Y-%m-%d %H:%M:%S"
+    :params componentName: string represented as "System/Component"
+    :params options: dictionary of logging DIRAC options
     """
     super(BaseFormatter, self).__init__(fmt, datefmt)
     self._componentName = componentName
@@ -27,7 +25,7 @@ class BaseFormatter(logging.Formatter):
     """
     Overriding
 
-    Format for DIRAC use
+    Format for DIRAC use: add the "system/component" to the logname.
     """
     # pre treatment
     logname = record.name
@@ -39,7 +37,7 @@ class BaseFormatter(logging.Formatter):
 
     s = super(BaseFormatter, self).format(record)
 
-    # this is important because handler creates the record and the same
+    # this is important because logger creates the record and the same
     # record is used by different handlers
     record.name = logname
 
