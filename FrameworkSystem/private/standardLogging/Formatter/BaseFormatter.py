@@ -1,6 +1,7 @@
+"""
+BaseFormatter
+"""
 import logging
-import threading
-import traceback
 
 
 class BaseFormatter(logging.Formatter):
@@ -9,7 +10,7 @@ class BaseFormatter(logging.Formatter):
   - format messages to correspond with the gLogger format.
   """
 
-  def setFormat(self, fmt, datefmt, componentName, options):
+  def __init__(self, fmt, datefmt, componentName, options):
     """
     Initialize the formatter with new arguments.
     :params fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
@@ -35,10 +36,10 @@ class BaseFormatter(logging.Formatter):
     else:
       record.name = self._componentName
 
-    s = super(BaseFormatter, self).format(record)
+    stringRecord = super(BaseFormatter, self).format(record)
 
     # this is important because logger creates the record and the same
     # record is used by different handlers
     record.name = logname
 
-    return s
+    return stringRecord

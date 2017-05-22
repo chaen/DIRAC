@@ -1,3 +1,6 @@
+"""
+Logging wrapper for DIRAC use
+"""
 import logging
 import time
 import sys
@@ -10,7 +13,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 class LoggingWrapper(object):
   """
-  Configuration of the standard Python logging for DIRAC use: 
+  Configuration of the standard Python logging for DIRAC use:
   - in 'logging' library, logging is used to initialize and configure loggers, handlers, formatters
     and attributes for all loggers.
   - necessary class to initialize amd configure logger and handlers with the cfg file.
@@ -19,7 +22,7 @@ class LoggingWrapper(object):
   """
   __configuredLogging = False
 
-  
+
   __instance = None
   def __new__(cls):
     """
@@ -27,10 +30,9 @@ class LoggingWrapper(object):
     """
     if LoggingWrapper.__instance is None:
       LoggingWrapper.__instance = object.__new__(cls)
-      LoggingWrapper.__instance.initializeLogging()
     return LoggingWrapper.__instance
 
-  def initializeLogging(self):
+  def __init__(self):
     """
     Initialization and first configuration of the root logger
     """
@@ -50,11 +52,10 @@ class LoggingWrapper(object):
     self.__backendsList = []
     self.__backendsDict = {'stdout': StdoutBackend(), 'stderr': StderrBackend(), 'file': FileBackend()}
     self.__configureHandlers(['stdout'])
-    
+
     # configuration of the level and update of the format
     self.__configureLevel()
     self.__updateFormat()
-
 
   def showHeaders(self, val=True):
     """
@@ -71,6 +72,12 @@ class LoggingWrapper(object):
     """
     self.__options['showThreads'] = val
 
+  def getComponent(self):
+    """
+    :return: string represented as "system/format"
+    """
+    return self.__componentName
+
   def loadConfigurationFromCFGFile(self, componentName, cfgPath):
     """
     Configure logging with a cfg file.
@@ -85,7 +92,7 @@ class LoggingWrapper(object):
       # Backend options
       desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
       desiredBackends = desiredBackendsStr.split(',')
-      
+
       for backend in desiredBackends:
         retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
         if retDict['OK'] and backend in self.__backendsDict:
@@ -94,7 +101,7 @@ class LoggingWrapper(object):
       # Format options
       self.__options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
       self.__options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
-      
+
       currentLevelName = logging.getLevelName(logging.getLogger().getEffectiveLevel())
       levelname = gConfig.getValue("%s/LogLevel" % cfgPath, currentLevelName)
       logging.getLogger().setLevel(logging.getLevelName(levelname))
@@ -104,7 +111,7 @@ class LoggingWrapper(object):
       self.__updateFormat()
 
       LoggingWrapper.__configuredLogging = True
- 
+
 
   def __configureHandlers(self, listHandler):
     """
@@ -148,7 +155,7 @@ class LoggingWrapper(object):
       logger.setLevel(LogLevels.getLevelValue('DEBUG'))
       self.showHeaders(True)
       self.showThreadIDs(True)
- 
+
 
   def __updateFormat(self):
     """
@@ -161,8 +168,8 @@ class LoggingWrapper(object):
       if self.__options['Path'] and logging.getLogger().getEffectiveLevel() == LogLevels.getLevelValue('DEBUG'):
         fmt += ' [%(pathname)s:%(lineno)d]'
       if self.__options['showThreads']:
-        fmt += ' [%(thread)d]'    
+        fmt += ' [%(thread)d]'
       fmt += ' %(levelname)s: %(message)s'
-    
+
     for backend in self.__backendsList:
       backend.setFormat(fmt, datefmt, self.__componentName, self.__options)
