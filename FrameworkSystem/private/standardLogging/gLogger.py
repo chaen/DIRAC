@@ -16,7 +16,7 @@ class gLogger():
     self.__logger = logging.getLogger(name)
 
   def initialized(self):
-    logging.info("Initialized: Deleted method.")
+    logging.warn("Initialized: Deleted method.")
     return True
 
   def showHeaders(self, yesno=True):
@@ -36,7 +36,7 @@ class gLogger():
     gLogger.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
-    logging.info("registerBackends: Deleted method. Logging register its backends itself.")
+    logging.warn("registerBackends: Deleted method. Logging register its backends itself.")
 
   def initialize(self, systemName, cfgPath):
     """
@@ -143,13 +143,13 @@ class gLogger():
     return result
 
   def showStack(self):
-    logging.info("showStack: Deleted method.")
+    logging.warn("showStack: Deleted method.")
 
   def processMessage(self, messageObject):
-    logging.info("processMessage: Deleted method. Logging process its messages itself.")
+    logging.warn("processMessage: Deleted method. Logging process its messages itself.")
 
   def flushAllMessages(self, exitCode=0):
-    logging.info("flushAllMessages: Deleted method. Logging flush all messages itself.")
+    logging.warn("flushAllMessages: Deleted method. Logging flush all messages itself.")
 
   def getSubLogger(self, subName, child=True):
     """
