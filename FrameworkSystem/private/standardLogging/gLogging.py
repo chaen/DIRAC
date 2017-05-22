@@ -144,27 +144,21 @@ class gLogging(object):
       logger.setLevel(LogLevels.getLevelValue('DEBUG'))
       self.showHeaders(True)
       self.showThreadIDs(True)
-
-  def __setFormatter(self, fmt, datefmt):
-    """
-    Add the new formatter to the handlers' logger
-    input:
-    - fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
-    - datefmt: string representing the date format: "%Y-%m-%d %H:%M:%S"
-    """
-    for backend in self.__backendsList:
-      backend.setFormat(fmt, datefmt, self.__componentName, self.__options)
-
  
 
   def __updateFormat(self):
     """
-    Update the format according to the showHeader option
+    Update the format according to the options
     """
+    fmt = '%(message)s'
+    datefmt = '%Y-%m-%d %H:%M:%S'
     if self.__options['showHeaders']:
-      fmt = '%(asctime)s UTC %(name)s %(levelname)s: %(message)s'
-      datefmt = '%Y-%m-%d %H:%M:%S'
-    else:
-      fmt = '%(message)s'
-      datefmt = None
-    self.__setFormatter(fmt, datefmt)
+      fmt = '%(asctime)s UTC %(name)s'
+      if self.__options['Path'] and logging.getLogger().getEffectiveLevel() == LogLevels.getLevelValue('DEBUG'):
+        fmt += ' [%(pathname)s:%(lineno)d]'
+      if self.__options['showThreads']:
+        fmt += ' [%(thread)d]'    
+      fmt += ' %(levelname)s: %(message)s'
+    
+    for backend in self.__backendsList:
+      backend.setFormat(fmt, datefmt, self.__componentName, self.__options)
