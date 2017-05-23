@@ -1,6 +1,9 @@
 """
 Logging wrapper for DIRAC use
 """
+
+__RCSID__ = "$Id$"
+
 import logging
 import time
 import sys
@@ -8,6 +11,7 @@ import sys
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StdoutBackend import StdoutBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StderrBackend import StderrBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.FileBackend import FileBackend
+from DIRAC.FrameworkSystem.private.standardLogging.Backend.RemoteBackend import RemoteBackend
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
@@ -22,8 +26,8 @@ class LoggingWrapper(object):
   """
   __configuredLogging = False
 
-
   __instance = None
+
   def __new__(cls):
     """
     Initialization of the singleton.
@@ -43,14 +47,17 @@ class LoggingWrapper(object):
     self.__options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
     self.__componentName = "Framework"
 
-    #initialization of levels
+    # initialization of levels
     levels = LogLevels.getLevels()
     for level in levels:
-      logging.addLevelName(levels[level],level)
+      logging.addLevelName(levels[level], level)
 
     # initialization of the backends
     self.__backendsList = []
-    self.__backendsDict = {'stdout': StdoutBackend(), 'stderr': StderrBackend(), 'file': FileBackend()}
+    self.__backendsDict = {'stdout': StdoutBackend(),
+                           'stderr': StderrBackend(),
+                           'file': FileBackend(),
+                           'server': RemoteBackend()}
     self.__configureHandlers(['stdout'])
 
     # configuration of the level and update of the format
@@ -71,6 +78,7 @@ class LoggingWrapper(object):
     :params val: boolean determining the behaviour of the display
     """
     self.__options['showThreads'] = val
+    self.__updateFormat()
 
   def getComponent(self):
     """
@@ -111,7 +119,6 @@ class LoggingWrapper(object):
       self.__updateFormat()
 
       LoggingWrapper.__configuredLogging = True
-
 
   def __configureHandlers(self, listHandler):
     """
@@ -156,7 +163,6 @@ class LoggingWrapper(object):
       self.showHeaders(True)
       self.showThreadIDs(True)
 
-
   def __updateFormat(self):
     """
     Update the format according to the options
@@ -164,7 +170,7 @@ class LoggingWrapper(object):
     fmt = '%(message)s'
     datefmt = '%Y-%m-%d %H:%M:%S'
     if self.__options['showHeaders']:
-      fmt = '%(asctime)s UTC %(name)s'
+      fmt = '%(asctime)s UTC %(componentname)s%(name)s'
       if self.__options['Path'] and logging.getLogger().getEffectiveLevel() == LogLevels.getLevelValue('DEBUG'):
         fmt += ' [%(pathname)s:%(lineno)d]'
       if self.__options['showThreads']:
@@ -172,4 +178,4 @@ class LoggingWrapper(object):
       fmt += ' %(levelname)s: %(message)s'
 
     for backend in self.__backendsList:
-      backend.setFormat(fmt, datefmt, self.__componentName, self.__options)
+      backend.setFormat(fmt, datefmt, self.__options)

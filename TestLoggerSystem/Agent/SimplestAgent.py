@@ -32,6 +32,8 @@ class SimplestAgent(AgentModule):
     
     self.log.info("message = %s" % self.message)
 
+    
+
     #gLogger
     self.logger = gLogger.getSubLogger("SimplestAgentSelfLogger")
     return S_OK()
@@ -63,7 +65,7 @@ class SimplestAgent(AgentModule):
     self.logger.debug(" ")
     self.logger.warn(" ")
     self.logger.error(" ")
-    self.logger.exception(" ")
+    #self.logger.exception(" ")
 
     try:
         a = 1/0
@@ -72,7 +74,7 @@ class SimplestAgent(AgentModule):
     self.logger.fatal(" ")
 
     log = gLogger.getSubLogger('log', False)
-    log.showHeaders(False)
+    #log.showHeaders(False)
     log.always("LoggingChildFalse")
 
     log2 = log.getSubLogger('log2', False)

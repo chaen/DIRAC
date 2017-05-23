@@ -1,6 +1,9 @@
 """
 BaseFormatter
 """
+
+__RCSID__ = "$Id$"
+
 import logging
 
 
@@ -10,7 +13,7 @@ class BaseFormatter(logging.Formatter):
   - format messages to correspond with the gLogger format.
   """
 
-  def __init__(self, fmt, datefmt, componentName, options):
+  def __init__(self, fmt, datefmt, options):
     """
     Initialize the formatter with new arguments.
     :params fmt: string representing the format: "%(asctime)s UTC %(name)s %(levelname)s: %(message)"
@@ -19,7 +22,6 @@ class BaseFormatter(logging.Formatter):
     :params options: dictionary of logging DIRAC options
     """
     super(BaseFormatter, self).__init__(fmt, datefmt)
-    self._componentName = componentName
     self._options = options
 
   def format(self, record):
@@ -31,10 +33,10 @@ class BaseFormatter(logging.Formatter):
     # pre treatment
     logname = record.name
 
-    if record.name != "root":
-      record.name = self._componentName + "/" + record.name
+    if record.name == "root":
+      record.name = ""
     else:
-      record.name = self._componentName
+      record.name = "/" + record.name
 
     stringRecord = super(BaseFormatter, self).format(record)
 
