@@ -1,6 +1,9 @@
 """
 StderrBackend wrapper
 """
+
+__RCSID__ = "$Id$"
+
 import logging
 import sys
 

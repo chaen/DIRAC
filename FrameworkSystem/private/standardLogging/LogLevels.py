@@ -1,6 +1,9 @@
 """
 LogLevels wrapper
 """
+
+__RCSID__ = "$Id$"
+
 import logging
 
 
