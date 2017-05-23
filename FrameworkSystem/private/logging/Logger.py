@@ -135,6 +135,12 @@ class Logger( object ):
   def getLevel( self ):
     return self._logLevels.getLevel( self._minLevel )
 
+  def getAllPossibleLevels( self ):
+    """
+    Return a list of all the levels available
+    """
+    return self._logLevels.getLevels()
+
   def shown( self, levelName ):
     levelName = levelName.upper()
     if levelName in self._logLevels.getLevels():

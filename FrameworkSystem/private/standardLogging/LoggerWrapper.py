@@ -1,6 +1,9 @@
 """
 Logger wrapper for DIRAC use
 """
+
+__RCSID__ = "$Id$"
+
 import logging
 
 from DIRAC.FrameworkSystem.private.standardLogging.LoggingWrapper import LoggingWrapper
@@ -145,7 +148,8 @@ class LoggerWrapper(object):
     """
     result = False
     if self.__logger.isEnabledFor(level):
-      self.__logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info)
+      self.__logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info,
+                        extra={'componentname': LoggerWrapper.__gLogging.getComponent()})
       result = True
     return result
 

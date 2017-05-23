@@ -1,6 +1,9 @@
 """
 ColoredBaseFormatter
 """
+
+__RCSID__ = "$Id$"
+
 import sys
 
 from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter import BaseFormatter

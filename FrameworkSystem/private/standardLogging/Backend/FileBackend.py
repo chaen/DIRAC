@@ -1,6 +1,9 @@
 """
 FileBackend wrapper
 """
+
+__RCSID__ = "$Id$"
+
 import logging
 from os import getpid
 
