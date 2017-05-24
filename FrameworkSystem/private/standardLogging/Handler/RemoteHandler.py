@@ -55,11 +55,10 @@ class RemoteHandler(logging.Handler, threading.Thread):
       bundle = []
       while (len(bundle) < self.__maxBundledLogs) and (not self.__logQueue.empty()):
         record = self.__logQueue.get()
-        if record.levelno >= self.level:
-          self.format(record)
-          logTuple = (record.componentname, record.levelname, record.created, record.getMessage(), '',
-                      record.pathname + ":" + str(record.lineno), record.name)
-          bundle.append(logTuple)
+        self.format(record)
+        logTuple = (record.componentname, record.levelname, record.created, record.getMessage(), '',
+                    record.pathname + ":" + str(record.lineno), record.name)
+        bundle.append(logTuple)
 
       if bundle:
         self.__sendLogToServer(bundle)
