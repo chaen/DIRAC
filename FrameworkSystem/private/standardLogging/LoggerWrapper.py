@@ -101,38 +101,65 @@ class LoggerWrapper(object):
     return LogLevels.getLevelNames()
 
   def always(self, sMsg, sVarMsg=''):
+    """
+    Always level
+    """
     level = LogLevels.getLevelValue('ALWAYS')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def notice(self, sMsg, sVarMsg=''):
+    """
+    Notice level
+    """
     level = LogLevels.getLevelValue('NOTICE')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def info(self, sMsg, sVarMsg=''):
+    """
+    Info level
+    """
     level = LogLevels.getLevelValue('INFO')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def verbose(self, sMsg, sVarMsg=''):
+    """
+    Verbose level
+    """
     level = LogLevels.getLevelValue('VERBOSE')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def debug(self, sMsg, sVarMsg=''):
+    """
+    Debug level
+    """
     level = LogLevels.getLevelValue('DEBUG')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def warn(self, sMsg, sVarMsg=''):
+    """
+    Warn
+    """
     level = LogLevels.getLevelValue('WARNING')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def error(self, sMsg, sVarMsg=''):
+    """
+    Error level
+    """
     level = LogLevels.getLevelValue('ERROR')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
+    """
+    Exception level
+    """
     level = LogLevels.getLevelValue('ERROR')
     return self.__createLogRecord(level, sMsg, sVarMsg, exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
+    """
+    Critical level
+    """
     level = LogLevels.getLevelValue('CRITICAL')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
