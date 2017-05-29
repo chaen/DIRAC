@@ -20,44 +20,45 @@ class TestLevels(unittest.TestCase):
     gLogger.setLevel('debug')
     self.log = gLogger.getSubLogger('log')
 
-  def test_00setLevelGetLevel(self):
+  def test_01setLevelGetLevel(self):
     """
     Set gLogger level to error and get it
     """
     gLogger.setLevel('error')
     self.assertEqual(gLogger.getLevel(), 'ERROR')
 
-  def test_01setLevelCreateLog(self):
+  def test_02setLevelCreateLog(self):
     """
     Set gLogger level to error and try to create debug and error logs
     """
     gLogger.setLevel('error')
 
     gLogger.debug("message")
-    # does not appear
+    self.assertEqual(gLogger.shown('debug'), False)
     gLogger.verbose('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('verbose'), False)
     gLogger.info('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('info'), False)
     gLogger.warn('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('warn'), False)
     gLogger.notice('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('notice'), False)
+    
     gLogger.error('message')
-    # appear
+    self.assertEqual(gLogger.shown('error'), True)
     gLogger.always('message')
-    # appear
+    self.assertEqual(gLogger.shown('always'), True)
     gLogger.fatal('message')
-    # appear
+    self.assertEqual(gLogger.shown('fatal'), True)
 
-  def test_02setLevelGetSubLogLevel(self):
+  def test_03setLevelGetSubLogLevel(self):
     """
     Set gLogger level to error and get its sublogger level
     """
     gLogger.setLevel('error')
     self.assertEqual(self.log.getLevel(), 'ERROR')
 
-  def test_03setLevelCreateLogSubLog(self):
+  def test_04setLevelCreateLogSubLog(self):
     """
     Set gLogger level to error and try to create debug and error logs and sublogs
     """
@@ -65,113 +66,104 @@ class TestLevels(unittest.TestCase):
 
     gLogger.debug("message")
     self.log.debug("message")
-    # does not appear
+    self.assertEqual(gLogger.shown('debug'), False)
+    self.assertEqual(self.log.shown('debug'), False)
     gLogger.verbose('message')
     self.log.verbose('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('verbose'), False)
+    self.assertEqual(self.log.shown('verbose'), False)
     gLogger.info('message')
     self.log.info('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('info'), False)
+    self.assertEqual(self.log.shown('info'), False)
     gLogger.warn('message')
     self.log.warn('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('warn'), False)
+    self.assertEqual(self.log.shown('warn'), False)
     gLogger.notice('message')
     self.log.notice('message')
-    # does not appear
+    self.assertEqual(gLogger.shown('notice'), False)
+    self.assertEqual(self.log.shown('notice'), False)
+    
     gLogger.error('message')
     self.log.error('message')
-    # appear
+    self.assertEqual(gLogger.shown('error'), True)
+    self.assertEqual(self.log.shown('error'), True)
     gLogger.always('message')
     self.log.always('message')
-    # appear
+    self.assertEqual(gLogger.shown('always'), True)
+    self.assertEqual(self.log.shown('always'), True)
     gLogger.fatal('message')
     self.log.fatal('message')
-    # appear
+    self.assertEqual(gLogger.shown('fatal'), True)
+    self.assertEqual(self.log.shown('fatal'), True)
 
-  def test_04setLevelSubLevelCreateLogSubLog(self):
+  def test_05setLevelSubLevelCreateLogSubLog(self):
     """
     Set gLogger level to error and log level to debug, and try to create debug and error logs and sublogs
     """
     gLogger.setLevel('error')
     self.log.setLevel('debug')
-    gLogger.debug("message")
-    # does not appear
-    self.log.debug("message")
-    # appear
-    gLogger.verbose('message')
-    # does not appear
-    self.log.verbose('message')
-    # appear
-    gLogger.info('message')
-    # does not appear
-    self.log.info('message')
-    # appear
-    gLogger.warn('message')
-    # does not appear
-    self.log.warn('message')
-    # appear
-    gLogger.notice('message')
-    # does not appear
-    self.log.notice('message')
-    # appear
-    gLogger.error('message')
-    # appear
-    self.log.error('message')
-    # appear
-    gLogger.always('message')
-    # appear
-    self.log.always('message')
-    # appear
-    gLogger.fatal('message')
-    # appear
-    self.log.fatal('message')
-    # appear
+    
+    self.assertEqual(gLogger.debug("message"), False)
+    self.assertEqual(self.log.debug("message"), True)
+    
+    self.assertEqual(gLogger.verbose('message'), False)
+    self.assertEqual(self.log.verbose('message'), True)
+    
+    self.assertEqual(gLogger.info('message'), False)
+    self.assertEqual(self.log.info('message'), True)
+    
+    self.assertEqual(gLogger.warn('message'), False)
+    self.assertEqual(self.log.warn('message'), True)
+    
+    self.assertEqual(gLogger.notice('message'), False)
+    self.assertEqual(self.log.notice('message'), True)
+    
+    self.assertEqual(gLogger.error('message'), True)
+    self.assertEqual(self.log.error('message'), True)
+    
+    self.assertEqual(gLogger.always('message'), True)
+    self.assertEqual(self.log.always('message'), True)
+    
+    self.assertEqual(gLogger.fatal('message'), True)
+    self.assertEqual(self.log.fatal('message'), True)
 
-  def test_05setLevelSubLevelCreateLogSubLog2(self):
+  def test_06setLevelSubLevelCreateLogSubLog2(self):
     """
     Set gLogger level to debug and log level to error, and try to create debug and error logs and sublogs
     """
     gLogger.setLevel('debug')
     self.log.setLevel('error')
-    gLogger.debug("message")
-    # appear
-    self.log.debug("message")
-    # does not appear
-    gLogger.verbose('message')
-    # appear
-    self.log.verbose('message')
-    # does not appear
-    gLogger.info('message')
-    # appear
-    self.log.info('message')
-    # does not appear
-    gLogger.warn('message')
-    # appear
-    self.log.warn('message')
-    # does not appear
-    gLogger.notice('message')
-    # appear
-    self.log.notice('message')
-    # does not appear
-    gLogger.error('message')
-    # appear
-    self.log.error('message')
-    # appear
-    gLogger.always('message')
-    # appear
-    self.log.always('message')
-    # appear
-    gLogger.fatal('message')
-    # appear
-    self.log.fatal('message')
-    # appear
+    
+    self.assertEqual(gLogger.debug("message"), True) 
+    self.assertEqual(self.log.debug("message"), False)
+    
+    self.assertEqual(gLogger.verbose('message'), True)
+    self.assertEqual(self.log.verbose('message'), False)
+    
+    self.assertEqual(gLogger.info('message'), True) 
+    self.assertEqual(self.log.info('message'), False)
+    
+    self.assertEqual(gLogger.warn('message'), True)   
+    self.assertEqual(self.log.warn('message'), False)
+    
+    self.assertEqual(gLogger.notice('message'), True)
+    self.assertEqual(self.log.notice('message'), False)
+    
+    self.assertEqual(gLogger.error('message'), True) 
+    self.assertEqual(self.log.error('message'), True)
+    
+    self.assertEqual(gLogger.always('message'), True)
+    self.assertEqual(self.log.always('message'), True)
+    
+    self.assertEqual(gLogger.fatal('message'), True)
+    self.assertEqual(self.log.fatal('message'), True)
 
-  def test_06getAllLevels(self):
-    self.assertEqual(gLogger.getAllPossibleLevels(), ['INFO', 'CRITICAL',
-                                                      'NOTICE', 'WARNING', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS'])
+  def test_07getAllLevels(self):
+    self.assertEqual(gLogger.getAllPossibleLevels(), ['INFO', 'WARN', 'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
 
-    self.assertEqual(self.log.getAllPossibleLevels(), ['INFO', 'CRITICAL',
-                                                       'NOTICE', 'WARNING', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS'])
+    self.assertEqual(self.log.getAllPossibleLevels(), ['INFO', 'WARN', 'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
 
 
 if __name__ == '__main__':

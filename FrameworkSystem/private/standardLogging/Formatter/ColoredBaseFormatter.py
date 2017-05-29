@@ -34,9 +34,9 @@ class ColoredBaseFormatter(BaseFormatter):
       'INFO': (None, 'green', False),
       'VERBOSE': (None, 'cyan', False),
       'DEBUG': (None, 'blue', False),
-      'WARNING': (None, 'yellow', False),
+      'WARN': (None, 'yellow', False),
       'ERROR': (None, 'red', False),
-      'CRITICAL': ('red', 'black', False)
+      'FATAL': ('red', 'black', False)
   }
 
   def format(self, record):

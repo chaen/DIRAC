@@ -5,7 +5,7 @@ from DIRAC.FrameworkSystem.private.logging.Logger import Logger
 from DIRAC.FrameworkSystem.private.standardLogging.LoggerWrapper import LoggerWrapper
 
 #old logger
-#gLogger = Logger()
+oldgLogger = Logger()
 
 #intermediate solution
 gLogger = LoggerWrapper()

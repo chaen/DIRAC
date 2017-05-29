@@ -36,6 +36,9 @@ class BaseFormatter(logging.Formatter):
     if record.name == "root":
       record.name = ""
     else:
+      if record.name.startswith("root."):
+        record.name = record.name.replace("root.", "")
+        record.name = record.name.replace(".","/")
       record.name = "/" + record.name
 
     stringRecord = super(BaseFormatter, self).format(record)
