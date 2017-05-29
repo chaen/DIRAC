@@ -19,8 +19,11 @@ class LoggerWrapper(object):
 
   __gLogging = LoggingWrapper()
 
-  def __init__(self, name=''):
-    self.__logger = logging.getLogger(name)
+  def __init__(self, fathername='', name=''):
+    if fathername == '':
+      self.__logger = logging.getLogger(name)
+    else: 
+      self.__logger = logging.getLogger(fathername).getChild(name)
 
   def initialized(self):
     logging.warn("Initialized: Deleted method.")
@@ -78,6 +81,7 @@ class LoggerWrapper(object):
     :return: boolean which give the answer
     """
     result = False
+    levelName = levelName.upper()
     if levelName in LogLevels.getLevelNames():
       result = self.__logger.isEnabledFor(LogLevels.getLevelValue(levelName))
     return result
@@ -139,7 +143,7 @@ class LoggerWrapper(object):
     """
     Warn
     """
-    level = LogLevels.getLevelValue('WARNING')
+    level = LogLevels.getLevelValue('WARN')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def error(self, sMsg, sVarMsg=''):
@@ -160,7 +164,7 @@ class LoggerWrapper(object):
     """
     Critical level
     """
-    level = LogLevels.getLevelValue('CRITICAL')
+    level = LogLevels.getLevelValue('FATAL')
     return self.__createLogRecord(level, sMsg, sVarMsg)
 
   def __createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
@@ -194,4 +198,4 @@ class LoggerWrapper(object):
     Create a new gLogger object, child of this logger.
     :params subName: the name of the child
     """
-    return LoggerWrapper(subName)
+    return LoggerWrapper(self.__logger.name, subName)
