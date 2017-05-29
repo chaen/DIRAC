@@ -3,10 +3,21 @@ Test LogRecord Creation
 """
 # imports
 import unittest
+import logging
+import sys
+from StringIO import StringIO
 
 # sut
 from DIRAC import gLogger, oldgLogger
 
+
+def cleaningLog(log):
+  """
+  Remove date and space from the log string
+  """
+  log = log[20:]
+  log = log.replace(" ", "")
+  return log
 
 class TestLogRecordCreation(unittest.TestCase):
   """
@@ -19,116 +30,288 @@ class TestLogRecordCreation(unittest.TestCase):
     Initialize at debug level with a sublogger and a special handler
     """
     gLogger.setLevel('debug')
+
     self.log = gLogger.getSubLogger('log')
+    self.buffer = StringIO()
+
+    oldgLogger.setLevel('debug')
+    self.oldlog = oldgLogger.getSubLogger('log')
+    self.oldbuffer = StringIO()
+    sys.stdout = self.oldbuffer
+    
+
+    #modify the output to capture the log into a buffer
+    if logging.getLogger().handlers: 
+      logging.getLogger().handlers[0].stream = self.buffer
 
   def test_00always(self):
     """
     Create Always log and test it
     """
     gLogger.always("message")
-    # display Framework ALWAYS: message
+    oldgLogger.always("message")
+
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+    
     self.log.always("message")
-    # display Framework/log ALWAYS: message
+    self.oldlog.always("message")
+
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_01notice(self):
     """
     Create Notice log and test it
     """
     gLogger.notice("message")
-    # display Framework NOTICE: message
+    oldgLogger.notice("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+    
     self.log.notice("message")
-    # display Framework/log NOTICE: message
+    self.oldlog.notice("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_02info(self):
     """
     Create Info log and test it
     """
     gLogger.info("message")
-    # display Framework INFO: message
+    oldgLogger.info("message")
+
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
+    
     self.log.info("message")
-    # display Framework/log INFO: message
+    self.oldlog.info("message")
+
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
 
   def test_03verbose(self):
     """
     Create Verbose log and test it
+    Differences between the two systems :
+    - gLogger: VERBOSE
+    - old gLogger: VERB
     """
     gLogger.verbose("message")
-    # display Framework VERBOSE: message
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    
+    self.assertEqual("UTCFrameworkVERBOSE:message\n", logstring1)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
     self.log.verbose("message")
-    # display Framework/log VERBOSE: message
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    
+    self.assertEqual("UTCFramework/logVERBOSE:message\n", logstring1)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_04debug(self):
     """
     Create Debug log and test it
     """
     gLogger.debug("message")
-    # display Framework DEBUG: message
+    oldgLogger.debug("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
     self.log.debug("message")
-    # display Framework/log: message
+    self.oldlog.debug("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_05warn(self):
     """
     Create Warn log and test it
     """
     gLogger.warn("message")
-    # display Framework WARN: message
+    oldgLogger.warn("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
     self.log.warn("message")
-    # display Framework/log WARN: message
+    self.oldlog.warn("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
 
   def test_06error(self):
     """
     Create Error log and test it
     """
     gLogger.error("message")
-    # display Framework ERROR: message
+    oldgLogger.error("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
     self.log.error("message")
-    # display Framework/log ERROR: message
+    self.oldlog.error("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
 
   def test_07fatal(self):
     """
     Create Fatal log and test it
     """
     gLogger.fatal("message")
-    # display Framework CRITICAL: message
+    oldgLogger.fatal("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
     self.log.fatal("message")
-    # display Framework/log CRITICAL: message
+    self.oldlog.fatal("message")
+    
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+    
+    self.assertEqual(logstring1, logstring2)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
 
   def test_08exception(self):
     """
     Create Exception log and test it
+    Differences between the two systems :
+    - gLogger: Traceback ...
+    - old gLogger: === Exception === ...
     """
     try:
       badIdea = 1 / 0
       print badIdea
     except ZeroDivisionError:
-      gLogger.exception('message')
-      # display Framework ERROR: message
-      # Traceback...
-      self.log.exception('message')
-      # display Framework/log ERROR: message
-      # Traceback...
+      gLogger.exception("message")
+      oldgLogger.exception("message")
+      
+      logstring1 = cleaningLog(self.buffer.getvalue())
+      logstring2 = cleaningLog(self.oldbuffer.getvalue())
+      
+      self.assertNotEqual(logstring1, logstring2)
+      self.buffer.truncate(0)
+      self.oldbuffer.truncate(0)
+
+      self.log.exception("message")
+      self.oldlog.exception("message")
+      
+      logstring1 = cleaningLog(self.buffer.getvalue())
+      logstring2 = cleaningLog(self.oldbuffer.getvalue())
+      
+      self.assertNotEqual(logstring1, logstring2)
+      self.buffer.truncate(0)
+      self.oldbuffer.truncate(0)
+
 
   def test_09WithExtrasArgs(self):
     """
     Create Always log with extra arguments and test it
     """
     self.log.always('%s.' % "message")
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    
+    self.assertEqual(logstring1, "UTCFramework/logALWAYS:message.\n")
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+
     # display Framework/log ALWAYS: message
 
   def test_10onMultipleLines(self):
     """
     Create Always log on multiple lines and test it
+    Differences between the two systems :
+    - gLogger: ALWAYS: this
+               ALWAYS: is
+    - old gLogger: ALWAYS: this
+                   is
     """
     self.log.always('this\nis\na\nmessage\non\nmultiple\nlines.')
-    # display Framework/log ALWAYS: this
-    # is...
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    
+    self.assertEqual(logstring1, "UTCFramework/logALWAYS:this\nis\na\nmessage\non\nmultiple\nlines.\n")
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+    
 
   def test_12WithVarMsg(self):
     """
     Create Always log with variable message and test it
     """
     self.log.always("mess", "age")
-    # display Framework/log ALWAYS: mess age
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    
+    self.assertEqual(logstring1, "UTCFramework/logALWAYS:message\n")
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_13getName(self):
     """
