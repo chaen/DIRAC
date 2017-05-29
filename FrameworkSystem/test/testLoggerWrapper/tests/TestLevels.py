@@ -20,6 +20,9 @@ class TestLevels(unittest.TestCase):
     gLogger.setLevel('debug')
     self.log = gLogger.getSubLogger('log')
 
+  def test_00shown(self):
+    pass
+
   def test_01setLevelGetLevel(self):
     """
     Set gLogger level to error and get it

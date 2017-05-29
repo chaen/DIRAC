@@ -19,6 +19,7 @@ def cleaningLog(log):
   log = log.replace(" ", "")
   return log
 
+
 class TestLogRecordCreation(unittest.TestCase):
   """
   Test the creation of the different log records 
@@ -30,7 +31,6 @@ class TestLogRecordCreation(unittest.TestCase):
     Initialize at debug level with a sublogger and a special handler
     """
     gLogger.setLevel('debug')
-
     self.log = gLogger.getSubLogger('log')
     self.buffer = StringIO()
 
@@ -38,10 +38,9 @@ class TestLogRecordCreation(unittest.TestCase):
     self.oldlog = oldgLogger.getSubLogger('log')
     self.oldbuffer = StringIO()
     sys.stdout = self.oldbuffer
-    
 
-    #modify the output to capture the log into a buffer
-    if logging.getLogger().handlers: 
+    # modify the output to capture the log into a buffer
+    if logging.getLogger().handlers:
       logging.getLogger().handlers[0].stream = self.buffer
 
   def test_00always(self):
@@ -57,13 +56,13 @@ class TestLogRecordCreation(unittest.TestCase):
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-    
+
     self.log.always("message")
     self.oldlog.always("message")
 
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -74,20 +73,20 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     gLogger.notice("message")
     oldgLogger.notice("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-    
+
     self.log.notice("message")
     self.oldlog.notice("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -101,22 +100,20 @@ class TestLogRecordCreation(unittest.TestCase):
 
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
-    
     self.log.info("message")
     self.oldlog.info("message")
 
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-
 
   def test_03verbose(self):
     """
@@ -126,17 +123,17 @@ class TestLogRecordCreation(unittest.TestCase):
     - old gLogger: VERB
     """
     gLogger.verbose("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
-    
+
     self.assertEqual("UTCFrameworkVERBOSE:message\n", logstring1)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
     self.log.verbose("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
-    
+
     self.assertEqual("UTCFramework/logVERBOSE:message\n", logstring1)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -147,20 +144,20 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     gLogger.debug("message")
     oldgLogger.debug("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
     self.log.debug("message")
     self.oldlog.debug("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -171,24 +168,23 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     gLogger.warn("message")
     oldgLogger.warn("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
     self.log.warn("message")
     self.oldlog.warn("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-
 
   def test_06error(self):
     """
@@ -196,24 +192,23 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     gLogger.error("message")
     oldgLogger.error("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
     self.log.error("message")
     self.oldlog.error("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-
 
   def test_07fatal(self):
     """
@@ -221,24 +216,23 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     gLogger.fatal("message")
     oldgLogger.fatal("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
     self.log.fatal("message")
     self.oldlog.fatal("message")
-    
+
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-    
+
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-
 
   def test_08exception(self):
     """
@@ -253,24 +247,23 @@ class TestLogRecordCreation(unittest.TestCase):
     except ZeroDivisionError:
       gLogger.exception("message")
       oldgLogger.exception("message")
-      
+
       logstring1 = cleaningLog(self.buffer.getvalue())
       logstring2 = cleaningLog(self.oldbuffer.getvalue())
-      
+
       self.assertNotEqual(logstring1, logstring2)
       self.buffer.truncate(0)
       self.oldbuffer.truncate(0)
 
       self.log.exception("message")
       self.oldlog.exception("message")
-      
+
       logstring1 = cleaningLog(self.buffer.getvalue())
       logstring2 = cleaningLog(self.oldbuffer.getvalue())
-      
+
       self.assertNotEqual(logstring1, logstring2)
       self.buffer.truncate(0)
       self.oldbuffer.truncate(0)
-
 
   def test_09WithExtrasArgs(self):
     """
@@ -278,7 +271,7 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     self.log.always('%s.' % "message")
     logstring1 = cleaningLog(self.buffer.getvalue())
-    
+
     self.assertEqual(logstring1, "UTCFramework/logALWAYS:message.\n")
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -296,24 +289,23 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     self.log.always('this\nis\na\nmessage\non\nmultiple\nlines.')
     logstring1 = cleaningLog(self.buffer.getvalue())
-    
+
     self.assertEqual(logstring1, "UTCFramework/logALWAYS:this\nis\na\nmessage\non\nmultiple\nlines.\n")
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-    
 
-  def test_12WithVarMsg(self):
+  def test_11WithVarMsg(self):
     """
     Create Always log with variable message and test it
     """
     self.log.always("mess", "age")
     logstring1 = cleaningLog(self.buffer.getvalue())
-    
+
     self.assertEqual(logstring1, "UTCFramework/logALWAYS:message\n")
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
-  def test_13getName(self):
+  def test_12getName(self):
     """
     Get the system name of the log record
     """
