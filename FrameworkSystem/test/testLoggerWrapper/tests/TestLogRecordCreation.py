@@ -5,7 +5,7 @@ Test LogRecord Creation
 import unittest
 
 # sut
-from DIRAC import gLogger
+from DIRAC import gLogger, oldgLogger
 
 
 class TestLogRecordCreation(unittest.TestCase):
@@ -129,6 +129,34 @@ class TestLogRecordCreation(unittest.TestCase):
     """
     self.log.always("mess", "age")
     # display Framework/log ALWAYS: mess age
+
+  def test_13getName(self):
+    """
+    Get the system name of the log record
+    """
+    self.assertEqual(gLogger.getName(), oldgLogger.getName())
+
+    log = gLogger.getSubLogger('log')
+    oldLog = oldgLogger.getSubLogger('log')
+
+    self.assertEqual(log.getName(), oldLog.getName())
+
+  def test_13getSubName(self):
+    """
+    Get the log name of the log record
+    """
+    self.assertEqual(gLogger.getSubName(), "")
+
+    log = gLogger.getSubLogger('log')
+    oldLog = oldgLogger.getSubLogger('log')
+
+    self.assertEqual(log.getSubName(), oldLog.getSubName())
+
+    sublog = log.getSubLogger('sublog')
+    suboldLog = oldLog.getSubLogger('sublog')
+
+    self.assertEqual(sublog.getSubName(), 'log.sublog')
+    self.assertEqual(suboldLog.getSubName(), 'sublog')
 
 
 if __name__ == '__main__':
