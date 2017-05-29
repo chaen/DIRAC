@@ -96,7 +96,14 @@ class LoggerWrapper(object):
     """
     :return: the name of the logger
     """
-    return self.__logger.name
+    name = self.__logger.name
+    if name == "root":
+      name = ""
+    else:
+      if name.startswith("root."):
+        name = name.replace("root.", "")
+
+    return name
 
   def getAllPossibleLevels(self):
     """
