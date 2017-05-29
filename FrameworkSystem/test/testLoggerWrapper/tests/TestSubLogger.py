@@ -6,18 +6,13 @@ import unittest
 
 # sut
 from DIRAC import gLogger, oldgLogger
+from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
 
-class TestSubLogger(unittest.TestCase):
+class TestSubLogger(TestLoggerWrapper):
   """
   Test the creation of subloggers and their properties
   """
-
-  def setUp(self):
-    """
-    Initialize at debug level with a sublogger and a special handler
-    """
-    gLogger.setLevel('debug')
 
   def test_00getSubLogger(self):
     """
