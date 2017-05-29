@@ -16,11 +16,11 @@ class LogLevels(object):
   __levelDict = {"DEBUG": logging.DEBUG,
                  "VERBOSE": 15,
                  "INFO": logging.INFO,
-                 "WARNING": logging.WARN,
+                 "WARN": logging.WARN,
                  "NOTICE": 35,
                  "ERROR": logging.ERROR,
                  "ALWAYS": 45,
-                 "CRITICAL": logging.CRITICAL}
+                 "FATAL": logging.CRITICAL}
 
   @classmethod
   def getLevelValue(cls, sName):
