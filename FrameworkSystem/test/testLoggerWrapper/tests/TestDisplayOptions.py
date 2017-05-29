@@ -3,12 +3,10 @@ Test Display Options
 """
 # imports
 import unittest
-import logging
-import sys
-from StringIO import StringIO
 
 # sut
 from DIRAC import gLogger, oldgLogger
+from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
 
 def cleaningLog(log):
@@ -20,33 +18,17 @@ def cleaningLog(log):
   return log
 
 
-class TestDisplayOptions(unittest.TestCase):
+class TestDisplayOptions(TestLoggerWrapper):
   """
   Test the creation of subloggers and their properties
   """
 
-  def setUp(self):
-    """
-    Initialize at debug level with a sublogger and a special handler
-    """
-    gLogger.setLevel('debug')
-    self.log = gLogger.getSubLogger('log')
-    self.buffer = StringIO()
-
-    oldgLogger.setLevel('debug')
-    self.oldlog = oldgLogger.getSubLogger('log')
-    self.oldbuffer = StringIO()
-    sys.stdout = self.oldbuffer
-
+  def tearDown(self):
     gLogger.showHeaders(True)
     gLogger.showThreadIDs(False)
 
     oldgLogger.showHeaders(True)
     oldgLogger.showThreadIDs(False)
-
-    # modify the output to capture the log into a buffer
-    if logging.getLogger().handlers:
-      logging.getLogger().handlers[0].stream = self.buffer
 
   def test_00setShowHeaders(self):
     """

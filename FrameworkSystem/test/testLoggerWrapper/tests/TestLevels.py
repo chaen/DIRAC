@@ -6,21 +6,18 @@ import unittest
 
 # sut
 from DIRAC import gLogger
+from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
 
-class TestLevels(unittest.TestCase):
+class TestLevels(TestLoggerWrapper):
   """
   Test get and set levels.
   """
 
-  def setUp(self):
-    """
-    Initialize at debug level with a sublogger and a special handler
-    """
-    gLogger.setLevel('debug')
-    self.log = gLogger.getSubLogger('log')
-
   def test_00shown(self):
+    """
+    Test the validity of the shown method
+    """
     pass
 
   def test_01setLevelGetLevel(self):
@@ -46,7 +43,7 @@ class TestLevels(unittest.TestCase):
     self.assertEqual(gLogger.shown('warn'), False)
     gLogger.notice('message')
     self.assertEqual(gLogger.shown('notice'), False)
-    
+
     gLogger.error('message')
     self.assertEqual(gLogger.shown('error'), True)
     gLogger.always('message')
@@ -87,7 +84,7 @@ class TestLevels(unittest.TestCase):
     self.log.notice('message')
     self.assertEqual(gLogger.shown('notice'), False)
     self.assertEqual(self.log.shown('notice'), False)
-    
+
     gLogger.error('message')
     self.log.error('message')
     self.assertEqual(gLogger.shown('error'), True)
@@ -107,28 +104,28 @@ class TestLevels(unittest.TestCase):
     """
     gLogger.setLevel('error')
     self.log.setLevel('debug')
-    
+
     self.assertEqual(gLogger.debug("message"), False)
     self.assertEqual(self.log.debug("message"), True)
-    
+
     self.assertEqual(gLogger.verbose('message'), False)
     self.assertEqual(self.log.verbose('message'), True)
-    
+
     self.assertEqual(gLogger.info('message'), False)
     self.assertEqual(self.log.info('message'), True)
-    
+
     self.assertEqual(gLogger.warn('message'), False)
     self.assertEqual(self.log.warn('message'), True)
-    
+
     self.assertEqual(gLogger.notice('message'), False)
     self.assertEqual(self.log.notice('message'), True)
-    
+
     self.assertEqual(gLogger.error('message'), True)
     self.assertEqual(self.log.error('message'), True)
-    
+
     self.assertEqual(gLogger.always('message'), True)
     self.assertEqual(self.log.always('message'), True)
-    
+
     self.assertEqual(gLogger.fatal('message'), True)
     self.assertEqual(self.log.fatal('message'), True)
 
@@ -138,35 +135,37 @@ class TestLevels(unittest.TestCase):
     """
     gLogger.setLevel('debug')
     self.log.setLevel('error')
-    
-    self.assertEqual(gLogger.debug("message"), True) 
+
+    self.assertEqual(gLogger.debug("message"), True)
     self.assertEqual(self.log.debug("message"), False)
-    
+
     self.assertEqual(gLogger.verbose('message'), True)
     self.assertEqual(self.log.verbose('message'), False)
-    
-    self.assertEqual(gLogger.info('message'), True) 
+
+    self.assertEqual(gLogger.info('message'), True)
     self.assertEqual(self.log.info('message'), False)
-    
-    self.assertEqual(gLogger.warn('message'), True)   
+
+    self.assertEqual(gLogger.warn('message'), True)
     self.assertEqual(self.log.warn('message'), False)
-    
+
     self.assertEqual(gLogger.notice('message'), True)
     self.assertEqual(self.log.notice('message'), False)
-    
-    self.assertEqual(gLogger.error('message'), True) 
+
+    self.assertEqual(gLogger.error('message'), True)
     self.assertEqual(self.log.error('message'), True)
-    
+
     self.assertEqual(gLogger.always('message'), True)
     self.assertEqual(self.log.always('message'), True)
-    
+
     self.assertEqual(gLogger.fatal('message'), True)
     self.assertEqual(self.log.fatal('message'), True)
 
   def test_07getAllLevels(self):
-    self.assertEqual(gLogger.getAllPossibleLevels(), ['INFO', 'WARN', 'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
+    self.assertEqual(gLogger.getAllPossibleLevels(), ['INFO', 'WARN',
+                                                      'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
 
-    self.assertEqual(self.log.getAllPossibleLevels(), ['INFO', 'WARN', 'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
+    self.assertEqual(self.log.getAllPossibleLevels(), ['INFO', 'WARN',
+                                                       'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
 
 
 if __name__ == '__main__':
