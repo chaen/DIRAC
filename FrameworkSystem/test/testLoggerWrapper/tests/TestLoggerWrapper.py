@@ -1,6 +1,9 @@
 """
 Test Logger Wrapper
 """
+
+__RCSID__ = "$Id$"
+
 # imports
 import unittest
 import logging
