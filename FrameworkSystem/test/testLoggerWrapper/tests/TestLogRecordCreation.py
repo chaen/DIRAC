@@ -1,6 +1,9 @@
 """
 Test LogRecord Creation
 """
+
+__RCSID__ = "$Id$"
+
 # imports
 import unittest
 
@@ -25,6 +28,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkALWAYS:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -35,6 +39,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logALWAYS:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -49,6 +54,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkNOTICE:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -59,6 +65,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logNOTICE:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -73,6 +80,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkINFO:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -83,6 +91,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logINFO:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -120,6 +129,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkDEBUG:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -130,6 +140,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logDEBUG:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -144,6 +155,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkWARN:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -154,6 +166,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logWARN:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -168,6 +181,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkERROR:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -178,6 +192,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logERROR:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -192,6 +207,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkFATAL:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -202,6 +218,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFramework/logFATAL:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)

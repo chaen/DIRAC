@@ -190,6 +190,9 @@ class TestLevels(TestLoggerWrapper):
     self.assertEqual(self.log.fatal('message'), True)
 
   def test_07getAllLevels(self):
+    """
+    Get all possible levels
+    """
     self.assertEqual(gLogger.getAllPossibleLevels(), ['INFO', 'WARN',
                                                       'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
 
