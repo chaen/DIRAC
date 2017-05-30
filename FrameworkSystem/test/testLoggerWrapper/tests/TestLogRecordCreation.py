@@ -6,16 +6,7 @@ import unittest
 
 # sut
 from DIRAC import gLogger, oldgLogger
-from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
-
-
-def cleaningLog(log):
-  """
-  Remove date and space from the log string
-  """
-  log = log[20:]
-  log = log.replace(" ", "")
-  return log
+from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper, cleaningLog
 
 
 class TestLogRecordCreation(TestLoggerWrapper):
