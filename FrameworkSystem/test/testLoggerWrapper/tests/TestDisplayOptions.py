@@ -1,8 +1,12 @@
 """
 Test Display Options
 """
+
+__RCSID__ = "$Id$"
+
 # imports
 import unittest
+import thread
 
 # sut
 from DIRAC import gLogger, oldgLogger
@@ -31,6 +35,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     oldgLogger.showHeaders(False)
     oldgLogger.notice('message')
 
+    self.assertEqual("message \n", self.buffer.getvalue())
     self.assertEqual(self.buffer.getvalue().replace(" ", ""), self.oldbuffer.getvalue().replace(" ", ""))
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -44,6 +49,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkNOTICE:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -64,6 +70,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkNOTICE:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -77,6 +84,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertIn(str(thread.get_ident()), logstring1)
     self.assertNotEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -93,6 +101,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     oldgLogger.showThreadIDs(False)
     oldgLogger.notice('message')
 
+    self.assertEqual("message \n", self.buffer.getvalue())
     self.assertEqual(self.buffer.getvalue().replace(" ", ""), self.oldbuffer.getvalue().replace(" ", ""))
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -105,6 +114,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     oldgLogger.showThreadIDs(True)
     oldgLogger.notice('message')
 
+    self.assertEqual("message \n", self.buffer.getvalue())
     self.assertEqual(self.buffer.getvalue().replace(" ", ""), self.oldbuffer.getvalue().replace(" ", ""))
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -120,6 +130,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertEqual("UTCFrameworkNOTICE:message\n", logstring1)
     self.assertEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
@@ -135,6 +146,7 @@ class TestDisplayOptions(TestLoggerWrapper):
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
 
+    self.assertIn(str(thread.get_ident()), logstring1)
     self.assertNotEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)

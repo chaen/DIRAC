@@ -1,5 +1,5 @@
 """
-Test Levels
+Test Logger Wrapper
 """
 # imports
 import unittest
@@ -9,6 +9,7 @@ from StringIO import StringIO
 # sut
 from DIRAC import gLogger, oldgLogger
 
+
 def cleaningLog(log):
   """
   Remove date and space from the log string
@@ -16,6 +17,7 @@ def cleaningLog(log):
   log = log[20:]
   log = log.replace(" ", "")
   return log
+
 
 class TestLoggerWrapper(unittest.TestCase):
   """
