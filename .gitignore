@@ -55,3 +55,15 @@ pytests.xml
 nosetests.xml
 coverage.xml
 Local_*
+
+TestLoggerSystem/DB/__init__\.py
+
+TestLoggerSystem/DB/
+
+TestLoggerSystem/Client/
+
+TestLoggerSystem/Agent/
+
+TestLoggerSystem/Service/
+
+TestLoggerSystem/
