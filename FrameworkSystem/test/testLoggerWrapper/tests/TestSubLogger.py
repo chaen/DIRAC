@@ -1,11 +1,14 @@
 """
 Test SubLogger
 """
+
+__RCSID__ = "$Id$"
+
 # imports
 import unittest
 
 # sut
-from DIRAC import gLogger, oldgLogger
+from DIRAC import gLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
 
@@ -21,7 +24,9 @@ class TestSubLogger(TestLoggerWrapper):
     log = gLogger.getSubLogger('log')
     log.always('message')
 
-    # display Framework/log
+    self.assertIn(" Framework/log ", self.buffer.getvalue())
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_01getSubSubLogger(self):
     """
@@ -31,7 +36,9 @@ class TestSubLogger(TestLoggerWrapper):
     sublog = log.getSubLogger('sublog')
     sublog.always('message')
 
-    # display Framework/log/sublog
+    self.assertIn(" Framework/log/sublog ", self.buffer.getvalue())
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_02getSubSubSubLogger(self):
     """
@@ -41,27 +48,10 @@ class TestSubLogger(TestLoggerWrapper):
     sublog = log.getSubLogger('sublog')
     subsublog = sublog.getSubLogger('subsublog')
     subsublog.always('message')
-    # display Framework/log/sublog/subsublog
 
-  def test_03tryToGetSubSubSubLoggerRoot(self):
-    """
-    Try to get the root logger in a subsubsublogger and create a logrecord
-    """
-    log = gLogger.getSubLogger('log')
-    sublog = log.getSubLogger('sublog')
-    subsublog = sublog.getSubLogger('')
-    subsubsublog = subsublog.getSubLogger('log')
-    subsubsublog.always('message')
-    # display Framework/log/sublog//log
-
-  def test_04tryToGetSubLoggerRoot(self):
-    """
-    Try to get the root logger in a sublogger and create a logrecord
-    """
-    log = gLogger.getSubLogger('')
-    sublog = log.getSubLogger('sublog')
-    sublog.always('message')
-    # display Framework//sublog
+    self.assertIn(" Framework/log/sublog/subsublog ", self.buffer.getvalue())
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
 
 if __name__ == '__main__':
