@@ -5,7 +5,7 @@ Test Levels
 import unittest
 
 # sut
-from DIRAC import gLogger
+from DIRAC import gLogger, oldgLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
 
@@ -18,7 +18,28 @@ class TestLevels(TestLoggerWrapper):
     """
     Test the validity of the shown method
     """
-    pass
+    gLogger.setLevel('warn')
+    oldgLogger.setLevel('warn')
+
+    gLogger.debug('message')
+    oldgLogger.debug('message')
+
+    self.assertEqual(self.buffer.getvalue(), "")
+    self.assertEqual(gLogger.shown('debug'), False)
+    self.assertEqual(self.oldbuffer.getvalue(), "")
+    self.assertEqual(oldgLogger.shown('debug'), False)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
+    
+    gLogger.warn('message')
+    oldgLogger.warn('message')
+
+    self.assertIn("", self.buffer.getvalue())
+    self.assertEqual(gLogger.shown('warn'), True)
+    self.assertIn("", self.oldbuffer.getvalue())
+    self.assertEqual(oldgLogger.shown('warn'), True)
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
   def test_01setLevelGetLevel(self):
     """
@@ -30,26 +51,34 @@ class TestLevels(TestLoggerWrapper):
   def test_02setLevelCreateLog(self):
     """
     Set gLogger level to error and try to create debug and error logs
+    Differences between the two systems :
+    - gLogger: linear system level : difference between notice and error
+    - old gLogger: v system level : no difference between notice and error
     """
     gLogger.setLevel('error')
 
-    gLogger.debug("message")
     self.assertEqual(gLogger.shown('debug'), False)
-    gLogger.verbose('message')
     self.assertEqual(gLogger.shown('verbose'), False)
-    gLogger.info('message')
     self.assertEqual(gLogger.shown('info'), False)
-    gLogger.warn('message')
     self.assertEqual(gLogger.shown('warn'), False)
-    gLogger.notice('message')
     self.assertEqual(gLogger.shown('notice'), False)
 
-    gLogger.error('message')
     self.assertEqual(gLogger.shown('error'), True)
-    gLogger.always('message')
     self.assertEqual(gLogger.shown('always'), True)
-    gLogger.fatal('message')
     self.assertEqual(gLogger.shown('fatal'), True)
+
+    oldgLogger.setLevel('error')
+
+    self.assertEqual(oldgLogger.shown('debug'), False)
+    self.assertEqual(oldgLogger.shown('verbose'), False)
+    self.assertEqual(oldgLogger.shown('info'), False)
+    self.assertEqual(oldgLogger.shown('warn'), False)
+    
+    self.assertEqual(oldgLogger.shown('notice'), True)
+    self.assertEqual(oldgLogger.shown('error'), True)
+    self.assertEqual(oldgLogger.shown('always'), True)
+    self.assertEqual(oldgLogger.shown('fatal'), True)
+
 
   def test_03setLevelGetSubLogLevel(self):
     """
