@@ -4,10 +4,12 @@ from DIRAC.FrameworkSystem.private.logging.Logger import Logger
 # addLogging
 from DIRAC.FrameworkSystem.private.standardLogging.LoggerWrapper import LoggerWrapper
 
-#old logger
+# old logger
+# useful for testing the new gLogger
+# tests are in FrameworkSystem/test/testLoggerWrapper
 oldgLogger = Logger()
 
-#intermediate solution
+# new gLogger
 gLogger = LoggerWrapper()
 
 
