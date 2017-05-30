@@ -9,6 +9,13 @@ from StringIO import StringIO
 # sut
 from DIRAC import gLogger, oldgLogger
 
+def cleaningLog(log):
+  """
+  Remove date and space from the log string
+  """
+  log = log[20:]
+  log = log.replace(" ", "")
+  return log
 
 class TestLoggerWrapper(unittest.TestCase):
   """
