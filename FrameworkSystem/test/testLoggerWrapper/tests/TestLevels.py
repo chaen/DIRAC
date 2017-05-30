@@ -1,6 +1,9 @@
 """
 Test Levels
 """
+
+__RCSID__ = "$Id$"
+
 # imports
 import unittest
 
