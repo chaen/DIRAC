@@ -58,6 +58,7 @@ class LoggerWrapper(object):
     """
     Depending on the value, display or not the prefix of the message.
     :params yesno: boolean determining the behaviour of the display
+    Delegate it to the LoggingWrapper because showHeaders is common to all loggers.
     """
     LoggerWrapper.__gLogging.showHeaders(yesno)
 
@@ -65,6 +66,7 @@ class LoggerWrapper(object):
     """
     Depending on the value, display or not the thread ID.
     :params yesno: boolean determining the behaviour of the display
+    Delegate it to the LoggingWrapper because showThreadIDs is common to all loggers.
     """
     LoggerWrapper.__gLogging.showThreadIDs(yesno)
 
@@ -73,7 +75,9 @@ class LoggerWrapper(object):
 
   def initialize(self, systemName, cfgPath):
     """
-    Configure gLogger depending on the component used.
+    Delegate the root logger configuration to the LoggingWrapper. 
+    It will add handlers to the root logger, format the display, set the appropriate
+    levels. This will have an impact on all future loggers of the chain.  
     :params systemName: string represented as "system name/component name"
     :params cfgPath: string of the cfg file path
     """
