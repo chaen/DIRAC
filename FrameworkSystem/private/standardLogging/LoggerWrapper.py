@@ -46,12 +46,12 @@ class LoggerWrapper(object):
     if fathername == '':
       self.__logger = logging.getLogger(name)
     # then the other times, all loggers go to the else test
-    # it corresponds to the childrens of the root logger
+    # it corresponds to the children of the root logger
     else:
       self.__logger = logging.getLogger(fathername).getChild(name)
 
   def initialized(self):
-    logging.verbose("Deleted method. Do not use it.")
+    self.verbose("initialized: Deleted method. Do not use it.")
     return True
 
   def showHeaders(self, yesno=True):
@@ -69,7 +69,7 @@ class LoggerWrapper(object):
     LoggerWrapper.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
-    logging.verbose("Deleted method. Do not use it.")
+    self.verbose("registerBackends: Deleted method. Do not use it.")
 
   def initialize(self, systemName, cfgPath):
     """
@@ -217,13 +217,13 @@ class LoggerWrapper(object):
     return result
 
   def showStack(self):
-    logging.verbose("Deleted method. Do not use it.")
+    self.verbose("showStack: Deleted method. Do not use it.")
 
   def processMessage(self, messageObject):
-    logging.verbose("Deleted method. Do not use it.")
+    self.verbose("processMessage: Deleted method. Do not use it.")
 
   def flushAllMessages(self, exitCode=0):
-    logging.verbose("Deleted method. Do not use it.")
+    self.verbose("flushAllMessages: Deleted method. Do not use it.")
 
   def getSubLogger(self, subName, child=True):
     """
