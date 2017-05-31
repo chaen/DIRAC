@@ -4,11 +4,9 @@ Test Display Options
 
 __RCSID__ = "$Id$"
 
-# imports
 import unittest
 import thread
 
-# sut
 from DIRAC import gLogger, oldgLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper, cleaningLog
 
