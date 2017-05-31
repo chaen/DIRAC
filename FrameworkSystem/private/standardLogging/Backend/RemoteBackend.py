@@ -13,11 +13,23 @@ from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 class RemoteBackend(Backend):
   """
-  File backend wrapper
-  FileHandler() + BaseFormatter
+  RemoteBackend is used to create an abstraction of the handler and the formatter concepts from logging. 
+  Here, we gather a RemoteHandler object and a BaseFormatter. 
+
+  - RemoteHandler is a custom handler object, created for DIRAC because it has no equivalent: 
+    it is used to write log messages in a remote DIRAC service: SystemLogging from FrameworkSystem.
+    You can find it in FrameworkSystem/private/standardLogging/Handler
+     
+  - BaseFormatter is a custom Formatter object, created for DIRAC in order to get the appropriate display.
+    You can find it in FrameworkSystem/private/standardLogging/Formatter
   """
 
   def __init__(self):
+    """
+    :params __site: string representing the site where the log messages are from.
+    :params __interactive: not used at the moment.
+    :params __sleepTime: the time separating the log messages sending, in seconds.
+    """
     super(RemoteBackend, self).__init__(None, BaseFormatter)
     self.__site = None
     self.__interactive = True
