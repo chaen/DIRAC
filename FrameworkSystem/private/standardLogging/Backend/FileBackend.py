@@ -18,6 +18,7 @@ class FileBackend(Backend):
 
   - FileHandler is from the standard logging library: it is used to write log messages in a desired file
     so it needs a filename. 
+    
   - BaseFormatter is a custom Formatter object, created for DIRAC in order to get the appropriate display.
     You can find it in FrameworkSystem/private/standardLogging/Formatter
   """
