@@ -11,14 +11,26 @@ import threading
 from DIRAC.Core.Utilities import Network
 
 
-
 class RemoteHandler(logging.Handler, threading.Thread):
   """
-  Equivalent class to the old remote backend:
-  - emit() sends to a LoggingSystemClient
+  RemoteHandler is a custom handler from logging.
+  It has no equivalent in the standard logging library because it is highly linked to DIRAC.
+
+  It is useful to send log messages to a destination, like the StreamHandler to a stream, the FileHandler to a file.
+  Here, this handler send log messages to a DIRAC service: SystemLogging which store log messages in a database.
+
+  This handler send only log messages superior to WARN. It works in a thread, and send messages every 'sleepTime'.
+  When a message must be emit, it is added to queue before sending.  
   """
 
   def __init__(self, sleepTime, interactive, site):
+    """
+    Initialization of the RemoteBackend.
+    The queue is initialized with the hostname and the start of the thread.
+    :params sleepTime: integer, representing time in seconds where the handler can send messages.
+    :params interactive: not used at the moment.
+    :params site: the site where the log messages come from.
+    """
     logging.Handler.__init__(self)
     threading.Thread.__init__(self)
     self.__logQueue = Queue.Queue()
@@ -49,7 +61,10 @@ class RemoteHandler(logging.Handler, threading.Thread):
 
   def __bundleLogs(self):
     """
-    Prepare the log to the sending
+    Prepare the log to the sending.
+    This method create a tuple based on the record and add it to the bundle for the sending.
+
+    A tuple is necessary for because the service manage messages under this form. 
     """
     while not self.__logQueue.empty():
       bundle = []
