@@ -11,11 +11,11 @@ from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter impor
 
 class ColoredBaseFormatter(BaseFormatter):
   """
-  Formatter of logging:
-  - color all messages with a certain color according to the level
-  of the messages.
-  - useful to make the distinction between log records without colors like stderr
-    and log records with colors like stdout.
+  ColorBaseFormatter is used to format log record to create a string representing a log message. 
+  It is based on the BaseFormatter object which is based on the of the standard logging library.
+
+  This custom formatter is useful for format messages to correspond with the gLogger format. 
+  It add color on all messages which come from StdoutBackend and color them according to their levels.
   """
   COLOR_MAP = {
       'black': 0,
@@ -41,8 +41,13 @@ class ColoredBaseFormatter(BaseFormatter):
 
   def format(self, record):
     """
-    Overriding
-    Format the record with colors
+    Overriding. 
+    format is the main method of the Formatter object because it is the method which transforms 
+    a log record into a string with colors. 
+
+    According to the level, the method get colors from LEVEL_MAP to add them to the message.
+
+    :params record: the log record containing all the information about the log message: name, level, threadid...
     """
     stringRecord = super(ColoredBaseFormatter, self).format(record)
     # post treatment
