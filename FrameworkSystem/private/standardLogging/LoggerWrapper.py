@@ -126,11 +126,11 @@ class LoggerWrapper(object):
     :return: the name of the logger
     """
     name = self.__logger.name
-    if name == "root":
-      name = ""
-    else:
-      if name.startswith("root."):
-        name = name.replace("root.", "")
+    name = name.replace("root", "")
+
+    if name != "":
+      names = name.split('.')
+      name = names[-1]
 
     return name
 

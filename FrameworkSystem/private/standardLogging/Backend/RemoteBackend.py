@@ -19,7 +19,7 @@ class RemoteBackend(Backend):
   - RemoteHandler is a custom handler object, created for DIRAC because it has no equivalent: 
     it is used to write log messages in a remote DIRAC service: SystemLogging from FrameworkSystem.
     You can find it in FrameworkSystem/private/standardLogging/Handler
-     
+
   - BaseFormatter is a custom Formatter object, created for DIRAC in order to get the appropriate display.
     You can find it in FrameworkSystem/private/standardLogging/Formatter
   """

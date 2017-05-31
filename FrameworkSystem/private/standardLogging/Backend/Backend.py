@@ -35,7 +35,7 @@ class Backend(object):
     Initialization of the backend.
     :params _handler: handler object from logging. Ex: StreamHandler(), FileHandler()... 
     :params _formatter: the name of a formatter object from logging. Ex: BaseFormatter 
-    
+
     _handler and _formatter can be custom objects. If it is the case, you can find them 
     in FrameworkSystem/private/standardLogging/Formatter or Handler. 
     """

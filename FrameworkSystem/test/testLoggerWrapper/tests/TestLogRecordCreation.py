@@ -319,7 +319,7 @@ class TestLogRecordCreation(TestLoggerWrapper):
     sublog = log.getSubLogger('sublog')
     suboldLog = oldLog.getSubLogger('sublog')
 
-    self.assertEqual(sublog.getSubName(), 'log.sublog')
+    self.assertEqual(sublog.getSubName(), 'sublog')
     self.assertEqual(suboldLog.getSubName(), 'sublog')
 
 
