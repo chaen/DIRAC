@@ -12,21 +12,46 @@ from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 class LoggerWrapper(object):
   """
-  Wrapper of the old Logger object:
-  - made to replace transparently gLogger
-  - based on the standard library 'logging'
+  The old gLogger object is now separated into two different objects: loggingWrapper and loggerWrapper.
+  LoggerWrapper is a wrapper of the logger object from the standard logging library which integrate
+  some DIRAC concepts. 
+
+  It is used like an interface to use the logger object of the logging library. 
+  Its purpose is to replace transparently the old gLogger object in the existing code in order to 
+  minimize the changes. 
+
+  In this way, each LoggerWrapper embed a logger of logging. It is possible to create sublogger,
+  set and get the level of the embedded logger and create log messages with it.
+
+  LoggerWrapper delegate its configuration and its global attributes to LoggingWrapper: its purpose is to configure
+  the root logger and all the functionalities that concern all the loggers. 
   """
 
   __gLogging = LoggingWrapper()
 
   def __init__(self, fathername='', name=''):
+    """
+    Initialization of the logger.
+    :params fathername: string representing the name of the father logger in the chain.
+    :params name: string representing the name of the logger in the chain. 
+    By default, 'fathername' and 'name' are empty, because getChild accepts only string and the first empty
+    string corresponds to the root logger. 
+
+    Example: 
+    logging.getLogger('') == logging.getLogger('root') root logger
+    logging.getLogger('root').getChild('log') == root.log == log child of root
+    """
+    # this test is True only the first time, at the initialization of the gLogger
+    # it gets the root logger
     if fathername == '':
       self.__logger = logging.getLogger(name)
-    else: 
+    # then the other times, all loggers go to the else test
+    # it corresponds to the childrens of the root logger
+    else:
       self.__logger = logging.getLogger(fathername).getChild(name)
 
   def initialized(self):
-    logging.warn("Initialized: Deleted method.")
+    logging.verbose("Deleted method. Do not use it.")
     return True
 
   def showHeaders(self, yesno=True):
@@ -44,7 +69,7 @@ class LoggerWrapper(object):
     LoggerWrapper.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
-    logging.warn("registerBackends: Deleted method. Logging register its backends itself.")
+    logging.verbose("Deleted method. Do not use it.")
 
   def initialize(self, systemName, cfgPath):
     """
@@ -192,13 +217,13 @@ class LoggerWrapper(object):
     return result
 
   def showStack(self):
-    logging.warn("showStack: Deleted method.")
+    logging.verbose("Deleted method. Do not use it.")
 
   def processMessage(self, messageObject):
-    logging.warn("processMessage: Deleted method. Logging process its messages itself.")
+    logging.verbose("Deleted method. Do not use it.")
 
   def flushAllMessages(self, exitCode=0):
-    logging.warn("flushAllMessages: Deleted method. Logging flush all messages itself.")
+    logging.verbose("Deleted method. Do not use it.")
 
   def getSubLogger(self, subName, child=True):
     """
