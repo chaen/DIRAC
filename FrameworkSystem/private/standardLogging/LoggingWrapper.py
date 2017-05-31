@@ -17,12 +17,16 @@ from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 class LoggingWrapper(object):
   """
-  Configuration of the standard Python logging for DIRAC use:
-  - in 'logging' library, logging is used to initialize and configure loggers, handlers, formatters
-    and attributes for all loggers.
-  - necessary class to initialize amd configure logger and handlers with the cfg file.
-  - singleton class: only one instance possible because logging is a single object and require only
-    one initialization.
+  The old gLogger object is now separated into two different objects: loggingWrapper and loggerWrapper.
+  LoggingWrapper is a wrapper of the logging module from the standard logging library which integrate
+  some DIRAC concepts. 
+
+  Its purpose is to configure the root logger with the cfg file content: handlers and format. 
+  As logging from the logging library is unique, we created a singleton to prevent that someone initialize
+  the root logger 2 times. 
+
+  It has all the global attributes of the old gLogger like showHeaders, showThreads, Color and Path. 
+  LoggerWrapper delegate its configuration and its global attributes to LoggingWrapper.
   """
   __configuredLogging = False
 
@@ -124,11 +128,10 @@ class LoggingWrapper(object):
     """
     Attach a list of handlers to the root logger
     :params listHandler: a list of different names attaching to differents backends.
-                         attaching to different handlers and formatters
     """
     for stringHandler in listHandler:
       stringHandler = stringHandler.lower()
-      stringHandler = stringHandler.strip(" ")
+      stringHandler = stringHandler.strip()
 
       if stringHandler in self.__backendsDict:
         backend = self.__backendsDict[stringHandler]
@@ -139,7 +142,7 @@ class LoggingWrapper(object):
           self.__backendsList.append(backend)
       else:
         self.__updateFormat()
-        logging.warning("Unexistant method for showing messages Unexistant %s logging method", stringHandler)
+        logging.warn("%s is not a valid backend name.", stringHandler, extra={'componentname': self.__componentName})
 
   def __configureLevel(self):
     """
