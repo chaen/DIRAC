@@ -322,6 +322,21 @@ class TestLogRecordCreation(TestLoggerWrapper):
     self.assertEqual(sublog.getSubName(), 'sublog')
     self.assertEqual(suboldLog.getSubName(), 'sublog')
 
+  def test_14showStack(self):
+    """
+    Get the showStack
+    """
+    gLogger.showStack()
+    oldgLogger.showStack()
+
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    logstring2 = cleaningLog(self.oldbuffer.getvalue())
+
+
+    self.assertEqual(logstring1, "UTCFrameworkDEBUG:\n")
+    self.assertEqual(logstring2, "UTCFrameworkDEBUG:\n")
+    self.buffer.truncate(0)
+    self.oldbuffer.truncate(0)
 
 if __name__ == '__main__':
   suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestLogRecordCreation)

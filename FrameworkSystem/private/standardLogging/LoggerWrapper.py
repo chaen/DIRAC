@@ -51,7 +51,7 @@ class LoggerWrapper(object):
       self.__logger = logging.getLogger(fathername).getChild(name)
 
   def initialized(self):
-    self.verbose("initialized: Deleted method. Do not use it.")
+    # initialized: Deleted method. Do not use it.
     return True
 
   def showHeaders(self, yesno=True):
@@ -221,13 +221,19 @@ class LoggerWrapper(object):
     return result
 
   def showStack(self):
-    self.verbose("showStack: Deleted method. Do not use it.")
+    return self.debug('')
 
   def processMessage(self, messageObject):
-    self.verbose("processMessage: Deleted method. Do not use it.")
+    # processMessage: Deleted method. Do not use it.
+    #result = False
+    #if self.__logger.isEnabledFor(messageObject.getLevel()):
+      #TO DO
+    #  result = True
+    return False
 
   def flushAllMessages(self, exitCode=0):
-    self.verbose("flushAllMessages: Deleted method. Do not use it.")
+    # flushAllMessages: Deleted method. Do not use it.
+    pass
 
   def getSubLogger(self, subName, child=True):
     """
