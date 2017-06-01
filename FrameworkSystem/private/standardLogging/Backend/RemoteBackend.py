@@ -5,13 +5,13 @@ ServerBackend wrapper
 __RCSID__ = "$Id$"
 
 import DIRAC
-from DIRAC.FrameworkSystem.private.standardLogging.Backend.Backend import Backend
+from DIRAC.FrameworkSystem.private.standardLogging.Backend.AbstractBackend import AbstractBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter import BaseFormatter
 from DIRAC.FrameworkSystem.private.standardLogging.Handler.RemoteHandler import RemoteHandler
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
-class RemoteBackend(Backend):
+class RemoteBackend(AbstractBackend):
   """
   RemoteBackend is used to create an abstraction of the handler and the formatter concepts from logging. 
   Here, we gather a RemoteHandler object and a BaseFormatter. 

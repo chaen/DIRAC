@@ -7,11 +7,11 @@ __RCSID__ = "$Id$"
 import logging
 from os import getpid
 
-from DIRAC.FrameworkSystem.private.standardLogging.Backend.Backend import Backend
+from DIRAC.FrameworkSystem.private.standardLogging.Backend.AbstractBackend import AbstractBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter import BaseFormatter
 
 
-class FileBackend(Backend):
+class FileBackend(AbstractBackend):
   """
   FileBackend is used to create an abstraction of the handler and the formatter concepts from logging. 
   Here, we gather a FileHandler object and a BaseFormatter. 

@@ -7,11 +7,11 @@ __RCSID__ = "$Id$"
 import logging
 import sys
 
-from DIRAC.FrameworkSystem.private.standardLogging.Backend.Backend import Backend
+from DIRAC.FrameworkSystem.private.standardLogging.Backend.AbstractBackend import AbstractBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Formatter.ColoredBaseFormatter import ColoredBaseFormatter
 
 
-class StdoutBackend(Backend):
+class StdoutBackend(AbstractBackend):
   """
   StdoutBackend is used to create an abstraction of the handler and the formatter concepts from logging. 
   Here, we gather a StreamHandler object and a BaseFormatter. 

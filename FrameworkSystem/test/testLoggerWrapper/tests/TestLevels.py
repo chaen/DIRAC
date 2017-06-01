@@ -33,7 +33,7 @@ class TestLevels(TestLoggerWrapper):
     self.assertEqual(oldgLogger.shown('debug'), False)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-    
+
     gLogger.warn('message')
     oldgLogger.warn('message')
 
@@ -76,12 +76,11 @@ class TestLevels(TestLoggerWrapper):
     self.assertEqual(oldgLogger.shown('verbose'), False)
     self.assertEqual(oldgLogger.shown('info'), False)
     self.assertEqual(oldgLogger.shown('warn'), False)
-    
+
     self.assertEqual(oldgLogger.shown('notice'), True)
     self.assertEqual(oldgLogger.shown('error'), True)
     self.assertEqual(oldgLogger.shown('always'), True)
     self.assertEqual(oldgLogger.shown('fatal'), True)
-
 
   def test_03setLevelGetSubLogLevel(self):
     """

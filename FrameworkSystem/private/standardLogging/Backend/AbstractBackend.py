@@ -4,10 +4,8 @@ Backend wrapper
 
 __RCSID__ = "$Id$"
 
-from abc import ABCMeta, abstractmethod
 
-
-class Backend(object):
+class AbstractBackend(object):
   """
   Backend is used to create an abstraction of handler and formatter concepts from logging.
   It corresponds to the backend concept of the old gLogger.
@@ -28,7 +26,6 @@ class Backend(object):
   The purpose of the object is to get cfg options to give them to the handler,
   and to set the format of the handler when the display must be changed. 
   """
-  __metaclass__ = ABCMeta
 
   def __init__(self, handler, formatter):
     """
@@ -42,21 +39,19 @@ class Backend(object):
     self._handler = handler
     self._formatter = formatter
 
-  @abstractmethod
   def setParameters(self, parameters):
     """
     Each backend can initialize its parameters for their handlers.
     :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     """
-    pass
+    raise NotImplementedError("setParameter not implemented")
 
-  @abstractmethod
   def configureHandler(self):
     """
     Initialize the handler with the correct parameters: 
     default parameters or cfg options. 
     """
-    pass
+    raise NotImplementedError("configureHandler not implemented")
 
   def getHandler(self):
     """
