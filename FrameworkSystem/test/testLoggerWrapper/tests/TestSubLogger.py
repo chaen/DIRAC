@@ -53,6 +53,20 @@ class TestSubLogger(TestLoggerWrapper):
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
 
+  #def test_03subsubLoggerRegisterBackends(self):
+  #  """
+  #  Register a backend for a subsublogger
+  #  """
+  #  log = gLogger.getSubLogger('log')
+  #  sublog = log.getSubLogger('sublog')
+  #  subsublog = sublog.getSubLogger('subsublog')
+  #  subsublog.registerBackends(['stdout'])
+  #  subsublog.always('message')
+#
+  #  self.assertEqual(" Framework/log/sublog/subsublog ", self.buffer.getvalue())
+  #  self.buffer.truncate(0)
+  #  self.oldbuffer.truncate(0)
+
 
 if __name__ == '__main__':
   suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestSubLogger)

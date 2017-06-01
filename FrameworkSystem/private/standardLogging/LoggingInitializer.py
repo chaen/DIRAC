@@ -15,18 +15,16 @@ from DIRAC.FrameworkSystem.private.standardLogging.Backend.RemoteBackend import 
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
-class LoggingWrapper(object):
+class LoggingInitializer(object):
   """
-  The old gLogger object is now separated into two different objects: loggingWrapper and loggerWrapper.
-  LoggingWrapper is a wrapper of the logging module from the standard logging library which integrate
-  some DIRAC concepts. 
-
+  The old gLogger object is now separated into two different objects: LoggingInitializer and loggerWrapper.
+  
   Its purpose is to configure the root logger with the cfg file content: handlers and format. 
   As logging from the logging library is unique, we created a singleton to prevent that someone initialize
   the root logger 2 times. 
 
   It has all the global attributes of the old gLogger like showHeaders, showThreads, Color and Path. 
-  LoggerWrapper delegate its configuration and its global attributes to LoggingWrapper.
+  LoggerWrapper delegate its configuration and its global attributes to LoggingInitializer.
   """
   __configuredLogging = False
 
@@ -36,9 +34,9 @@ class LoggingWrapper(object):
     """
     Initialization of the singleton.
     """
-    if LoggingWrapper.__instance is None:
-      LoggingWrapper.__instance = object.__new__(cls)
-    return LoggingWrapper.__instance
+    if LoggingInitializer.__instance is None:
+      LoggingInitializer.__instance = object.__new__(cls)
+    return LoggingInitializer.__instance
 
   def __init__(self):
     """
@@ -62,7 +60,7 @@ class LoggingWrapper(object):
                            'stderr': StderrBackend(),
                            'file': FileBackend(),
                            'server': RemoteBackend()}
-    self.__configureHandlers(['stdout'])
+    self.configureHandlers(['stdout'], logging.getLogger())
 
     # configuration of the level and update of the format
     self.__configureLevel()
@@ -98,7 +96,7 @@ class LoggingWrapper(object):
     """
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
-    if not LoggingWrapper.__configuredLogging:
+    if not LoggingInitializer.__configuredLogging:
       self.__componentName = componentName
 
       # Backend options
@@ -119,12 +117,12 @@ class LoggingWrapper(object):
       logging.getLogger().setLevel(logging.getLevelName(levelname))
 
       # Configure outputs
-      self.__configureHandlers(desiredBackends)
+      self.configureHandlers(desiredBackends, logging.getLogger())
       self.__updateFormat()
 
-      LoggingWrapper.__configuredLogging = True
+      LoggingInitializer.__configuredLogging = True
 
-  def __configureHandlers(self, listHandler):
+  def configureHandlers(self, listHandler, logger):
     """
     Attach a list of handlers to the root logger
     :params listHandler: a list of different names attaching to differents backends.
@@ -138,7 +136,7 @@ class LoggingWrapper(object):
 
         if backend not in self.__backendsList:
           backend.configureHandler()
-          logging.getLogger().addHandler(backend.getHandler())
+          logger.addHandler(backend.getHandler())
           self.__backendsList.append(backend)
       else:
         self.__updateFormat()

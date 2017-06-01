@@ -6,30 +6,30 @@ __RCSID__ = "$Id$"
 
 import logging
 
-from DIRAC.FrameworkSystem.private.standardLogging.LoggingWrapper import LoggingWrapper
+from DIRAC.FrameworkSystem.private.standardLogging.LoggingInitializer import LoggingInitializer
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 
-class LoggerWrapper(object):
+class gLogging(object):
   """
-  The old gLogger object is now separated into two different objects: loggingWrapper and loggerWrapper.
-  LoggerWrapper is a wrapper of the logger object from the standard logging library which integrate
+  The old gLogger object is now separated into two different objects: loggingInitializer and gLogging.
+  gLogging is a wrapper of the logger object from the standard logging library which integrate
   some DIRAC concepts. 
 
   It is used like an interface to use the logger object of the logging library. 
   Its purpose is to replace transparently the old gLogger object in the existing code in order to 
   minimize the changes. 
 
-  In this way, each LoggerWrapper embed a logger of logging. It is possible to create sublogger,
+  In this way, each gLogging embed a logger of logging. It is possible to create sublogger,
   set and get the level of the embedded logger and create log messages with it.
 
-  LoggerWrapper delegate its configuration and its global attributes to LoggingWrapper: its purpose is to configure
+  gLogging delegate its configuration and its global attributes to LoggingInitializer: its purpose is to configure
   the root logger and all the functionalities that concern all the loggers. 
   """
 
-  __gLogging = LoggingWrapper()
+  __gLogging = LoggingInitializer()
 
-  def __init__(self, fathername='', name=''):
+  def __init__(self, father= None, fathername='', name=''):
     """
     Initialization of the logger.
     :params fathername: string representing the name of the father logger in the chain.
@@ -41,9 +41,12 @@ class LoggerWrapper(object):
     logging.getLogger('') == logging.getLogger('root') root logger
     logging.getLogger('root').getChild('log') == root.log == log child of root
     """
+
+    self.__childrens = []
+    self.__parent = father
     # this test is True only the first time, at the initialization of the gLogger
     # it gets the root logger
-    if fathername == '':
+    if not father:
       self.__logger = logging.getLogger(name)
     # then the other times, all loggers go to the else test
     # it corresponds to the children of the root logger
@@ -60,7 +63,7 @@ class LoggerWrapper(object):
     :params yesno: boolean determining the behaviour of the display
     Delegate it to the LoggingWrapper because showHeaders is common to all loggers.
     """
-    LoggerWrapper.__gLogging.showHeaders(yesno)
+    gLogging.__gLogging.showHeaders(yesno)
 
   def showThreadIDs(self, yesno=True):
     """
@@ -68,10 +71,10 @@ class LoggerWrapper(object):
     :params yesno: boolean determining the behaviour of the display
     Delegate it to the LoggingWrapper because showThreadIDs is common to all loggers.
     """
-    LoggerWrapper.__gLogging.showThreadIDs(yesno)
+    gLogging.__gLogging.showThreadIDs(yesno)
 
   def registerBackends(self, desiredBackends):
-    self.verbose("registerBackends: Deleted method. Do not use it.")
+    gLogging.__gLogging.configureHandlers(desiredBackends, self.__logger)
 
   def initialize(self, systemName, cfgPath):
     """
@@ -81,7 +84,7 @@ class LoggerWrapper(object):
     :params systemName: string represented as "system name/component name"
     :params cfgPath: string of the cfg file path
     """
-    LoggerWrapper.__gLogging.loadConfigurationFromCFGFile(systemName, cfgPath)
+    gLogging.__gLogging.loadConfigurationFromCFGFile(systemName, cfgPath)
 
   def setLevel(self, levelName):
     """
@@ -119,7 +122,7 @@ class LoggerWrapper(object):
     """
     :return: "system name/component name"
     """
-    return LoggerWrapper.__gLogging.getComponent()
+    return gLogging.__gLogging.getComponent()
 
   def getSubName(self):
     """
@@ -216,7 +219,7 @@ class LoggerWrapper(object):
     result = False
     if self.__logger.isEnabledFor(level):
       self.__logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info,
-                        extra={'componentname': LoggerWrapper.__gLogging.getComponent()})
+                        extra={'componentname': gLogging.__gLogging.getComponent()})
       result = True
     return result
 
@@ -225,10 +228,6 @@ class LoggerWrapper(object):
 
   def processMessage(self, messageObject):
     # processMessage: Deleted method. Do not use it.
-    #result = False
-    #if self.__logger.isEnabledFor(messageObject.getLevel()):
-      #TO DO
-    #  result = True
     return False
 
   def flushAllMessages(self, exitCode=0):
@@ -240,4 +239,6 @@ class LoggerWrapper(object):
     Create a new gLogger object, child of this logger.
     :params subName: the name of the child
     """
-    return LoggerWrapper(self.__logger.name, subName)
+    child = gLogging(self, self.__logger.name, subName)
+    self.__childrens.append(child)
+    return child

@@ -1,7 +1,7 @@
 # $HeadURL$
 __RCSID__ = "$Id$"
 from DIRAC.FrameworkSystem.private.logging.Logger import Logger
-from DIRAC.FrameworkSystem.private.standardLogging.LoggerWrapper import LoggerWrapper
+from DIRAC.FrameworkSystem.private.standardLogging.gLogging import gLogging
 
 # old logger
 # useful for testing the new gLogger
@@ -9,7 +9,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.LoggerWrapper import LoggerWr
 oldgLogger = Logger()
 
 # new gLogger
-gLogger = LoggerWrapper()
+gLogger = gLogging()
 
 
 def getLogger():
