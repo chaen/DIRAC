@@ -51,7 +51,7 @@ class ColoredBaseFormatter(BaseFormatter):
     """
     stringRecord = super(ColoredBaseFormatter, self).format(record)
     # post treatment
-    if self._options['Color'] and sys.stdout.isatty():
+    if self._options['Color'] and sys.stdout.isatty() and sys.stderr.isatty():
       params = []
       bg, fg, bold = self.LEVEL_MAP[record.levelname]
       if bg in self.COLOR_MAP:

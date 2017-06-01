@@ -8,7 +8,7 @@ import logging
 import sys
 
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.AbstractBackend import AbstractBackend
-from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter import BaseFormatter
+from DIRAC.FrameworkSystem.private.standardLogging.Formatter.ColoredBaseFormatter import ColoredBaseFormatter
 
 
 class StderrBackend(AbstractBackend):
@@ -24,7 +24,7 @@ class StderrBackend(AbstractBackend):
   """
 
   def __init__(self):
-    super(StderrBackend, self).__init__(None, BaseFormatter)
+    super(StderrBackend, self).__init__(None, ColoredBaseFormatter)
 
   def setParameters(self, parameters):
     pass
