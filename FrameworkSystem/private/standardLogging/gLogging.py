@@ -65,6 +65,10 @@ class gLogging(object):
     else:
       self.__options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
 
+    # dictionary of the option state, modified by the user or not
+    # this is to give to the options the same behaviour that the logging setLevel()
+    self.__optionsmodified = {'showHeaders': False, 'showThreads': False}
+
     self.__backendsList = []
 
     # this test is True only the first time, at the initialization of the gLogger
@@ -96,15 +100,26 @@ class gLogging(object):
     Depending on the value, display or not the prefix of the message.
     :params yesno: boolean determining the behaviour of the display
     """
-    self.__options['showHeaders'] = yesno
-    self.__updateFormat()
+    self.__setOption('showHeaders', yesno)
 
   def showThreadIDs(self, yesno=True):
     """
     Depending on the value, display or not the thread ID.
     :params yesno: boolean determining the behaviour of the display
     """
-    self.__options['showThreads'] = yesno
+    self.__setOption('showThreads', yesno)
+
+  def __setOption(self, optionName, value):
+    """
+    Depending on the value, modify the value of the option.
+    This option will not be modified anymore. 
+    The options of the childrens will be updated if they were not modified before by a developer
+    :params optionName: string representing the name of the option to modify
+    :params value: boolean to give to the option  
+    """
+    self.__options[optionName] = value
+    self.__optionsmodified[optionName] = True
+    self._setChildrensDisplayOptions(optionName, self.__options)
     self.__updateFormat()
 
   def registerBackends(self, desiredBackends, backendOptions=None):
@@ -174,7 +189,6 @@ class gLogging(object):
 
       desiredBackends, backendOptions = backends
       self.registerBackends(desiredBackends, backendOptions)
-      self.__updateFormat()
 
       gLogging.__configuredLogging = True
 
@@ -234,6 +248,16 @@ class gLogging(object):
     :return: a copy of the dictionary of the display options and their values
     """
     return self.__options.copy()
+
+  def _setChildrensDisplayOptions(self, optionName, options):
+    """
+    Set the display options of the childrens if they are not modified by the user
+    """
+    if not self.__optionsmodified[optionName]:
+      self.__options = options.copy()
+      self.__updateFormat()
+    for child in self.__childrens:
+      child._setChildrensDisplayOptions(optionName, options)
 
   def getAllPossibleLevels(self):
     """

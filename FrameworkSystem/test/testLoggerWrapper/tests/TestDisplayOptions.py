@@ -16,6 +16,12 @@ class TestDisplayOptions(TestLoggerWrapper):
   Test the creation of subloggers and their properties
   """
 
+  def setUp(self):
+    super(TestDisplayOptions, self).setUp()
+    self.filename = '/tmp/logtmp.log'
+    with open(self.filename, "w"):
+      pass
+
   def test_00setShowHeaders(self):
     """
     Set the headers
@@ -141,6 +147,135 @@ class TestDisplayOptions(TestLoggerWrapper):
     self.assertNotEqual(logstring1, logstring2)
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
+
+  def test_03setSubLogShowHeaders(self):
+    """
+    Create a sublogger and set it its own Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog')
+    sublog.setLevel('notice')
+    sublog.showHeaders(False)
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+
+    sublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertEqual(message, "message \n")
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    self.assertEqual(logstring1, "UTCFramework/sublogNOTICE:message\n")
+
+  def test_04SubLogShowHeadersChange(self):
+    """
+    Create a sublogger and show that its Header option follow the change of its parent Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog2')
+    sublog.setLevel('notice')
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+    gLogger.showHeaders(False)
+
+    sublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertEqual(message, "message \n")
+    self.assertEqual(self.buffer.getvalue(), "message \n")
+
+  def test_05setSubLoggLoggerShowHeaders(self):
+    """
+    Create a sublogger, set its Header option and the Header option of the gLogger. 
+    Show that its Header option do not follow the change of its parent Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog3')
+    sublog.setLevel('notice')
+    sublog.showHeaders(False)
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+    gLogger.showHeaders(True)
+
+    sublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertEqual(message, "message \n")
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    self.assertEqual(logstring1, "UTCFramework/sublog3NOTICE:message\n")
+
+  def test_06setSubLoggLoggerShowHeadersInverse(self):
+    """
+    Create a sublogger, set the Header option of the gLogger and its Header option. 
+    Show that the gLogger Header option do not follow the change of its child Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog4')
+    sublog.setLevel('notice')
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+    gLogger.showHeaders(True)
+    sublog.showHeaders(False)
+
+    sublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertEqual(message, "message \n")
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    self.assertEqual(logstring1, "UTCFramework/sublog4NOTICE:message\n")
+
+  def test_07subLogShowHeadersChange(self):
+    """
+    Create a subsublogger and show that its Header option follow the change of its parent Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog5')
+    sublog.setLevel('notice')
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+    subsublog = sublog.getSubLogger('subsublog')
+    subsublog.registerBackends(['file'], {'FileName': self.filename})
+    gLogger.showHeaders(False)
+
+    subsublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertEqual(message, "message \nmessage \n")
+    self.assertEqual(self.buffer.getvalue(), "message \n")
+
+  def test_07subLogShowHeadersChangeSetSubLogger(self):
+    """
+    Create a subsublogger and show that its Header option follow the change of its parent Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog6')
+    sublog.setLevel('notice')
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+    subsublog = sublog.getSubLogger('subsublog')
+    subsublog.registerBackends(['file'], {'FileName': self.filename})
+    sublog.showHeaders(False)
+
+    subsublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertEqual(message, "message \nmessage \n")
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    self.assertEqual(logstring1, "UTCFramework/sublog6/subsublogNOTICE:message\n")
+
+  def test_07subLogShowHeadersChangeSetSubLogger(self):
+    """
+    Create a subsublogger and set its Header option and show that 
+    its Header option do not follow the change of its parent Header option.
+    """
+    sublog = gLogger.getSubLogger('sublog6')
+    sublog.setLevel('notice')
+    sublog.registerBackends(['file'], {'FileName': self.filename})
+    subsublog = sublog.getSubLogger('subsublog')
+    subsublog.registerBackends(['file'], {'FileName': self.filename})
+    sublog.showHeaders(False)
+    subsublog.showHeaders(True)
+
+    subsublog.notice("message")
+    with open(self.filename) as file:
+      message = file.read()
+
+    self.assertIn("UTC Framework/sublog6/subsublog NOTICE: message \nmessage \n", message)
+    logstring1 = cleaningLog(self.buffer.getvalue())
+    self.assertEqual(logstring1, "UTCFramework/sublog6/subsublogNOTICE:message\n")
 
 
 if __name__ == '__main__':
