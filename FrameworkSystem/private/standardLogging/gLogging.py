@@ -5,8 +5,6 @@ gLogging
 __RCSID__ = "$Id$"
 
 import logging
-import time
-import sys
 
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
