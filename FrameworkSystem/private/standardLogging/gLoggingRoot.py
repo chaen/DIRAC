@@ -83,6 +83,9 @@ class gLoggingRoot(gLogging):
       backends = (None, None)
       gLogging._componentName = systemName
 
+      # Remove stdout from the list of backends
+      del self._backendsList[:]
+      self._logger.removeHandler(self._logger.handlers[0])
       # Backend options
       desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
       desiredBackends = desiredBackendsStr.split(',')
@@ -127,4 +130,3 @@ class gLoggingRoot(gLogging):
       logger.setLevel(LogLevels.getLevelValue('DEBUG'))
       self.showHeaders(True)
       self.showThreadIDs(True)
-      
