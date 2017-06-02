@@ -4,12 +4,12 @@ Test Logger Wrapper
 
 __RCSID__ = "$Id$"
 
-# imports
+
 import unittest
 import logging
 import sys
 from StringIO import StringIO
-# sut
+
 from DIRAC import gLogger, oldgLogger
 
 
@@ -39,6 +39,12 @@ class TestLoggerWrapper(unittest.TestCase):
     self.oldlog = oldgLogger.getSubLogger('log')
     self.oldbuffer = StringIO()
     sys.stdout = self.oldbuffer
+
+    gLogger.showHeaders(True)
+    gLogger.showThreadIDs(False)
+
+    oldgLogger.showHeaders(True)
+    oldgLogger.showThreadIDs(False)
 
     # modify the output to capture the log into a buffer
     if logging.getLogger().handlers:

@@ -4,10 +4,10 @@ Test LogRecord Creation
 
 __RCSID__ = "$Id$"
 
-# imports
+
 import unittest
 
-# sut
+
 from DIRAC import gLogger, oldgLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper, cleaningLog
 
@@ -331,7 +331,6 @@ class TestLogRecordCreation(TestLoggerWrapper):
 
     logstring1 = cleaningLog(self.buffer.getvalue())
     logstring2 = cleaningLog(self.oldbuffer.getvalue())
-
 
     self.assertEqual(logstring1, "UTCFrameworkDEBUG:\n")
     self.assertEqual(logstring2, "UTCFrameworkDEBUG:\n")

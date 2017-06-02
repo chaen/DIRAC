@@ -16,13 +16,6 @@ class TestDisplayOptions(TestLoggerWrapper):
   Test the creation of subloggers and their properties
   """
 
-  def tearDown(self):
-    gLogger.showHeaders(True)
-    gLogger.showThreadIDs(False)
-
-    oldgLogger.showHeaders(True)
-    oldgLogger.showThreadIDs(False)
-
   def test_00setShowHeaders(self):
     """
     Set the headers

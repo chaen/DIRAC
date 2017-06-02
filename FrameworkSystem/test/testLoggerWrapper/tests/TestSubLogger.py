@@ -4,10 +4,8 @@ Test SubLogger
 
 __RCSID__ = "$Id$"
 
-# imports
 import unittest
 
-# sut
 from DIRAC import gLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
@@ -52,20 +50,6 @@ class TestSubLogger(TestLoggerWrapper):
     self.assertIn(" Framework/log/sublog/subsublog ", self.buffer.getvalue())
     self.buffer.truncate(0)
     self.oldbuffer.truncate(0)
-
-  #def test_03subsubLoggerRegisterBackends(self):
-  #  """
-  #  Register a backend for a subsublogger
-  #  """
-  #  log = gLogger.getSubLogger('log')
-  #  sublog = log.getSubLogger('sublog')
-  #  subsublog = sublog.getSubLogger('subsublog')
-  #  subsublog.registerBackends(['stdout'])
-  #  subsublog.always('message')
-#
-  #  self.assertEqual(" Framework/log/sublog/subsublog ", self.buffer.getvalue())
-  #  self.buffer.truncate(0)
-  #  self.oldbuffer.truncate(0)
 
 
 if __name__ == '__main__':

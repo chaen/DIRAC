@@ -4,10 +4,9 @@ Test Levels
 
 __RCSID__ = "$Id$"
 
-# imports
+
 import unittest
 
-# sut
 from DIRAC import gLogger, oldgLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper
 
