@@ -1,0 +1,130 @@
+"""
+gLogging Root
+"""
+
+__RCSID__ = "$Id$"
+
+import logging
+import time
+import sys
+
+from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
+from DIRAC.FrameworkSystem.private.standardLogging.gLogging import gLogging
+
+
+class gLoggingRoot(gLogging):
+  """
+  gLoggingRoot is a gLogging object and it is particular because it is the first parent of the chaine.
+  In this context, it has more possibilities because it is the one that initializes the logger of the 
+  standard logging library and it configures it with the cfg file.
+
+  There is a difference between the parent gLogging and the other because the parent defines the behaviour
+  of all the gLogging objects, so it needs a specific class.  
+
+  gLoggingRoot has to be unique, because we want one and only one parent on the top of the chain: that is why 
+  we created a singleton to keep it unique. 
+  """
+
+  __configuredLogging = False
+  __instance = None
+
+  def __new__(cls):
+    """
+    Initialization of the singleton to keep gLoggingRoot unique.
+    """
+    if gLoggingRoot.__instance is None:
+      gLoggingRoot.__instance = object.__new__(cls)
+    return gLoggingRoot.__instance
+
+  def __init__(self):
+    """
+    Initialization of the gLoggingRoot object.
+    gLoggingRoot :
+    - initialize the UTC time
+    - set the correct level defines by the user, or the default
+    - add the custom level to logging: verbose, notice, always
+    - register a default backend: stdout : all messages will be displayed here
+    - update the format according to the command line argument 
+    """
+    super(gLoggingRoot, self).__init__()
+    self._logger = logging.getLogger('')
+    self._logger.setLevel(LogLevels.getLevelValue('NOTICE'))
+
+    # initialization of the UTC time
+    logging.Formatter.converter = time.gmtime
+
+    # initialization of levels
+    levels = LogLevels.getLevels()
+    for level in levels:
+      logging.addLevelName(levels[level], level)
+
+    # initialization of the default backend
+    self.registerBackends(['stdout'])
+
+    # configuration of the level and update of the format
+    self.__configureLevel()
+    self._updateFormat()
+
+  def initialize(self, systemName, cfgPath):
+    """
+    Configure the root gLogging with a cfg file.
+    It can be possible to :
+    - attach it some backends : LogBackends = stdout,stderr,file,server 
+    - attach backend options : BackendOptions { FileName = /tmp/file.log }
+    - add colors and the path of the call : LogColor = True, LogShowLine = True
+    - precise a level : LogLevel = DEBUG
+
+    :params systemName: string represented as "system name/component name"
+    :params cfgPath: string of the cfg file path
+    """
+    from DIRAC.ConfigurationSystem.Client.Config import gConfig
+
+    if not gLoggingRoot.__configuredLogging:
+      backends = (None, None)
+      gLogging._componentName = systemName
+
+      # Backend options
+      desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
+      desiredBackends = desiredBackendsStr.split(',')
+
+      retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
+      if retDict['OK']:
+        backends = (desiredBackends, retDict['Value'])
+      else:
+        backends = (desiredBackends, None)
+
+      # Format options
+      self._options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
+      self._options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
+
+      currentLevelName = logging.getLevelName(logging.getLogger().getEffectiveLevel())
+      levelname = gConfig.getValue("%s/LogLevel" % cfgPath, currentLevelName)
+      logging.getLogger().setLevel(logging.getLevelName(levelname))
+
+      desiredBackends, backendOptions = backends
+      self.registerBackends(desiredBackends, backendOptions)
+
+      gLoggingRoot.__configuredLogging = True
+
+  def __configureLevel(self):
+    """
+    Configure the log level of the root glogging according to the argv parameter
+    It can be : -d, -dd, -ddd
+    Work only for clients, scripts and tests
+    Configuration/Client/LocalConfiguration manages services,agents and executors
+    """
+    debLevs = 0
+    logger = logging.getLogger()
+    for arg in sys.argv:
+      if arg.find("-d") == 0:
+        debLevs += arg.count("d")
+    if debLevs == 1:
+      logger.setLevel(LogLevels.getLevelValue('VERBOSE'))
+    elif debLevs == 2:
+      logger.setLevel(LogLevels.getLevelValue('VERBOSE'))
+      self.showHeaders(True)
+    elif debLevs >= 3:
+      logger.setLevel(LogLevels.getLevelValue('DEBUG'))
+      self.showHeaders(True)
+      self.showThreadIDs(True)
+      
