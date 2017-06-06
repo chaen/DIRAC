@@ -52,3 +52,6 @@ class RemoteBackend(AbstractBackend):
     """
     self._handler = RemoteHandler(self.__sleepTime, self.__interactive, self.__site)
     self._handler.setLevel(LogLevels.getLevelValue('ERROR'))
+
+  def setLevel(self, level):
+    pass
