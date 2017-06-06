@@ -7,7 +7,6 @@ __RCSID__ = "$Id$"
 
 import unittest
 
-
 from DIRAC import gLogger, oldgLogger
 from DIRAC.FrameworkSystem.test.testLoggerWrapper.tests.TestLoggerWrapper import TestLoggerWrapper, cleaningLog
 
@@ -17,6 +16,10 @@ class TestLogRecordCreation(TestLoggerWrapper):
   Test the creation of the different log records 
   via the always, notice, ..., fatal methods.
   """
+
+  def setUp(self):
+    super(TestLogRecordCreation, self).setUp()
+    self.log.setLevel('debug')
 
   def test_00always(self):
     """

@@ -68,3 +68,10 @@ class AbstractBackend(object):
     :params options: dictionary of logging options. ex: {'Color': True}
     """
     self._handler.setFormatter(self._formatter(fmt, datefmt, options))
+
+  def setLevel(self, level):
+    """
+    Configure the level of the handler associated to the backend.
+    :params level: integer representing a level
+    """
+    self._handler.setLevel(level)

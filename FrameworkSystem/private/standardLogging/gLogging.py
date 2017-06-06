@@ -56,15 +56,19 @@ class gLogging(object):
                           'file': FileBackend(),
                           'server': RemoteBackend()}
 
-    # initialize display options with the ones of the gLogging parent
+    # initialize display options and level with the ones of the gLogging parent
     if self._parent is not None:
-      self._options = self._parent.getDisplayOptions()
+      self._options = self._parent.getDisplayOptions()   
+      self._level = LogLevels.getLevelValue(father.getLevel())
     else:
       self._options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
+      self._level = None
+
 
     # dictionary of the option state, modified by the user or not
     # this is to give to the options the same behaviour that the logging setLevel()
     self._optionsmodified = {'showHeaders': False, 'showThreads': False}
+    self._levelmodified = False
 
     self._backendsList = []
 
@@ -135,7 +139,13 @@ class gLogging(object):
     result = False
     levelName = levelName.upper()
     if levelName in LogLevels.getLevelNames():
-      self._logger.setLevel(LogLevels.getLevelValue(levelName))
+      level = LogLevels.getLevelValue(levelName)
+      for backend in self._backendsList:
+        backend.setLevel(level)
+      
+      self._level = level
+      self._levelmodified = True
+      self._setChildrensLevel(self._level)
       result = True
     return result
 
@@ -143,7 +153,7 @@ class gLogging(object):
     """
     :return: the name of the level
     """
-    return LogLevels.getLevel(self._logger.getEffectiveLevel())
+    return LogLevels.getLevel(self._level)
 
   def shown(self, levelName):
     """
@@ -154,7 +164,7 @@ class gLogging(object):
     result = False
     levelName = levelName.upper()
     if levelName in LogLevels.getLevelNames():
-      result = self._logger.isEnabledFor(LogLevels.getLevelValue(levelName))
+      result = self._level <= LogLevels.getLevelValue(levelName)
     return result
 
   @staticmethod
@@ -193,7 +203,18 @@ class gLogging(object):
     for child in self._childrens:
       child._setChildrensDisplayOptions(optionName, options)
 
-  def getAllPossibleLevels(self):
+  def _setChildrensLevel(self, level):
+    """
+    Set the level of the childrens if it is not modified by the user
+    """
+    if not self._levelmodified:
+      self._level = level
+    for child in self._childrens:
+      child._setChildrensLevel(level)
+
+
+  @staticmethod
+  def getAllPossibleLevels():
     """
     :return: a list of all levels available
     """
@@ -273,12 +294,16 @@ class gLogging(object):
     :return: boolean representing the result of the log record creation
     """
     result = False
-    if self._logger.isEnabledFor(level):
+    if self._level <= level:
       self._logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info, extra={'componentname': self.getName()})
       result = True
     return result
 
   def showStack(self):
+    """
+    Display a debug message without any content.
+    :return: boolean, True if the message is sent, else False
+    """
     return self.debug('')
 
   def _updateFormat(self):
@@ -289,7 +314,7 @@ class gLogging(object):
     datefmt = '%Y-%m-%d %H:%M:%S'
     if self._options['showHeaders']:
       fmt = '%(asctime)s UTC %(componentname)s%(name)s'
-      if self._options['Path'] and self._logger.getEffectiveLevel() == LogLevels.getLevelValue('DEBUG'):
+      if self._options['Path'] and self._level == LogLevels.getLevelValue('DEBUG'):
         fmt += ' [%(pathname)s:%(lineno)d]'
       if self._options['showThreads']:
         fmt += ' [%(thread)d]'

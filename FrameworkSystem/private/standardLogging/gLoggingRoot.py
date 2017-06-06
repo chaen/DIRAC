@@ -48,7 +48,7 @@ class gLoggingRoot(gLogging):
     """
     super(gLoggingRoot, self).__init__()
     self._logger = logging.getLogger('')
-    self._logger.setLevel(LogLevels.getLevelValue('NOTICE'))
+    self._logger.setLevel(LogLevels.getLevelValue('DEBUG'))
 
     # initialization of the UTC time
     logging.Formatter.converter = time.gmtime
@@ -60,6 +60,7 @@ class gLoggingRoot(gLogging):
 
     # initialization of the default backend
     self.registerBackends(['stdout'])
+    self.setLevel('NOTICE')
 
     # configuration of the level and update of the format
     self.__configureLevel()
@@ -102,7 +103,7 @@ class gLoggingRoot(gLogging):
 
       currentLevelName = logging.getLevelName(logging.getLogger().getEffectiveLevel())
       levelname = gConfig.getValue("%s/LogLevel" % cfgPath, currentLevelName)
-      logging.getLogger().setLevel(logging.getLevelName(levelname))
+      self.setLevel(levelname)
 
       desiredBackends, backendOptions = backends
       self.registerBackends(desiredBackends, backendOptions)
@@ -117,16 +118,15 @@ class gLoggingRoot(gLogging):
     Configuration/Client/LocalConfiguration manages services,agents and executors
     """
     debLevs = 0
-    logger = logging.getLogger()
     for arg in sys.argv:
       if arg.find("-d") == 0:
         debLevs += arg.count("d")
     if debLevs == 1:
-      logger.setLevel(LogLevels.getLevelValue('VERBOSE'))
+      self.setLevel('VERBOSE')
     elif debLevs == 2:
-      logger.setLevel(LogLevels.getLevelValue('VERBOSE'))
+      self.setLevel('VERBOSE')
       self.showHeaders(True)
     elif debLevs >= 3:
-      logger.setLevel(LogLevels.getLevelValue('DEBUG'))
+      self.setLevel('DEBUG')
       self.showHeaders(True)
       self.showThreadIDs(True)
