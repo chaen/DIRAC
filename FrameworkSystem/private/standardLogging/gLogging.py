@@ -47,7 +47,7 @@ class gLogging(object):
     """
 
     # gLogging chain
-    self._childrens = []
+    self._children = []
     self._parent = father
 
     # all the different backends
@@ -92,13 +92,13 @@ class gLogging(object):
     """
     Depending on the value, modify the value of the option.
     This option will not be modified anymore. 
-    The options of the childrens will be updated if they were not modified before by a developer
+    The options of the children will be updated if they were not modified before by a developer
     :params optionName: string representing the name of the option to modify
     :params value: boolean to give to the option  
     """
     self._options[optionName] = value
     self._optionsmodified[optionName] = True
-    self._setChildrensDisplayOptions(optionName, self._options)
+    self._setChildrenDisplayOptions(optionName, self._options)
     self._updateFormat()
 
   def registerBackends(self, desiredBackends, backendOptions=None):
@@ -145,7 +145,7 @@ class gLogging(object):
       
       self._level = level
       self._levelmodified = True
-      self._setChildrensLevel(self._level)
+      self._setChildrenLevel(self._level)
       result = True
     return result
 
@@ -193,24 +193,24 @@ class gLogging(object):
     """
     return self._options.copy()
 
-  def _setChildrensDisplayOptions(self, optionName, options):
+  def _setChildrenDisplayOptions(self, optionName, options):
     """
-    Set the display options of the childrens if they are not modified by the user
+    Set the display options of the children if they are not modified by the user
     """
     if not self._optionsmodified[optionName]:
       self._options = options.copy()
       self._updateFormat()
-    for child in self._childrens:
-      child._setChildrensDisplayOptions(optionName, options)
+    for child in self._children:
+      child._setChildrenDisplayOptions(optionName, options)
 
-  def _setChildrensLevel(self, level):
+  def _setChildrenLevel(self, level):
     """
-    Set the level of the childrens if it is not modified by the user
+    Set the level of the children if it is not modified by the user
     """
     if not self._levelmodified:
       self._level = level
-    for child in self._childrens:
-      child._setChildrensLevel(level)
+    for child in self._children:
+      child._setChildrenLevel(level)
 
 
   @staticmethod
@@ -331,7 +331,7 @@ class gLogging(object):
     result = self._childExists(subName)
     if result is None:
       child = gLogging(self, self._logger.name, subName)
-      self._childrens.append(child)
+      self._children.append(child)
     else:
       child = result
     return child
@@ -342,7 +342,7 @@ class gLogging(object):
     :params name: the name of the child
     :return: boolean, True if it exists, else False
     """
-    for child in self._childrens:
+    for child in self._children:
       if name == child.getSubName():
         return child
     return None
