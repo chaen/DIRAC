@@ -62,6 +62,7 @@ class gLogging(object):
       self._level = LogLevels.getLevelValue(father.getLevel())
     else:
       self._options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
+      # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
 
 
