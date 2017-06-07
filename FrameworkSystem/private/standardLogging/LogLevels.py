@@ -14,7 +14,7 @@ class LogLevels(object):
 
   It is useful to make conversion string-integer. 
   In fact, logging use only integers while the oldgLogger used strings, so we need a converter.
-  Example: log.setLevel(45) in logging become log.setLevel("always") in gLogger. 
+  Example: log.setLevel(logging.ALWAYS) in logging become log.setLevel("always") in gLogger. 
   We keep the string form because there are many and many calls with string levels. 
 
   There is a method named getLevelName in logging which could do almost the same job, but with logging,
