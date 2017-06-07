@@ -68,7 +68,9 @@ class gLogging(object):
       self._level = None
 
     # dictionary of the option state, modified by the user or not
-    # this is to give to the options the same behaviour that the logging setLevel()
+    # this is to give to the options the same behaviour that the logging level: 
+    # - propagation from the parent to the children when their levels are not set by the developer himself
+    # - stop the propagation when a developer set a level to a child
     self._optionsModified = {'showHeaders': False, 'showThreads': False}
     self._levelModified = False
 
