@@ -7,7 +7,7 @@ __RCSID__ = "$Id$"
 
 class AbstractBackend(object):
   """
-  Backend is used to create an abstraction of handler and formatter concepts from logging.
+  AbstractBackend is used to create an abstraction of handler and formatter concepts from logging.
   It corresponds to the backend concept of the old gLogger.
   It is useful for different reasons: 
 
