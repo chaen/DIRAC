@@ -130,7 +130,10 @@ class gLogging(object):
             # give a copy to avoid that the backends modify the dictionary
             backend.setParameters(backendOptions.copy())
 
+          # create the handler thanks to the parameters
           backend.configureHandler()
+          # update the level of the new backend to respect the gLogging level
+          backend.setLevel(self._level)
           self._logger.addHandler(backend.getHandler())
           self._backendsList.append(backend)
           self._updateFormat()

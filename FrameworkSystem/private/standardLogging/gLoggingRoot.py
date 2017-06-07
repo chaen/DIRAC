@@ -60,8 +60,8 @@ class gLoggingRoot(gLogging):
       logging.addLevelName(levels[level], level)
 
     # initialization of the default backend
-    self.registerBackends(['stdout'])
     self.setLevel('NOTICE')
+    self.registerBackends(['stdout'])
 
     # configuration of the level and update of the format
     self.__configureLevel()
