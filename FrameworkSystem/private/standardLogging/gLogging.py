@@ -71,7 +71,7 @@ class gLogging(object):
     self.name = name
 
     # dictionary of the option state, modified by the user or not
-    # this is to give to the options the same behaviour that the logging level: 
+    # this is to give to the options the same behaviour that the logging level:
     # - propagation from the parent to the children when their levels are not set by the developer himself
     # - stop the propagation when a developer set a level to a child
     self._optionsModified = {'showHeaders': False, 'showThreads': False}
@@ -285,7 +285,10 @@ class gLogging(object):
 
   def _createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
     """
-    Create a log record according to the level of the message.
+    Create a log record according to the level of the message. The log record is always sent to the different backends
+    Backends have their own levels and can manage the display of the message or not according to the level. 
+    Nevertheless, backends and the logger have the same level value, 
+    so we can test if the message will be displayed or not. 
     :params level: positive integer representing the level of the log record
     :params sMsg: string representing the message
     :params sVarMsg: string representing an optional message
@@ -293,9 +296,10 @@ class gLogging(object):
 
     :return: boolean representing the result of the log record creation
     """
+    self._logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info, extra={'componentname': self.getName()})
+    # test to know if the message is displayed or not
     result = False
     if self._level <= level:
-      self._logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info, extra={'componentname': self.getName()})
       result = True
     return result
 
