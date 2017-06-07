@@ -115,8 +115,7 @@ class gLogging(object):
                             example: {'FileName': '/tmp/log.txt'}
     """
     for stringHandler in desiredBackends:
-      stringHandler = stringHandler.lower()
-      stringHandler = stringHandler.strip()
+      stringHandler = stringHandler.strip().lower()
 
       # check if the name is correct
       if stringHandler in self._backendsDict:
