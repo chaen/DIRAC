@@ -124,6 +124,7 @@ class gLogging(object):
         # check if the backend is already in the list
         if backend not in self._backendsList:
           if backendOptions is not None:
+            # give a copy to avoid that the backends modify the dictionary
             backend.setParameters(backendOptions.copy())
 
           backend.configureHandler()
