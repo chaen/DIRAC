@@ -37,9 +37,9 @@ class gLogging(object):
   def __init__(self, father=None, fathername='', name=''):
     """
     Initialization of the gLogging object.
+    :params father: gLogging, father of this new gLogging.
     :params fathername: string representing the name of the father logger in the chain.
     :params name: string representing the name of the logger in the chain. 
-    :params father: gLogging father of this new gLogging.
     By default, 'fathername' and 'name' are empty, because getChild accepts only string and the first empty
     string corresponds to the root logger. 
 
