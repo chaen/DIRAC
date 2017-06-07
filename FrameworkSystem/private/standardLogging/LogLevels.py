@@ -39,9 +39,7 @@ class LogLevels(object):
     :params sName: string representing a level name
     :return: a level value according to a level name
     """
-    sName = sName.upper()
-    sName = sName.upper()
-    return cls.__levelDict.get(sName)
+    return cls.__levelDict.get(sName.upper())
 
   @classmethod
   def getLevel(cls, level):
