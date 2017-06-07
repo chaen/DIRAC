@@ -89,8 +89,7 @@ class gLoggingRoot(gLogging):
       del self._backendsList[:]
       self._logger.removeHandler(self._logger.handlers[0])
       # Backend options
-      desiredBackendsStr = gConfig.getValue("%s/LogBackends" % cfgPath, 'stdout')
-      desiredBackends = desiredBackendsStr.split(',')
+      desiredBackends = gConfig.getValue("%s/LogBackends" % cfgPath, ['stdout'])
 
       retDict = gConfig.getOptionsDict("%s/BackendsOptions" % cfgPath)
       if retDict['OK']:
