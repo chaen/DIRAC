@@ -67,6 +67,9 @@ class gLogging(object):
       # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
 
+    # name of the gLogging
+    self.name = name
+
     # dictionary of the option state, modified by the user or not
     # this is to give to the options the same behaviour that the logging level: 
     # - propagation from the parent to the children when their levels are not set by the developer himself
@@ -183,14 +186,7 @@ class gLogging(object):
     """
     :return: the name of the logger
     """
-    name = self._logger.name
-    name = name.replace("root", "")
-
-    if name != "":
-      names = name.split('.')
-      name = names[-1]
-
-    return name
+    return self.name
 
   def getDisplayOptions(self):
     """
