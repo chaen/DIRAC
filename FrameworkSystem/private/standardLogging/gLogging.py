@@ -30,6 +30,8 @@ class gLogging(object):
   because it has to wrap the old gLogger.  
   """
 
+  # componentName is a class variable because the component name is the same for every gLogging objects
+  # its default value is "Framework" but it can be configured and composed by the system name and the component name
   _componentName = "Framework"
 
   def __init__(self, father=None, fathername='', name=''):
@@ -58,13 +60,12 @@ class gLogging(object):
 
     # initialize display options and level with the ones of the gLogging parent
     if self._parent is not None:
-      self._options = self._parent.getDisplayOptions()   
+      self._options = self._parent.getDisplayOptions()
       self._level = LogLevels.getLevelValue(father.getLevel())
     else:
       self._options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
       # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
-
 
     # dictionary of the option state, modified by the user or not
     # this is to give to the options the same behaviour that the logging setLevel()
@@ -143,7 +144,7 @@ class gLogging(object):
       level = LogLevels.getLevelValue(levelName)
       for backend in self._backendsList:
         backend.setLevel(level)
-      
+
       self._level = level
       self._levelmodified = True
       self._setChildrenLevel(self._level)
@@ -212,7 +213,6 @@ class gLogging(object):
       self._level = level
     for child in self._children:
       child._setChildrenLevel(level)
-
 
   @staticmethod
   def getAllPossibleLevels():
