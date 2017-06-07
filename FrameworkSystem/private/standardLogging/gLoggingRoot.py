@@ -48,6 +48,7 @@ class gLoggingRoot(gLogging):
     """
     super(gLoggingRoot, self).__init__()
     self._logger = logging.getLogger('')
+    # this level is not the gLogging level, it is only used to send all log messages to the central logging system
     self._logger.setLevel(LogLevels.getLevelValue('DEBUG'))
 
     # initialization of the UTC time
