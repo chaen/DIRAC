@@ -326,7 +326,7 @@ class gLogging(object):
   def getSubLogger(self, subName, child=True):
     """
     Create a new gLogging object, child of this gLogging, if it does not exists.
-    :params subName: the name of the child
+    :params subName: the name of the child gLogging
     """
     result = self._childExists(subName)
     if result is None:
