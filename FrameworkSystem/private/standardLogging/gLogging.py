@@ -103,6 +103,7 @@ class gLogging(object):
     self._options[optionName] = value
     self._optionsModified[optionName] = True
     self._setChildrenDisplayOptions(optionName, self._options)
+    # update the format to apply the option change
     self._updateFormat()
 
   def registerBackends(self, desiredBackends, backendOptions=None):
