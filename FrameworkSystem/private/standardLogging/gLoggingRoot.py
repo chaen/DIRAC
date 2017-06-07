@@ -101,9 +101,9 @@ class gLoggingRoot(gLogging):
       self._options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
       self._options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
 
-      currentLevelName = logging.getLevelName(self._level)
-      levelname = gConfig.getValue("%s/LogLevel" % cfgPath, currentLevelName)
-      self.setLevel(levelname)
+      levelName = gConfig.getValue("%s/LogLevel" % cfgPath, None)
+      if levelName is not None:
+        self.setLevel(levelName)
 
       desiredBackends, backendOptions = backends
       self.registerBackends(desiredBackends, backendOptions)
