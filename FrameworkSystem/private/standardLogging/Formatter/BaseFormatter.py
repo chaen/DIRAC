@@ -53,7 +53,8 @@ class BaseFormatter(logging.Formatter):
     stringRecord = super(BaseFormatter, self).format(record)
 
     # restore the record name with the copy
-    # useful because the same record name is used by different handlers and it does not be changed.
+    # useful because the same record name is used by different handlers and it does not be changed
+    # between each formatting in order to avoid a modification of the original information.
     record.name = logname
 
     return stringRecord
