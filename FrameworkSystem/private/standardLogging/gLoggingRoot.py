@@ -101,7 +101,7 @@ class gLoggingRoot(gLogging):
       self._options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
       self._options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
 
-      currentLevelName = logging.getLevelName(logging.getLogger().getEffectiveLevel())
+      currentLevelName = logging.getLevelName(self._level)
       levelname = gConfig.getValue("%s/LogLevel" % cfgPath, currentLevelName)
       self.setLevel(levelname)
 

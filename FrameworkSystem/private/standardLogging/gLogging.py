@@ -44,7 +44,7 @@ class gLogging(object):
     string corresponds to the root logger. 
 
     Example: 
-    logging.getLogger('') == logging.getLogger('root') root logger
+    logging.getLogger('') == logging.getLogger('root') == root logger
     logging.getLogger('root').getChild('log') == root.log == log child of root
     """
 
@@ -69,8 +69,8 @@ class gLogging(object):
 
     # dictionary of the option state, modified by the user or not
     # this is to give to the options the same behaviour that the logging setLevel()
-    self._optionsmodified = {'showHeaders': False, 'showThreads': False}
-    self._levelmodified = False
+    self._optionsModified = {'showHeaders': False, 'showThreads': False}
+    self._levelModified = False
 
     self._backendsList = []
 
@@ -99,7 +99,7 @@ class gLogging(object):
     :params value: boolean to give to the option  
     """
     self._options[optionName] = value
-    self._optionsmodified[optionName] = True
+    self._optionsModified[optionName] = True
     self._setChildrenDisplayOptions(optionName, self._options)
     self._updateFormat()
 
@@ -146,7 +146,7 @@ class gLogging(object):
         backend.setLevel(level)
 
       self._level = level
-      self._levelmodified = True
+      self._levelModified = True
       self._setChildrenLevel(self._level)
       result = True
     return result
@@ -199,7 +199,7 @@ class gLogging(object):
     """
     Set the display options of the children if they are not modified by the user
     """
-    if not self._optionsmodified[optionName]:
+    if not self._optionsModified[optionName]:
       self._options = options.copy()
       self._updateFormat()
     for child in self._children:
@@ -209,7 +209,7 @@ class gLogging(object):
     """
     Set the level of the children if it is not modified by the user
     """
-    if not self._levelmodified:
+    if not self._levelModified:
       self._level = level
     for child in self._children:
       child._setChildrenLevel(level)
