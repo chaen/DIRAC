@@ -345,13 +345,19 @@ class gLogging(object):
     return self._children.get(name)
 
   def initialized(self):
-    # initialized: Deleted method. Do not use it.
+    """
+    initialized: Deleted method. Do not use it.
+    """
     return True
 
   def processMessage(self, messageObject):
-    # processMessage: Deleted method. Do not use it.
+    """
+    processMessage: Deleted method. Do not use it.
+    """
     return False
 
   def flushAllMessages(self, exitCode=0):
-    # flushAllMessages: Deleted method. Do not use it.
+    """
+    flushAllMessages: Deleted method. Do not use it.
+    """
     pass
