@@ -49,7 +49,7 @@ class gLogging(object):
     """
 
     # gLogging chain
-    self._children = []
+    self._children = {}
     self._parent = father
 
     # all the different backends
@@ -201,7 +201,7 @@ class gLogging(object):
     if not self._optionsModified[optionName]:
       self._options = options.copy()
       self._updateFormat()
-    for child in self._children:
+    for child in self._children.values():
       child._setChildrenDisplayOptions(optionName, options)
 
   def _setChildrenLevel(self, level):
@@ -210,7 +210,7 @@ class gLogging(object):
     """
     if not self._levelModified:
       self._level = level
-    for child in self._children:
+    for child in self._children.values():
       child._setChildrenLevel(level)
 
   @staticmethod
@@ -331,7 +331,7 @@ class gLogging(object):
     result = self._childExists(subName)
     if result is None:
       child = gLogging(self, self._logger.name, subName)
-      self._children.append(child)
+      self._children[subName] = child
     else:
       child = result
     return child
@@ -342,10 +342,7 @@ class gLogging(object):
     :params name: the name of the child
     :return: boolean, True if it exists, else False
     """
-    for child in self._children:
-      if name == child.getSubName():
-        return child
-    return None
+    return self._children.get(name)
 
   def initialized(self):
     # initialized: Deleted method. Do not use it.
