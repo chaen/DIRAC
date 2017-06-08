@@ -1,5 +1,5 @@
 """
-gLogging
+Logging
 """
 
 __RCSID__ = "$Id$"
@@ -14,30 +14,30 @@ from DIRAC.FrameworkSystem.private.standardLogging.Backend.FileBackend import Fi
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.RemoteBackend import RemoteBackend
 
 
-class gLogging(object):
+class Logging(object):
   """
-  gLogging is a wrapper of the logger object from the standard logging library which integrate
+  Logging is a wrapper of the logger object from the standard "logging" library which integrate
   some DIRAC concepts. It is the equivalent to the old gLogger object.
 
-  It is used like an interface to use the logger object of the logging library. 
+  It is used like an interface to use the logger object of the "logging" library. 
   Its purpose is to replace transparently the old gLogger object in the existing code in order to 
   minimize the changes. 
 
-  In this way, each gLogging embed a logger of logging. It is possible to create sublogger,
+  In this way, each Logging embed a logger of "logging". It is possible to create sublogger,
   set and get the level of the embedded logger and create log messages with it.
 
-  gLogging could delegate the initialization and the configuration to a factory of the root logger be it can not
+  Logging could delegate the initialization and the configuration to a factory of the root logger be it can not
   because it has to wrap the old gLogger.  
   """
 
-  # componentName is a class variable because the component name is the same for every gLogging objects
+  # componentName is a class variable because the component name is the same for every Logging objects
   # its default value is "Framework" but it can be configured and composed by the system name and the component name
   _componentName = "Framework"
 
   def __init__(self, father=None, fathername='', name=''):
     """
-    Initialization of the gLogging object.
-    :params father: gLogging, father of this new gLogging.
+    Initialization of the Logging object.
+    :params father: Logging, father of this new Logging.
     :params fathername: string representing the name of the father logger in the chain.
     :params name: string representing the name of the logger in the chain. 
     By default, 'fathername' and 'name' are empty, because getChild accepts only string and the first empty
@@ -48,7 +48,7 @@ class gLogging(object):
     logging.getLogger('root').getChild('log') == root.log == log child of root
     """
 
-    # gLogging chain
+    # Logging chain
     self._children = {}
     self._parent = father
 
@@ -58,7 +58,7 @@ class gLogging(object):
                           'file': FileBackend(),
                           'server': RemoteBackend()}
 
-    # initialize display options and level with the ones of the gLogging parent
+    # initialize display options and level with the ones of the Logging parent
     if self._parent is not None:
       self._options = self._parent.getDisplayOptions()
       self._level = LogLevels.getLevelValue(father.getLevel())
@@ -67,11 +67,11 @@ class gLogging(object):
       # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
 
-    # name of the gLogging
+    # name of the Logging
     self.name = name
 
     # dictionary of the option state, modified by the user or not
-    # this is to give to the options the same behaviour that the logging level:
+    # this is to give to the options the same behaviour that the "logging" level:
     # - propagation from the parent to the children when their levels are not set by the developer himself
     # - stop the propagation when a developer set a level to a child
     self._optionsModified = {'showHeaders': False, 'showThreads': False}
@@ -111,7 +111,7 @@ class gLogging(object):
 
   def registerBackends(self, desiredBackends, backendOptions=None):
     """
-    Attach a list of backends to the gLogging object.
+    Attach a list of backends to the Logging object.
     :params desiredBackends: a list of different names attaching to differents backends.
                              example : ['stdout', 'file', 'server']
     :params backendOptions: a dictionary of different backend options. 
@@ -132,7 +132,7 @@ class gLogging(object):
 
           # create the handler thanks to the parameters
           backend.configureHandler()
-          # update the level of the new backend to respect the gLogging level
+          # update the level of the new backend to respect the Logging level
           backend.setLevel(self._level)
           self._logger.addHandler(backend.getHandler())
           self._backendsList.append(backend)
@@ -183,7 +183,7 @@ class gLogging(object):
     """
     :return: "system name/component name"
     """
-    return gLogging._componentName
+    return Logging._componentName
 
   def getSubName(self):
     """
@@ -332,12 +332,12 @@ class gLogging(object):
 
   def getSubLogger(self, subName, child=True):
     """
-    Create a new gLogging object, child of this gLogging, if it does not exists.
-    :params subName: the name of the child gLogging
+    Create a new Logging object, child of this Logging, if it does not exists.
+    :params subName: the name of the child Logging
     """
     result = self._childExists(subName)
     if result is None:
-      child = gLogging(self, self._logger.name, subName)
+      child = Logging(self, self._logger.name, subName)
       self._children[subName] = child
     else:
       child = result

@@ -1,5 +1,5 @@
 """
-gLogging Root
+Logging Root
 """
 
 __RCSID__ = "$Id$"
@@ -9,19 +9,19 @@ import time
 import sys
 
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
-from DIRAC.FrameworkSystem.private.standardLogging.gLogging import gLogging
+from DIRAC.FrameworkSystem.private.standardLogging.Logging import Logging
 
 
-class gLoggingRoot(gLogging):
+class LoggingRoot(Logging):
   """
-  gLoggingRoot is a gLogging object and it is particular because it is the first parent of the chaine.
+  LoggingRoot is a Logging object and it is particular because it is the first parent of the chaine.
   In this context, it has more possibilities because it is the one that initializes the logger of the 
   standard logging library and it configures it with the cfg file.
 
-  There is a difference between the parent gLogging and the other because the parent defines the behaviour
-  of all the gLogging objects, so it needs a specific class.  
+  There is a difference between the parent Logging and the other because the parent defines the behaviour
+  of all the Logging objects, so it needs a specific class.  
 
-  gLoggingRoot has to be unique, because we want one and only one parent on the top of the chain: that is why 
+  LoggingRoot has to be unique, because we want one and only one parent on the top of the chain: that is why 
   we created a singleton to keep it unique. 
   """
 
@@ -30,25 +30,25 @@ class gLoggingRoot(gLogging):
 
   def __new__(cls):
     """
-    Initialization of the singleton to keep gLoggingRoot unique.
+    Initialization of the singleton to keep LoggingRoot unique.
     """
-    if gLoggingRoot.__instance is None:
-      gLoggingRoot.__instance = object.__new__(cls)
-    return gLoggingRoot.__instance
+    if LoggingRoot.__instance is None:
+      LoggingRoot.__instance = object.__new__(cls)
+    return LoggingRoot.__instance
 
   def __init__(self):
     """
-    Initialization of the gLoggingRoot object.
-    gLoggingRoot :
+    Initialization of the LoggingRoot object.
+    LoggingRoot :
     - initialize the UTC time
     - set the correct level defines by the user, or the default
     - add the custom level to logging: verbose, notice, always
     - register a default backend: stdout : all messages will be displayed here
     - update the format according to the command line argument 
     """
-    super(gLoggingRoot, self).__init__()
+    super(LoggingRoot, self).__init__()
     self._logger = logging.getLogger('')
-    # this level is not the gLogging level, it is only used to send all log messages to the central logging system
+    # this level is not the Logging level, it is only used to send all log messages to the central logging system
     self._logger.setLevel(LogLevels.getLevelValue('DEBUG'))
 
     # initialization of the UTC time
@@ -69,7 +69,7 @@ class gLoggingRoot(gLogging):
 
   def initialize(self, systemName, cfgPath):
     """
-    Configure the root gLogging with a cfg file.
+    Configure the root Logging with a cfg file.
     It can be possible to :
     - attach it some backends : LogBackends = stdout,stderr,file,server 
     - attach backend options : BackendOptions { FileName = /tmp/file.log }
@@ -81,9 +81,9 @@ class gLoggingRoot(gLogging):
     """
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
-    if not gLoggingRoot.__configuredLogging:
+    if not LoggingRoot.__configuredLogging:
       backends = (None, None)
-      gLogging._componentName = systemName
+      Logging._componentName = systemName
 
       # Remove stdout from the list of backends
       del self._backendsList[:]
@@ -108,11 +108,11 @@ class gLoggingRoot(gLogging):
       if levelName is not None:
         self.setLevel(levelName)
 
-      gLoggingRoot.__configuredLogging = True
+      LoggingRoot.__configuredLogging = True
 
   def __configureLevel(self):
     """
-    Configure the log level of the root glogging according to the argv parameter
+    Configure the log level of the root Logging according to the argv parameter
     It can be : -d, -dd, -ddd
     Work only for clients, scripts and tests
     Configuration/Client/LocalConfiguration manages services,agents and executors
