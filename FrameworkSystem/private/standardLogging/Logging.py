@@ -118,12 +118,12 @@ class Logging(object):
     :params backendOptions: a dictionary of different backend options. 
                             example: {'FileName': '/tmp/log.txt'}
     """
-    for stringHandler in desiredBackends:
-      stringHandler = stringHandler.strip().lower()
+    for backendName in desiredBackends:
+      backendName = backendName.strip().lower()
 
       # check if the name is correct
-      if stringHandler in Logging._BACKENDSDICT:
-        backend = Logging._BACKENDSDICT[stringHandler]()
+      if backendName in Logging._BACKENDSDICT:
+        backend = Logging._BACKENDSDICT[backendName]()
 
         if backendOptions is not None:
           # give a copy to avoid that the backends modify the dictionary
@@ -138,7 +138,7 @@ class Logging(object):
         self._updateFormat()
       else:
         self._updateFormat()
-        self.warn("%s is not a valid backend name.", stringHandler)
+        self.warn("%s is not a valid backend name.", backendName)
 
   def setLevel(self, levelName):
     """
