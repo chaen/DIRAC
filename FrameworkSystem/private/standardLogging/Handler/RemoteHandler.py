@@ -71,7 +71,7 @@ class RemoteHandler(logging.Handler, threading.Thread):
       while (len(bundle) < self.__maxBundledLogs) and (not self.__logQueue.empty()):
         record = self.__logQueue.get()
         self.format(record)
-        logTuple = (record.componentname, record.levelname, record.created, record.getMessage(), '',
+        logTuple = (record.componentname, record.levelname, record.created, record.getMessage(), record.varmessage,
                     record.pathname + ":" + str(record.lineno), record.name)
         bundle.append(logTuple)
 
