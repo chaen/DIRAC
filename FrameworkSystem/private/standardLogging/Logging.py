@@ -128,7 +128,7 @@ class Logging(object):
 
         # give a copy to avoid that the backends modify the original dictionary
         parameters = None
-        if backendOptions is not None: 
+        if backendOptions is not None:
           parameters = backendOptions.copy()
         backend.createHandler(parameters)
 
@@ -302,7 +302,8 @@ class Logging(object):
 
     :return: boolean representing the result of the log record creation
     """
-    self._logger.log(level, "%s %s", sMsg, sVarMsg, exc_info=exc_info, extra={'componentname': self.getName()})
+    self._logger.log(level, "%s", sMsg, exc_info=exc_info,
+                     extra={'componentname': self.getName(), 'varmessage': sVarMsg})
     # test to know if the message is displayed or not
     result = False
     if self._level <= level:
@@ -320,15 +321,16 @@ class Logging(object):
     """
     Update the format according to the options
     """
-    fmt = '%(message)s'
+    fmt = ''
     datefmt = '%Y-%m-%d %H:%M:%S'
     if self._options['showHeaders']:
-      fmt = '%(asctime)s UTC %(componentname)s%(name)s'
+      fmt += '%(asctime)s UTC %(componentname)s%(name)s'
       if self._options['Path'] and self._level == LogLevels.getLevelValue('DEBUG'):
         fmt += ' [%(pathname)s:%(lineno)d]'
       if self._options['showThreads']:
         fmt += ' [%(thread)d]'
-      fmt += ' %(levelname)s: %(message)s'
+      fmt += ' %(levelname)s: '
+    fmt += '%(message)s %(varmessage)s'
 
     for backend in self._backendsList:
       backend.setFormat(fmt, datefmt, self._options)
