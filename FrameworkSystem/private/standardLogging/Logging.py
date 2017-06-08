@@ -35,13 +35,13 @@ class Logging(object):
   # it can be composed by the system name and the component name. For instance: "Monitoring/Atom"
   _componentName = "Framework"
 
-  def __init__(self, father=None, fathername='', name=''):
+  def __init__(self, father=None, fatherName='', name=''):
     """
     Initialization of the Logging object.
     :params father: Logging, father of this new Logging.
-    :params fathername: string representing the name of the father logger in the chain.
+    :params fatherName: string representing the name of the father logger in the chain.
     :params name: string representing the name of the logger in the chain. 
-    By default, 'fathername' and 'name' are empty, because getChild accepts only string and the first empty
+    By default, 'fatherName' and 'name' are empty, because getChild accepts only string and the first empty
     string corresponds to the root logger. 
 
     Example: 
@@ -80,7 +80,7 @@ class Logging(object):
 
     self._backendsList = []
 
-    self._logger = logging.getLogger(fathername).getChild(name)
+    self._logger = logging.getLogger(fatherName).getChild(name)
 
   def showHeaders(self, yesno=True):
     """
