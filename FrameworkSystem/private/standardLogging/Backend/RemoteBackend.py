@@ -52,4 +52,8 @@ class RemoteBackend(AbstractBackend):
     self._handler.setLevel(LogLevels.getLevelValue('ERROR'))
 
   def setLevel(self, level):
+    """
+    No possibility to set the level of the remote backend because it is hardcoded to ERROR
+    and must not be changed
+    """
     pass

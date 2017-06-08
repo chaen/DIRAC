@@ -28,6 +28,9 @@ class StdoutBackend(AbstractBackend):
     super(StdoutBackend, self).__init__(None, ColoredBaseFormatter)
 
   def setParameters(self, parameters):
+    """
+    No possibility to set parameters because the only parameter is hardcoded to sys.stdout
+    """
     pass
 
   def configureHandler(self):

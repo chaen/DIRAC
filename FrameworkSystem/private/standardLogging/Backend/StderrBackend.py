@@ -27,6 +27,9 @@ class StderrBackend(AbstractBackend):
     super(StderrBackend, self).__init__(None, ColoredBaseFormatter)
 
   def setParameters(self, parameters):
+    """
+    No possibility to set parameters because the only parameter is hardcoded to sys.stderr
+    """
     pass
 
   def configureHandler(self):
