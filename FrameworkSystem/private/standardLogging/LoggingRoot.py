@@ -86,9 +86,11 @@ class LoggingRoot(Logging):
       backends = (None, None)
       Logging._componentName = systemName
 
-      # Remove stdout from the list of backends
+      # Remove all the backends from the list of backends as in the old gLogger.
+      # this can be useful to have logs only in a file for instance.
       del self._backendsList[:]
       self._logger.removeHandler(self._logger.handlers[0])
+
       # Backend options
       desiredBackends = gConfig.getValue("%s/LogBackends" % cfgPath, ['stdout'])
 
