@@ -35,19 +35,16 @@ class RemoteBackend(AbstractBackend):
     self.__interactive = True
     self.__sleepTime = 150
 
-  def setParameters(self, parameters):
+  def createHandler(self, parameters=None):
     """
-    Each backend can initialize its parameters for their handlers.
+    Each backend can initialize its attributes and create its handler with them.
     :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     """
+    if parameters is not None:
+      self.__interactive = parameters.get('Interactive', self.__interactive)
+      self.__sleepTime = parameters.get('SleepTime', self.__sleepTime)
     self.__site = DIRAC.siteName()
-    self.__interactive = parameters.get('Interactive', self.__interactive)
-    self.__sleepTime = parameters.get('SleepTime', self.__sleepTime)
 
-  def configureHandler(self):
-    """
-    Initialize the handler with the parameters
-    """
     self._handler = RemoteHandler(self.__sleepTime, self.__interactive, self.__site)
     self._handler.setLevel(LogLevels.getLevelValue('ERROR'))
 

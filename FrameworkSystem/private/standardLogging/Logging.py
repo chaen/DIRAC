@@ -126,12 +126,12 @@ class Logging(object):
       if backendName in Logging._BACKENDSDICT:
         backend = Logging._BACKENDSDICT[backendName]()
 
-        if backendOptions is not None:
-          # give a copy to avoid that the backends modify the dictionary
-          backend.setParameters(backendOptions.copy())
+        # give a copy to avoid that the backends modify the original dictionary
+        parameters = None
+        if backendOptions is not None: 
+          parameters = backendOptions.copy()
+        backend.createHandler(parameters)
 
-        # create the handler thanks to the parameters
-        backend.configureHandler()
         # update the level of the new backend to respect the Logging level
         backend.setLevel(self._level)
         self._logger.addHandler(backend.getHandler())

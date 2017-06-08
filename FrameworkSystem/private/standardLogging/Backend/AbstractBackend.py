@@ -39,19 +39,12 @@ class AbstractBackend(object):
     self._handler = handler
     self._formatter = formatter
 
-  def setParameters(self, parameters):
+  def createHandler(self, parameters=None):
     """
-    Each backend can initialize its parameters for their handlers.
+    Each backend can initialize its attributes and create its handler with them.
     :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     """
     raise NotImplementedError("setParameter not implemented")
-
-  def configureHandler(self):
-    """
-    Initialize the handler with the correct parameters: 
-    default parameters or cfg options. 
-    """
-    raise NotImplementedError("configureHandler not implemented")
 
   def getHandler(self):
     """

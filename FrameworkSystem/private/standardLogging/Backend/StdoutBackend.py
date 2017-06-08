@@ -27,14 +27,9 @@ class StdoutBackend(AbstractBackend):
   def __init__(self):
     super(StdoutBackend, self).__init__(None, ColoredBaseFormatter)
 
-  def setParameters(self, parameters):
+  def createHandler(self, parameters=None):
     """
-    No possibility to set parameters because the only parameter is hardcoded to sys.stdout
-    """
-    pass
-
-  def configureHandler(self):
-    """
-    Initialize the handler with the parameters
+    Each backend can initialize its attributes and create its handler with them.
+    :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     """
     self._handler = logging.StreamHandler(sys.stdout)

@@ -31,16 +31,11 @@ class FileBackend(AbstractBackend):
     super(FileBackend, self).__init__(None, BaseFormatter)
     self.__fileName = 'Dirac-log_%s.log' % getpid()
 
-  def setParameters(self, parameters):
+  def createHandler(self, parameters=None):
     """
-    Each backend can initialize its parameters for their handlers.
+    Each backend can initialize its attributes and create its handler with them.
     :params parameters: dictionary of parameters. ex: {'FileName': file.log}
-    default parameters or cfg options. 
     """
-    self.__fileName = parameters.get('FileName', self.__fileName)
-
-  def configureHandler(self):
-    """
-    Initialize the handler with the parameters
-    """
+    if parameters is not None:
+      self.__fileName = parameters.get('FileName', self.__fileName)
     self._handler = logging.FileHandler(self.__fileName)

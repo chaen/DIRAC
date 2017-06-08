@@ -26,14 +26,9 @@ class StderrBackend(AbstractBackend):
   def __init__(self):
     super(StderrBackend, self).__init__(None, ColoredBaseFormatter)
 
-  def setParameters(self, parameters):
+  def createHandler(self, parameters=None):
     """
-    No possibility to set parameters because the only parameter is hardcoded to sys.stderr
-    """
-    pass
-
-  def configureHandler(self):
-    """
-    Initialize the handler with the parameters
+    Each backend can initialize its attributes and create its handler with them.
+    :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     """
     self._handler = logging.StreamHandler(sys.stderr)
