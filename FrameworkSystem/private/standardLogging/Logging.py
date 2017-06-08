@@ -302,6 +302,10 @@ class Logging(object):
 
     :return: boolean representing the result of the log record creation
     """
+    # exc_info is only for exception to add the stack trace
+    # extra is a way to add extra attributes to the log record: 
+    # - 'componentname': the system/component name
+    # - 'varmessage': the variable message
     self._logger.log(level, "%s", sMsg, exc_info=exc_info,
                      extra={'componentname': self.getName(), 'varmessage': sVarMsg})
     # test to know if the message is displayed or not
