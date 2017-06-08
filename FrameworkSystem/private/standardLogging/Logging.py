@@ -114,7 +114,8 @@ class Logging(object):
     """
     Attach a list of backends to the Logging object.
     :params desiredBackends: a list of different names attaching to differents backends.
-                             example : ['stdout', 'file', 'server']
+                             these names must be the same as in the _BACKENDSDICT
+                             list of the possible values: ['stdout', 'stderr', 'file', 'server']
     :params backendOptions: a dictionary of different backend options. 
                             example: {'FileName': '/tmp/log.txt'}
     """
