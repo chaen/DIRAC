@@ -79,6 +79,7 @@ class LoggingRoot(Logging):
     :params systemName: string represented as "system name/component name"
     :params cfgPath: string of the cfg file path
     """
+    # we have to put the import line here to avoid a dependancy loop
     from DIRAC.ConfigurationSystem.Client.Config import gConfig
 
     if not LoggingRoot.__configuredLogging:
