@@ -31,7 +31,8 @@ class Logging(object):
   """
 
   # componentName is a class variable because the component name is the same for every Logging objects
-  # its default value is "Framework" but it can be configured and composed by the system name and the component name
+  # its default value is "Framework" but it can be configured in initialize() in LoggingRoot
+  # it can be composed by the system name and the component name. For instance: "Monitoring/Atom"
   _componentName = "Framework"
 
   def __init__(self, father=None, fathername='', name=''):
