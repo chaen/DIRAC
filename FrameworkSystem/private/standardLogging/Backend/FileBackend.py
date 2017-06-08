@@ -37,8 +37,7 @@ class FileBackend(AbstractBackend):
     :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     default parameters or cfg options. 
     """
-    if 'FileName' in parameters:
-      self.__fileName = parameters['FileName']
+    self.__fileName = parameters.get('FileName', self.__fileName)
 
   def configureHandler(self):
     """

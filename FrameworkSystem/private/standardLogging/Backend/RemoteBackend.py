@@ -41,10 +41,8 @@ class RemoteBackend(AbstractBackend):
     :params parameters: dictionary of parameters. ex: {'FileName': file.log}
     """
     self.__site = DIRAC.siteName()
-    if 'Interactive' in parameters:
-      self.__interactive = parameters['Interactive']
-    if 'SleepTime' in parameters:
-      self.__sleepTime = parameters['SleepTime']
+    self.__interactive = parameters.get('Interactive', self.__interactive)
+    self.__sleepTime = parameters.get('SleepTime', self.__sleepTime)
 
   def configureHandler(self):
     """
