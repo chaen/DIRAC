@@ -35,6 +35,12 @@ class Logging(object):
   # it can be composed by the system name and the component name. For instance: "Monitoring/Atom"
   _componentName = "Framework"
 
+  # all the different backends
+  _BACKENDSDICT = {'stdout': StdoutBackend,
+                   'stderr': StderrBackend,
+                   'file': FileBackend,
+                   'server': RemoteBackend}
+
   def __init__(self, father=None, fatherName='', name=''):
     """
     Initialization of the Logging object.
@@ -52,12 +58,6 @@ class Logging(object):
     # Logging chain
     self._children = {}
     self._parent = father
-
-    # all the different backends
-    self._backendsDict = {'stdout': StdoutBackend(),
-                          'stderr': StderrBackend(),
-                          'file': FileBackend(),
-                          'server': RemoteBackend()}
 
     # initialize display options and level with the ones of the Logging parent
     if self._parent is not None:
@@ -122,22 +122,20 @@ class Logging(object):
       stringHandler = stringHandler.strip().lower()
 
       # check if the name is correct
-      if stringHandler in self._backendsDict:
-        backend = self._backendsDict[stringHandler]
+      if stringHandler in Logging._BACKENDSDICT:
+        backend = Logging._BACKENDSDICT[stringHandler]()
 
-        # check if the backend is already in the list
-        if backend not in self._backendsList:
-          if backendOptions is not None:
-            # give a copy to avoid that the backends modify the dictionary
-            backend.setParameters(backendOptions.copy())
+        if backendOptions is not None:
+          # give a copy to avoid that the backends modify the dictionary
+          backend.setParameters(backendOptions.copy())
 
-          # create the handler thanks to the parameters
-          backend.configureHandler()
-          # update the level of the new backend to respect the Logging level
-          backend.setLevel(self._level)
-          self._logger.addHandler(backend.getHandler())
-          self._backendsList.append(backend)
-          self._updateFormat()
+        # create the handler thanks to the parameters
+        backend.configureHandler()
+        # update the level of the new backend to respect the Logging level
+        backend.setLevel(self._level)
+        self._logger.addHandler(backend.getHandler())
+        self._backendsList.append(backend)
+        self._updateFormat()
       else:
         self._updateFormat()
         self.warn("%s is not a valid backend name.", stringHandler)
