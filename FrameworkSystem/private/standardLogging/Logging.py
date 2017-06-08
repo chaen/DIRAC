@@ -106,7 +106,7 @@ class Logging(object):
     """
     self._options[optionName] = value
     self._optionsModified[optionName] = True
-    self._setChildrenDisplayOptions(optionName, self._options)
+    self._setDisplayOptions(optionName, self._options)
     # update the format to apply the option change
     self._updateFormat()
 
@@ -143,7 +143,8 @@ class Logging(object):
 
   def setLevel(self, levelName):
     """
-    Set a level to the logger.
+    Set a level to the backends attached to this Logging.
+    Set the level of the Logging too.
     :params levelName: string representing the level to give to the logger
     :return: boolean representing if the setting is done or not
     """
@@ -156,7 +157,7 @@ class Logging(object):
 
       self._level = level
       self._levelModified = True
-      self._setChildrenLevel(self._level)
+      self._setLevel(self._level)
       result = True
     return result
 
@@ -197,7 +198,7 @@ class Logging(object):
     """
     return self._options.copy()
 
-  def _setChildrenDisplayOptions(self, optionName, options):
+  def _setDisplayOptions(self, optionName, options):
     """
     Set the display options of the children if they are not modified by the user
     """
@@ -205,16 +206,18 @@ class Logging(object):
       self._options = options.copy()
       self._updateFormat()
     for child in self._children.values():
-      child._setChildrenDisplayOptions(optionName, options)
+      child._setDisplayOptions(optionName, self._options)
 
-  def _setChildrenLevel(self, level):
+  def _setLevel(self, level):
     """
-    Set the level of the children if it is not modified by the user
+    Set the backend levels of the children if it is not modified by the user
     """
     if not self._levelModified:
+      for backend in self._backendsList:
+        backend.setLevel(level)
       self._level = level
     for child in self._children.values():
-      child._setChildrenLevel(level)
+      child._setLevel(self._level)
 
   @staticmethod
   def getAllPossibleLevels():
