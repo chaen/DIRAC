@@ -4,6 +4,8 @@ Backend wrapper
 
 __RCSID__ = "$Id$"
 
+from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
+
 
 class AbstractBackend(object):
   """
@@ -68,3 +70,23 @@ class AbstractBackend(object):
     :params level: integer representing a level
     """
     self._handler.setLevel(level)
+
+  @staticmethod
+  def createFormat(options, level):
+    """
+    Create a format from the options given in parameters. 
+    :params options: dictionary of options of the Logging which wants a new format
+    :params level: integer representing the level of the Logging object which wants a new format
+    :return: tuple containing two strings: a format and a date format
+    """
+    fmt = ''
+    datefmt = '%Y-%m-%d %H:%M:%S'
+    if options['showHeaders']:
+      fmt += '%(asctime)s UTC %(componentname)s%(customname)s'
+      if options['Path'] and level == LogLevels.getLevelValue('DEBUG'):
+        fmt += ' [%(pathname)s:%(lineno)d]'
+      if options['showThreads']:
+        fmt += ' [%(thread)d]'
+      fmt += ' %(levelname)s: '
+    fmt += '%(message)s %(varmessage)s'
+    return (datefmt, fmt)

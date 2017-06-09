@@ -8,6 +8,7 @@ import logging
 
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
+from DIRAC.FrameworkSystem.private.standardLogging.Backend.AbstractBackend import AbstractBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StdoutBackend import StdoutBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.StderrBackend import StderrBackend
 from DIRAC.FrameworkSystem.private.standardLogging.Backend.FileBackend import FileBackend
@@ -339,19 +340,13 @@ class Logging(object):
     """
     Update the format according to the options
     """
-    fmt = ''
-    datefmt = '%Y-%m-%d %H:%M:%S'
-    if self._options['showHeaders']:
-      fmt += '%(asctime)s UTC %(componentname)s%(customname)s'
-      if self._options['Path'] and self._level == LogLevels.getLevelValue('DEBUG'):
-        fmt += ' [%(pathname)s:%(lineno)d]'
-      if self._options['showThreads']:
-        fmt += ' [%(thread)d]'
-      fmt += ' %(levelname)s: '
-    fmt += '%(message)s %(varmessage)s'
+    #create a copy of options dictionary to avoid that the backends modify it
+    options = self._options.copy()
+    # give options and level to AbstractBackend to receive the new format for the backends list
+    datefmt, fmt = AbstractBackend.createFormat(options, self._level)
 
     for backend in self._backendsList:
-      backend.setFormat(fmt, datefmt, self._options)
+      backend.setFormat(fmt, datefmt, options)
 
   def getSubLogger(self, subName, child=True):
     """
