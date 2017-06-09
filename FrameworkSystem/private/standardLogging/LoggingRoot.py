@@ -25,7 +25,10 @@ class LoggingRoot(Logging):
   we created a singleton to keep it unique. 
   """
 
+  # Boolean preventing that the LoggingRoot be configured more than one time
   __configuredLogging = False
+
+  # The unique instance of Logging Root, initialized at None at the beginning, then will take the LoggingRoot as value.
   __instance = None
 
   def __new__(cls):
