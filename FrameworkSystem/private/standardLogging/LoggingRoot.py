@@ -50,8 +50,8 @@ class LoggingRoot(Logging):
     self._logger = logging.getLogger('')
     # this level is not the Logging level, it is only used to send all log messages to the central logging system
     # to do such an operation, we need to let pass all log messages to the root logger, so all logger needs to be 
-    # at debug. Then, all the backends will have a level associated to a Logging level and these backends will choose
-    # to send the log messages or not. 
+    # at debug. Then, all the backends have a level associated to a Logging level, which can be changed with the 
+    # setLevel method of Logging, and these backends will choose to send the log messages or not. 
     self._logger.setLevel(LogLevels.getLevelValue('DEBUG'))
 
     # initialization of the UTC time
