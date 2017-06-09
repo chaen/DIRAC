@@ -9,7 +9,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
 class AbstractBackend(object):
   """
-  AbstractBackend is used to create an abstraction of handler and formatter concepts from logging.
+  AbstractBackend is used to create an abstraction of handler and formatter concepts from 'logging'.
   It corresponds to the backend concept of the old gLogger.
   It is useful for different reasons: 
 
@@ -32,7 +32,7 @@ class AbstractBackend(object):
   def __init__(self, handler, formatter):
     """
     Initialization of the backend.
-    :params _handler: handler object from logging. Ex: StreamHandler(), FileHandler()... 
+    :params _handler: handler object from 'logging'. Ex: StreamHandler(), FileHandler()... 
     :params _formatter: the name of a formatter object from logging. Ex: BaseFormatter 
 
     _handler and _formatter can be custom objects. If it is the case, you can find them 

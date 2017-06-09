@@ -19,7 +19,8 @@ class StderrBackend(AbstractBackend):
   - StreamHandler is from the standard logging library: it is used to write log messages in a desired stream
     so it needs a name: here it is stderr. 
 
-  - BaseFormatter is a custom Formatter object, created for DIRAC in order to get the appropriate display.
+  - ColorBaseFormatter is a custom Formatter object, created for DIRAC in order to get the appropriate display
+    with color.
     You can find it in FrameworkSystem/private/standardLogging/Formatter
   """
 

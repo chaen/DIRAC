@@ -340,7 +340,7 @@ class Logging(object):
     """
     Update the format according to the options
     """
-    #create a copy of options dictionary to avoid that the backends modify it
+    # create a copy of options dictionary to avoid that the backends modify it
     options = self._options.copy()
     # give options and level to AbstractBackend to receive the new format for the backends list
     datefmt, fmt = AbstractBackend.createFormat(options, self._level)
