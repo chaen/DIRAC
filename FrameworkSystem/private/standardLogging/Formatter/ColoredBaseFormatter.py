@@ -15,7 +15,8 @@ class ColoredBaseFormatter(BaseFormatter):
   It is based on the BaseFormatter object which is based on the of the standard logging library.
 
   This custom formatter is useful for format messages to correspond with the gLogger format. 
-  It add color on all messages which come from StdoutBackend and color them according to their levels.
+  It adds color on all messages which come from StdoutBackend and StderrBackend 
+  and color them according to their levels.
   """
   COLOR_MAP = {
       'black': 0,

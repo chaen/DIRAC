@@ -71,9 +71,6 @@ class Logging(object):
       # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
 
-    # name of the Logging
-    self.name = name
-
     # dictionary of the option state, modified by the user or not
     # this is to give to the options the same behaviour that the "logging" level:
     # - propagation from the parent to the children when their levels are not set by the developer himself
@@ -84,6 +81,15 @@ class Logging(object):
     self._backendsList = []
 
     self._logger = logging.getLogger(fatherName).getChild(name)
+
+    # name of the Logging
+    self.name = name
+
+    # entire name of the Logging based on the logger name of 'logging': this name is the entire name with parent names:
+    # 'root' representing the root logger name is removed
+    # all "." separator are replaced by "/"
+    self.entireName = self._logger.name.replace("root", "")
+    self.entireName = self.entireName.replace(".", "/")
 
   def showHeaders(self, yesno=True):
     """
@@ -306,11 +312,15 @@ class Logging(object):
     :return: boolean representing the result of the log record creation
     """
     # exc_info is only for exception to add the stack trace
-    # extra is a way to add extra attributes to the log record: 
+    # extra is a way to add extra attributes to the log record:
     # - 'componentname': the system/component name
     # - 'varmessage': the variable message
+    # - 'customname' : the name of the logger for the DIRAC usage: without 'root' and separated with '/'
+    extra = {'componentname': self.getName(),
+             'varmessage': sVarMsg,
+             'customname': self.entireName}
     self._logger.log(level, "%s", sMsg, exc_info=exc_info,
-                     extra={'componentname': self.getName(), 'varmessage': sVarMsg})
+                     extra=extra)
     # test to know if the message is displayed or not
     result = False
     if self._level <= level:
@@ -331,7 +341,7 @@ class Logging(object):
     fmt = ''
     datefmt = '%Y-%m-%d %H:%M:%S'
     if self._options['showHeaders']:
-      fmt += '%(asctime)s UTC %(componentname)s%(name)s'
+      fmt += '%(asctime)s UTC %(componentname)s%(customname)s'
       if self._options['Path'] and self._level == LogLevels.getLevelValue('DEBUG'):
         fmt += ' [%(pathname)s:%(lineno)d]'
       if self._options['showThreads']:
