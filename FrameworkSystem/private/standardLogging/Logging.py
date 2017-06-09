@@ -316,6 +316,7 @@ class Logging(object):
     # - 'componentname': the system/component name
     # - 'varmessage': the variable message
     # - 'customname' : the name of the logger for the DIRAC usage: without 'root' and separated with '/'
+    # extras attributes are not camel case because log record attributes are not either.
     extra = {'componentname': self.getName(),
              'varmessage': sVarMsg,
              'customname': self.entireName}
