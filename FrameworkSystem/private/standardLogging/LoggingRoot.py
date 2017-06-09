@@ -47,7 +47,9 @@ class LoggingRoot(Logging):
     - update the format according to the command line argument 
     """
     super(LoggingRoot, self).__init__()
+    # initialize the root logger
     self._logger = logging.getLogger('')
+
     # this level is not the Logging level, it is only used to send all log messages to the central logging system
     # to do such an operation, we need to let pass all log messages to the root logger, so all logger needs to be 
     # at debug. Then, all the backends have a level associated to a Logging level, which can be changed with the 
@@ -55,6 +57,8 @@ class LoggingRoot(Logging):
     self._logger.setLevel(LogLevels.getLevelValue('DEBUG'))
 
     # initialization of the UTC time
+    # Actually, time.gmtime is equal to UTC time because it has its DST flag to 0
+    # which means there is no clock advance
     logging.Formatter.converter = time.gmtime
 
     # initialization of levels
