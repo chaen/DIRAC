@@ -28,6 +28,9 @@ class Logging(object):
 
   Logging could delegate the initialization and the configuration to a factory of the root logger be it can not
   because it has to wrap the old gLogger.  
+
+  Logging should not be instancied directly. It is LoggingRoot which is instancied and which instantiates Logging
+  objects.
   """
 
   # componentName is a class variable because the component name is the same for every Logging objects
