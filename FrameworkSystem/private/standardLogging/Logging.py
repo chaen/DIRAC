@@ -217,7 +217,7 @@ class Logging(object):
     if not self._optionsModified[optionName]:
       self._options = options.copy()
       self._generateBackendFormat()
-    for child in self._children.values():
+    for child in self._children.itervalues():
       child._setDisplayOptions(optionName, self._options)
 
   def _setLevel(self, level):
@@ -228,7 +228,7 @@ class Logging(object):
       for backend in self._backendsList:
         backend.setLevel(level)
       self._level = level
-    for child in self._children.values():
+    for child in self._children.itervalues():
       child._setLevel(self._level)
 
   @staticmethod
