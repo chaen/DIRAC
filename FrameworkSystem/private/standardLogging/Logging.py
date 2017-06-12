@@ -73,7 +73,7 @@ class Logging(object):
       self._options = self._parent.getDisplayOptions()
       self._level = LogLevels.getLevelValue(father.getLevel())
     else:
-      self._options = {'showHeaders': True, 'showThreads': False, 'Color': False, 'Path': False}
+      self._options = {'headerIsShown': True, 'threadIDIsShown': False, 'Color': False, 'Path': False}
       # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
 
@@ -81,7 +81,7 @@ class Logging(object):
     # this is to give to the options the same behaviour that the "logging" level:
     # - propagation from the parent to the children when their levels are not set by the developer himself
     # - stop the propagation when a developer set a level to a child
-    self._optionsModified = {'showHeaders': False, 'showThreads': False}
+    self._optionsModified = {'headerIsShown': False, 'threadIDIsShown': False}
     self._levelModified = False
 
     self._backendsList = []
@@ -99,14 +99,14 @@ class Logging(object):
     Depending on the value, display or not the prefix of the message.
     :params yesno: boolean determining the behaviour of the display
     """
-    self._setOption('showHeaders', yesno)
+    self._setOption('headerIsShown', yesno)
 
   def showThreadIDs(self, yesno=True):
     """
     Depending on the value, display or not the thread ID.
     :params yesno: boolean determining the behaviour of the display
     """
-    self._setOption('showThreads', yesno)
+    self._setOption('threadIDIsShown', yesno)
 
   def _setOption(self, optionName, value):
     """

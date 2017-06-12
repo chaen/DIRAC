@@ -81,11 +81,11 @@ class AbstractBackend(object):
     """
     fmt = ''
     datefmt = '%Y-%m-%d %H:%M:%S'
-    if options['showHeaders']:
+    if options['headerIsShown']:
       fmt += '%(asctime)s UTC %(componentname)s%(customname)s'
       if options['Path'] and level == LogLevels.getLevelValue('DEBUG'):
         fmt += ' [%(pathname)s:%(lineno)d]'
-      if options['showThreads']:
+      if options['threadIDIsShown']:
         fmt += ' [%(thread)d]'
       fmt += ' %(levelname)s: '
     fmt += '%(message)s %(varmessage)s'
