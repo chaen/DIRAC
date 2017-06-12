@@ -213,6 +213,8 @@ class Logging(object):
   def _setDisplayOptions(self, optionName, options):
     """
     Set the display options of the children if they are not modified by the user
+    :params optionName: name of the option to update. Ex: 'showHeaders'
+    :params options: dictionary of options. Ex {'showHeaders': False, ...}
     """
     if not self._optionsModified[optionName]:
       self._options = options.copy()
