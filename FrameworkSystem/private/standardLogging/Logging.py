@@ -120,7 +120,7 @@ class Logging(object):
     self._optionsModified[optionName] = True
     self._setDisplayOptions(optionName, self._options)
     # update the format to apply the option change
-    self._updateFormat()
+    self._generateBackendFormat()
 
   def registerBackends(self, desiredBackends, backendOptions=None):
     """
@@ -148,9 +148,9 @@ class Logging(object):
         backend.setLevel(self._level)
         self._logger.addHandler(backend.getHandler())
         self._backendsList.append(backend)
-        self._updateFormat()
+        self._generateBackendFormat()
       else:
-        self._updateFormat()
+        self._generateBackendFormat()
         self.warn("%s is not a valid backend name.", backendName)
 
   def setLevel(self, levelName):
@@ -206,9 +206,9 @@ class Logging(object):
 
   def getDisplayOptions(self):
     """
-    :return: a copy of the dictionary of the display options and their values
+    :return: the dictionary of the display options and their values. Must not be redefined
     """
-    return self._options.copy()
+    return self._options
 
   def _setDisplayOptions(self, optionName, options):
     """
@@ -216,7 +216,7 @@ class Logging(object):
     """
     if not self._optionsModified[optionName]:
       self._options = options.copy()
-      self._updateFormat()
+      self._generateBackendFormat()
     for child in self._children.values():
       child._setDisplayOptions(optionName, self._options)
 
@@ -338,17 +338,15 @@ class Logging(object):
     """
     return self.debug('')
 
-  def _updateFormat(self):
+  def _generateBackendFormat(self):
     """
-    Update the format according to the options
+    Generate the Backends format according to the options
     """
-    # create a copy of options dictionary to avoid that the backends modify it
-    options = self._options.copy()
     # give options and level to AbstractBackend to receive the new format for the backends list
-    datefmt, fmt = AbstractBackend.createFormat(options, self._level)
+    datefmt, fmt = AbstractBackend.createFormat(self._options, self._level)
 
     for backend in self._backendsList:
-      backend.setFormat(fmt, datefmt, options)
+      backend.setFormat(fmt, datefmt, self._options)
 
   def getSubLogger(self, subName, child=True):
     """

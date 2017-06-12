@@ -78,7 +78,7 @@ class LoggingRoot(Logging):
 
     # configuration of the level and update of the format
     self.__configureLevel()
-    self._updateFormat()
+    self._generateBackendFormat()
 
   def initialize(self, systemName, cfgPath):
     """

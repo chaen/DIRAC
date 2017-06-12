@@ -64,6 +64,6 @@ class LogLevels(object):
   @classmethod
   def getLevels(cls):
     """
-    :return: a copy of the dictionary
+    :return: the level dictionary. Must no be redefined
     """
-    return cls.__levelDict.copy()
+    return cls.__levelDict
