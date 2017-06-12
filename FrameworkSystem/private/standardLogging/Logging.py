@@ -141,7 +141,7 @@ class Logging(object):
         # give a copy to avoid that the backends modify the original dictionary
         parameters = None
         if backendOptions is not None:
-          parameters = backendOptions.copy()
+          parameters = backendOptions
         backend.createHandler(parameters)
 
         # update the level of the new backend to respect the Logging level
@@ -169,7 +169,7 @@ class Logging(object):
 
       self._level = level
       self._levelModified = True
-      self._setLevel(self._level)
+      self._setLevel(self._level, True)
       result = True
     return result
 
@@ -220,16 +220,30 @@ class Logging(object):
     for child in self._children.itervalues():
       child._setDisplayOptions(optionName, self._options)
 
-  def _setLevel(self, level):
+  def _setLevel(self, level, isJustSet):
     """
     Set the backend levels of the children if it is not modified by the user
+    :params level: the new level to set to the children
+    :params isJustSet: boolean indicating if the Logging is the first caller of the method or not
+                   - True : it is the first caller
+                   - False: it is not the first caller  
     """
-    if not self._levelModified:
-      for backend in self._backendsList:
-        backend.setLevel(level)
-      self._level = level
-    for child in self._children.itervalues():
-      child._setLevel(self._level)
+    # if the level is just set: update my children
+    if isJustSet:
+      for child in self._children.itervalues():
+        child._setLevel(self._level, False)
+    else:
+      # if my level is not already set by the developer:
+      #   update my own level
+      #   update my children
+      # else: stop the propagation
+      if not self._levelModified: 
+        for backend in self._backendsList:
+          backend.setLevel(level)
+        self._level = level
+        for child in self._children.itervalues():
+          child._setLevel(self._level, False)
+    
 
   @staticmethod
   def getAllPossibleLevels():

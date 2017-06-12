@@ -200,6 +200,32 @@ class TestLevels(TestLoggerWrapper):
     self.assertEqual(self.log.getAllPossibleLevels(), ['INFO', 'WARN',
                                                        'NOTICE', 'VERBOSE', 'ERROR', 'DEBUG', 'ALWAYS', 'FATAL'])
 
+  def test_08modifySubLevelAndGetSubSubLevel(self):
+    """
+    Modify the sub logger level, then the gLogger level and get the subsublogger level
+    """
+    gLogger.setLevel('debug')
+    sublogger = self.log.getSubLogger("sublog")
+    self.assertEqual(gLogger.getLevel(), "DEBUG")
+    self.assertEqual(self.log.getLevel(), "DEBUG")
+    self.assertEqual(sublogger.getLevel(), "DEBUG")
+    gLogger.setLevel('error')
+    self.assertEqual(gLogger.getLevel(), "ERROR")
+    self.assertEqual(self.log.getLevel(), "ERROR")
+    self.assertEqual(sublogger.getLevel(), "ERROR")
+    self.log.setLevel('notice')
+    self.assertEqual(gLogger.getLevel(), "ERROR")
+    self.assertEqual(self.log.getLevel(), "NOTICE")
+    self.assertEqual(sublogger.getLevel(), "NOTICE")
+    gLogger.setLevel('verbose')
+    self.assertEqual(gLogger.getLevel(), "VERBOSE")
+    self.assertEqual(self.log.getLevel(), "NOTICE")
+    self.assertEqual(sublogger.getLevel(), "NOTICE")
+
+
+
+
+
 
 if __name__ == '__main__':
   suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestLevels)

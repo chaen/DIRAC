@@ -50,6 +50,7 @@ class TestLoggerWrapper(unittest.TestCase):
     if logging.getLogger().handlers:
       logging.getLogger().handlers[0].stream = self.buffer
     logging.getLogger('root.log').setLevel(logging.NOTSET)
+    self.log._levelModified = False
 
 
 if __name__ == '__main__':
