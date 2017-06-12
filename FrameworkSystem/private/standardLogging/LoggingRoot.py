@@ -53,6 +53,9 @@ class LoggingRoot(Logging):
     # initialize the root logger
     self._logger = logging.getLogger('')
 
+    # here we redefine the custom name to the empty string to remove the "\" in the display
+    self.customName = ""
+
     # this level is not the Logging level, it is only used to send all log messages to the central logging system
     # to do such an operation, we need to let pass all log messages to the root logger, so all logger needs to be
     # at debug. Then, all the backends have a level associated to a Logging level, which can be changed with the

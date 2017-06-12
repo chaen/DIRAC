@@ -5,6 +5,7 @@ Logging
 __RCSID__ = "$Id$"
 
 import logging
+import os
 
 from DIRAC.FrameworkSystem.private.standardLogging.LogLevels import LogLevels
 
@@ -45,12 +46,16 @@ class Logging(object):
                    'file': FileBackend,
                    'server': RemoteBackend}
 
-  def __init__(self, father=None, fatherName='', name=''):
+  def __init__(self, father=None, fatherName='', name='', customName=''):
     """
     Initialization of the Logging object.
     :params father: Logging, father of this new Logging.
     :params fatherName: string representing the name of the father logger in the chain.
     :params name: string representing the name of the logger in the chain. 
+    :params customName: string representing the name of the logger in the chain: 
+                        - "root" does not appear at the beginning of the chain
+                        - hierarchy "." are replaced by "\"
+                        useful for the display of the Logging name
     By default, 'fatherName' and 'name' are empty, because getChild accepts only string and the first empty
     string corresponds to the root logger. 
 
@@ -86,11 +91,8 @@ class Logging(object):
     # name of the Logging
     self.name = name
 
-    # entire name of the Logging based on the logger name of 'logging': this name is the entire name with parent names:
-    # 'root' representing the root logger name is removed
-    # all "." separator are replaced by "/"
-    self.entireName = self._logger.name.replace("root", "")
-    self.entireName = self.entireName.replace(".", "/")
+    # update the custom name of the Logging adding the new Logging name in the entire path
+    self.customName = os.path.join("/", customName, name)
 
   def showHeaders(self, yesno=True):
     """
@@ -320,7 +322,7 @@ class Logging(object):
     # extras attributes are not camel case because log record attributes are not either.
     extra = {'componentname': self.getName(),
              'varmessage': sVarMsg,
-             'customname': self.entireName}
+             'customname': self.customName}
     self._logger.log(level, "%s", sMsg, exc_info=exc_info,
                      extra=extra)
     # test to know if the message is displayed or not
@@ -355,7 +357,7 @@ class Logging(object):
     """
     result = self._childExists(subName)
     if result is None:
-      child = Logging(self, self._logger.name, subName)
+      child = Logging(self, self._logger.name, subName, self.customName)
       self._children[subName] = child
     else:
       child = result
