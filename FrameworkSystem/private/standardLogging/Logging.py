@@ -118,7 +118,7 @@ class Logging(object):
     """
     self._options[optionName] = value
     self._optionsModified[optionName] = True
-    self._setDisplayOptions(optionName, self._options)
+    self._setDisplayOptions(optionName, value, True)
     # update the format to apply the option change
     self._generateBackendFormat()
 
@@ -210,17 +210,30 @@ class Logging(object):
     """
     return self._options
 
-  def _setDisplayOptions(self, optionName, options):
+  def _setDisplayOptions(self, optionName, value, isJustSet):
     """
     Set the display options of the children if they are not modified by the user
     :params optionName: name of the option to update. Ex: 'showHeaders'
-    :params options: dictionary of options. Ex {'showHeaders': False, ...}
+    :params value: boolean containing the value of the optionName to change in the options dictionary. Ex: False
+    :params isJustSet: boolean indicating if the Logging is the first caller of the method or not
+                   - True : it is the first caller
+                   - False: it is not the first caller  
     """
-    if not self._optionsModified[optionName]:
-      self._options = options.copy()
-      self._generateBackendFormat()
-    for child in self._children.itervalues():
-      child._setDisplayOptions(optionName, self._options)
+    # if the option is just set: update my children
+    if isJustSet:
+      for child in self._children.itervalues():
+        child._setDisplayOptions(optionName, value, False)
+    else: 
+      # if my option is not already set by the developer:
+      #   update my own option
+      #   update my children
+      # else: stop the propagation
+      if not self._optionsModified[optionName]:
+        self._options[optionName] = value
+        self._generateBackendFormat()
+        for child in self._children.itervalues():
+          child._setDisplayOptions(optionName, value, False)
+    
 
   def _setLevel(self, level, isJustSet):
     """
