@@ -1,6 +1,3 @@
-Introduction
-============
-
 *gLogger* is the logging solution within DIRAC. Based on the python
 *logging* library, it represents an interface to create and send
 informational, warn or error messages from the middleware to different
@@ -96,22 +93,28 @@ identity. Indeed, it constitutes its nature and defines if it will be
 displayed or not. *gLogger* puts 10 different levels at our disposal in
 DIRAC and here is a table describing them and their context of use.
 
-[!ht]
 
-| \|l\|X\| Level name & Context of use
-| Fatal & Must be used before an error forcing the program exit and only
-in this case.
-| Always & Used with moderation, only for message that must appears all
-the time.
-| Error & Used when an error occur but do not need to force the program
-exit.
-| Exception & Actually a specification of the Error level which must be
-used before raising an exception.
-| Notice & Used to provide an important information.
-| Warn & Used when an error can occur.
-| Info & Used to provide information.
-| Verbose & Used to provide extra information.
-| Debug & Must be used with moderation to debug the program.
++------------+----------------------------------------------------------------------------------------------------+
+| Level name | Context of use                                                                                     |
++============+====================================================================================================+
+| Fatal      | Must be used before an error forcing the program exit and only in this case.                       |
++------------+----------------------------------------------------------------------------------------------------+
+| Always     | Used with moderation, only for message that must appears all the time.                             |
++------------+----------------------------------------------------------------------------------------------------+
+| Error      | Used when an error occur but do not need to force the program exit.                                |
++------------+----------------------------------------------------------------------------------------------------+
+| Exception  | Actually a specification of the Error level which must be used before raising an exception.        |
++------------+----------------------------------------------------------------------------------------------------+
+| Notice     | Used to provide an important information.                                                          |
++------------+----------------------------------------------------------------------------------------------------+
+| Warn       | Used when an error can occur.                                                                      |
++------------+----------------------------------------------------------------------------------------------------+
+| Info       | Used to provide information.                                                                       | 
++------------+----------------------------------------------------------------------------------------------------+
+| Verbose    | Used to provide extra information.                                                                 |
++------------+----------------------------------------------------------------------------------------------------+
+| Debug      | Must be used with moderation to debug the program.                                                 |
++------------+----------------------------------------------------------------------------------------------------+
 
 These levels have a priority order from *debug* to *fatal*. In this way,
 *fatal* and *always* log records appear almost all the time whereas
@@ -206,8 +209,6 @@ The more used and recommended method to set the level of *gLogger* is to
 use the command line arguments. It works with any *DIRAC* component but
 we can not define a specific level. Here is a table of these different
 arguments:
-
-[!ht]
 
 +------------+------------------------------------------+
 | Argument   | Level associated to the root *Logging*   |
@@ -349,8 +350,6 @@ There are two ways to modify it, the *showHeaders* method as we saw, and
 the command line argument *-d*. Here is a table presenting the changes
 according to the argument value:
 
-[!ht]
-
 +--------------------------------------+------------------------------------------+
 | Argument                             | Level associated to the root *Logging*   |
 +======================================+==========================================+
@@ -391,8 +390,6 @@ prefix.
 A second way to set the boolean is to use the command line argument
 *-d*. Here is a table presenting the changes according to the argument:
 
-[!ht]
-
 +--------------------------------------+------------------------------------------+
 | Argument                             | Level associated to the root *Logging*   |
 +======================================+==========================================+
@@ -419,8 +416,8 @@ allows us to add extra information about the *Logging* call between the
 
 ::
 
-    .../[Log][Path]:[Line] [Level]: [Message]
-    .../log[opt/dirac/DIRAC/.../standardLogging/Logging.py:325]INFO: message
+    [Date] UTC [System]/[Component]/[Log][Path]:[Line] [Level]: [Message]
+    2017-04-25 15:51:01 UTC Framework/Atom/log[opt/dirac/DIRAC/FrameworkSystem/private/standardLogging/Logging.py:325]INFO: message
 
 It is composed by the caller object path and the line of the call. This
 option requires that you set *LogShowLine* at *True* in the *cfg* file
@@ -480,8 +477,6 @@ format it according to the choice of the client, and send it in the
 right output. Currently, there are four different *Backend* object
 inherited from a base. Here is a table presenting them:
 
-[!ht]
-
 +-----------------+-------------------------+
 | Backend name    | Output                  |
 +=================+=========================+
@@ -521,12 +516,13 @@ possible to change them via the *BackendsOptions*\ section of the *cfg*.
 Here is a table presenting the different parameters that we can
 configure for each *Backend* and their default values:
 
-[!ht]
-
-| \|c\|c\|X\|c\| Type & Option & Description & Default value
-| file & FileName & name of the file where the log records must be sent
-& Dirac-log\_[pid].log
-| server & SleepTime & sleep time in seconds & 150
++--------+-----------+------------------------------------------------------+----------------------+
+| Type   | Option    | Description                                          | Default value        |
++========+===========+======================================================+======================+
+| file   | FileName  | name of the file where the log records must be sent  | Dirac-log\_[pid].log |
++--------+-----------+------------------------------------------------------+----------------------+
+| server | SleepTime | sleep time in seconds                                | 150                  |
++--------+-----------+------------------------------------------------------+----------------------+
 
 We can also notice that the *server Backend* requires that the
 *Framework/SystemLogging* service is running in order to send log
@@ -558,8 +554,6 @@ configuration:
         }
     }   
 
-[cfgfile]
-
 To summarize, this file configures an agent named *SimplestAgent*, sets
 the level of *gLogger* at *info*, adds 3 *Backend* objects to it, which
 are *stdout*, *stderr* and *file*. Thus, each log record superior to
@@ -577,10 +571,6 @@ Summary of the command line argument configuration
 
 Here is a complete table explaining the changes provided by the command
 line argument *-d*:
-
-[!ht]
-
-[argstable]
 
 +--------------------------------------+----------------+----------------+-----------+
 | Argument                             | ShowHeader     | showThread     | Level     |
@@ -624,7 +614,6 @@ Get a children tree
 As we said in the , all *Logging* objects can own a list of children and
 a parent, and is part of a *Logging* tree like this:
 
-[!ht]
 
 (4)[xshift=-6cm,yshift=1cm]subsublogger;
 (3)[xshift=-2cm,yshift=3cm]sublogger2;
