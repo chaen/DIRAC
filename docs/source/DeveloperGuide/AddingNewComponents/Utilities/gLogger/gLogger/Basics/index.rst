@@ -600,3 +600,8 @@ Multiple threads
 
 *gLogger* is based on the Python *logging* library which is completely
 thread-safe. Thus, it is also thread-safe.
+
+Advanced part
+------------------------------------
+
+You can find more information about *gLogger* and its functionalities in the :ref:`gLogger_gLogger_advanced` part.
