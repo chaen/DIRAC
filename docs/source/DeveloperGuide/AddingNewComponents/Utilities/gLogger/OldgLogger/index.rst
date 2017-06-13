@@ -3,7 +3,7 @@
 The old version of gLogger
 ============
 
-**This is the old version of gLogger. You should not read this part if you are new in the DIRAC developpment.**
+**This is the old version of gLogger. You should not read this part if you are new in the DIRAC developpment. Please, go to :ref:`gLogger_gLogger` to find the documentation on the current version. You can also see the different changes in the :ref:`gLogger_changes`.**
 
 Logger creation
 ---------------
