@@ -16,8 +16,6 @@ from the log record anymore. In this way, the *child* attribute becomes
 totally useless and should not be used. Here is the only way to create a
 child *Logging* now:
 
-[!ht]
-
 ::
 
     gLogger.getSubLogger("logger")
@@ -27,8 +25,6 @@ child *Logging* now:
 
 Before the update, when a sub *Logger* got a sub *Logger*, we had always
 the same display:
-
-[!ht]
 
 ::
 
@@ -41,8 +37,6 @@ the same display:
 
 Now, the child *Logging* keeps this name in the display, and the one of
 all its parents:
-
-[!ht]
 
 ::
 
@@ -64,52 +58,8 @@ fact, the old *gLogger* was composed by a *V* level model from *Always*
 to *Fatal*. Now, the level system becomes linear. Here is a figure
 presenting the old level system at the left, and the new at the right:
 
-[!ht]
 
-c c
-
-(A)[xshift=-6cm,yshift=4cm]Always:-40;
-(N)[xshift=-5.5cm,yshift=3cm]Notice; (I)[xshift=-5cm,yshift=2cm]Info;
-(V)[xshift=-4.5cm,yshift=1cm]Verbose;
-(D)[xshift=-4cm,yshift=0cm]Debug:0; (W)[xshift=-3cm,yshift=2cm]Warn;
-(E)[xshift=-2.5cm,yshift=3cm]Error/Exception;
-(F)[xshift=-2cm,yshift=4cm]Fatal:40;
-
-(D) edge node (W)
-
-(W) edge node (E)
-
-(E) edge node (F)
-
-(D) edge node (V)
-
-(V) edge node (I)
-
-(I) edge node (N)
-
-(N) edge node (A);
-
-&
-
-(D)[xshift=-4cm,yshift=-3cm]Debug:10;
-(V)[xshift=-4cm,yshift=-2cm]Verbose; (I)[xshift=-4cm,yshift=-1cm]Info;
-(W)[xshift=-4cm,yshift=0cm]Warn; (N)[xshift=-4cm,yshift=1cm]Notice;
-(ER)[xshift=-4cm,yshift=2cm]Error; (A)[xshift=-4cm,yshift=3cm]Always;
-(F)[xshift=-4cm,yshift=4cm]Fatal:50;
-
-(D) edge node (V)
-
-(V) edge node (I)
-
-(I) edge node (W)
-
-(W) edge node (N)
-
-(N) edge node (ER)
-
-(ER) edge node (A)
-
-(A) edge node (F);
+.. image:: levelSystems.png
 
 You can notice that the *exception* level disappears, but it still
 possible to create *exception* log records. They will appear as an
@@ -122,8 +72,6 @@ If the developer does not have set a level to his *Logging*, this one
 takes the level of its parent by default. In this way, each time the
 parent level is modified, the level of its children changes too. It is a
 propagation:
-
-[!ht]
 
 ::
 
@@ -139,8 +87,6 @@ propagation:
 It is possible to limit this propagation setting the level of a
 *Logging* with the *setLevel()* method. Thus, even if the parent level
 change, the level of the *Logging* will stay the same:
-
-[!ht]
 
 ::
 
@@ -167,8 +113,6 @@ Message
 
 As the *child* attribute, these attributes are now useless and should
 not be used. Here is the only way to create an exception log record now:
-
-[!ht]
 
 ::
 
@@ -202,8 +146,6 @@ Exception message display
 There is also a minor change on the *exception* messages. At the top,
 there is the old exception display, at the bottom the new:
 
-[!ht]
-
 ::
 
     ... EXCEPT: message
@@ -233,8 +175,6 @@ Nevertheless, all log records from a child *Logging* are sent to the
 parent *Logging* which displays these log records if it can and send
 these ones to its parent and so on. Thus, all log records from all
 *Logging* objects go to *gLogger* which displays every log messages:
-
-[!ht]
 
 ::
 
@@ -275,8 +215,6 @@ takes the format of its parent by default. In this way, each time the
 parent format is modified, the level of its children changes too. It is
 a propagation:
 
-[!ht]
-
 ::
 
     # gLogger has a stdout Backend, DEBUG level
@@ -300,8 +238,6 @@ It is possible to limit this propagation setting the format of a
 *Logging* with the *showHeaders()* or *showThreadIDs()* methods. Thus,
 even if the parent format changes, the format of the *Logging* object
 will stay the same:
-
-[!ht]
 
 ::
 
