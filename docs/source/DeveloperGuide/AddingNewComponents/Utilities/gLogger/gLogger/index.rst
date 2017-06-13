@@ -614,17 +614,8 @@ Get a children tree
 As we said in the , all *Logging* objects can own a list of children and
 a parent, and is part of a *Logging* tree like this:
 
-
-(4)[xshift=-6cm,yshift=1cm]subsublogger;
-(3)[xshift=-2cm,yshift=3cm]sublogger2;
-(2)[xshift=-6cm,yshift=3cm]sublogger1;
-(1)[xshift=-4cm,yshift=4cm]gLogger;
-
-(1) edge node (2)
-
-(1) edge node (3)
-
-(2) edge node (4);
+.. image:: tree.png
+   :align: center
 
 Here is a snippet presenting the creation of the tree seen above:
 
@@ -888,35 +879,5 @@ Summary diagram
 Here is a diagram showing the complete path of a log record from its
 creation to its emission in an output:
 
-[!ht]
-
-(L)[xshift=-4cm,yshift=3cm]**Logging**;
-(B)[xshift=4cm,yshift=3cm]**Backend**; (1)[xshift=-4cm,yshift=2cm]*log
-event*; (2)[xshift=-4cm,yshift=1cm]create;
-(25)[xshift=-4cm,yshift=0.5cm]log records;
-(3)[xshift=-4cm,yshift=-0.5cm]send to; (35)[xshift=-4cm,yshift=-1cm]each
-Backend; (4)[xshift=-4cm,yshift=-2cm]propagate to;
-(45)[xshift=-4cm,yshift=-2.5cm]the parent;
-(5)[xshift=4cm,yshift=-0.5cm]check the level;
-(6)[xshift=7cm,yshift=-0.5cm]end; (7)[xshift=4cm,yshift=-2cm]emit;
-(75)[xshift=4cm,yshift=-2.5cm]to the output;
-
-(ok)[xshift=6cm,yshift=0cm]*not ok*;
-(notok)[xshift=5cm,yshift=-1.25cm]*ok*;
-
-(parent)[xshift=-7.2cm,yshift=-1cm]*in the*;
-(parent2)[xshift=-7.2cm,yshift=-1.5cm]*parent*;
-
-(-5.5,-2) – (-6.5,-2) – (-6.5,-0.5) – (-4.8,-0.5);
-
-(1) edge node (2)
-
-(25) edge node (3)
-
-(35) edge node (4)
-
-(3) edge node (5)
-
-(5) edge node (6)
-
-(5) edge node (7) ;
+.. image:: summary.png
+   :align: center
