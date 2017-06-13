@@ -4,7 +4,7 @@ Advanced use
 Get a children tree
 -------------------
 
-As we said in the , all *Logging* objects can own a list of children and
+As we said in the *Basics* part, all *Logging* objects can own a list of children and
 a parent, and is part of a *Logging* tree like this:
 
 .. image:: tree.png
@@ -186,7 +186,7 @@ We can also notice that the log records do not go down in the tree.
 The truth about the returned value of the level methods
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The boolean contained in the level methods seen indicates, in reality,
+The boolean contained in the level methods seen in the *Basics* part indicates, in reality,
 if the log record will appear or not in the *Backend* objects of the
 current *Logging*. Thus, the boolean can be at *False* and the log
 record can appear in one of its parent anyway.
