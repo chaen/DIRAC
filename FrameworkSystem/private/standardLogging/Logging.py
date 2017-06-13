@@ -108,17 +108,28 @@ class Logging(object):
     """
     self._setOption('threadIDIsShown', yesno)
 
-  def _setOption(self, optionName, value):
+  def _setOption(self, optionName, value, directCall=True):
     """
     Depending on the value, modify the value of the option.
-    This option will not be modified anymore. 
+    Propagate the option to the children.
     The options of the children will be updated if they were not modified before by a developer
     :params optionName: string representing the name of the option to modify
     :params value: boolean to give to the option  
+    :params directCall: boolean indicating if it is a call by the user or not
     """
+    if self._optionsModified[optionName] and not directCall:
+      return 
+
+    if directCall:
+      self._optionsModified[optionName] = True
+
+    # update option  
     self._options[optionName] = value
     self._optionsModified[optionName] = True
-    self._setDisplayOptions(optionName, value, True)
+    
+    #propagate in the children
+    for child in self._children.itervalues():
+      child._setOption(optionName, value, directCall=False)
     # update the format to apply the option change
     self._generateBackendFormat()
 
@@ -155,23 +166,41 @@ class Logging(object):
 
   def setLevel(self, levelName):
     """
-    Set a level to the backends attached to this Logging.
-    Set the level of the Logging too.
+    Check if the level name exists and get the integer value before setting it.
     :params levelName: string representing the level to give to the logger
     :return: boolean representing if the setting is done or not
     """
     result = False
+    
     levelName = levelName.upper()
     if levelName in LogLevels.getLevelNames():
-      level = LogLevels.getLevelValue(levelName)
-      for backend in self._backendsList:
-        backend.setLevel(level)
-
-      self._level = level
-      self._levelModified = True
-      self._setLevel(self._level, True)
+      self._setLevel(LogLevels.getLevelValue(levelName)) 
       result = True
     return result
+
+  def _setLevel(self, level, directCall=True):
+    """
+    Set a level to the backends attached to this Logging.
+    Set the level of the Logging too.
+    Propagate the level to its children.
+    :params level: integer representing the level to give to the logger
+    :params directCall: boolean indicating if it is a call by the user or not
+    """    
+    if self._levelModified and not directCall: 
+      return
+
+    if directCall:
+      self._levelModified = True
+
+    # update Logging level
+    self._level = level
+    # update backend levels
+    for backend in self._backendsList:
+      backend.setLevel(self._level)
+
+    # propagate in the children
+    for child in self._children.itervalues():
+      child._setLevel(level, directCall=False)  
 
   def getLevel(self):
     """
@@ -208,57 +237,7 @@ class Logging(object):
     """
     :return: the dictionary of the display options and their values. Must not be redefined
     """
-    return self._options
-
-  def _setDisplayOptions(self, optionName, value, isJustSet):
-    """
-    Set the display options of the children if they are not modified by the user
-    :params optionName: name of the option to update. Ex: 'showHeaders'
-    :params value: boolean containing the value of the optionName to change in the options dictionary. Ex: False
-    :params isJustSet: boolean indicating if the Logging is the first caller of the method or not
-                   - True : it is the first caller
-                   - False: it is not the first caller  
-    """
-    # if the option is just set: update my children
-    if isJustSet:
-      for child in self._children.itervalues():
-        child._setDisplayOptions(optionName, value, False)
-    else: 
-      # if my option is not already set by the developer:
-      #   update my own option
-      #   update my children
-      # else: stop the propagation
-      if not self._optionsModified[optionName]:
-        self._options[optionName] = value
-        self._generateBackendFormat()
-        for child in self._children.itervalues():
-          child._setDisplayOptions(optionName, value, False)
-    
-
-  def _setLevel(self, level, isJustSet):
-    """
-    Set the backend levels of the children if it is not modified by the user
-    :params level: the new level to set to the children
-    :params isJustSet: boolean indicating if the Logging is the first caller of the method or not
-                   - True : it is the first caller
-                   - False: it is not the first caller  
-    """
-    # if the level is just set: update my children
-    if isJustSet:
-      for child in self._children.itervalues():
-        child._setLevel(self._level, False)
-    else:
-      # if my level is not already set by the developer:
-      #   update my own level
-      #   update my children
-      # else: stop the propagation
-      if not self._levelModified: 
-        for backend in self._backendsList:
-          backend.setLevel(level)
-        self._level = level
-        for child in self._children.itervalues():
-          child._setLevel(self._level, False)
-    
+    return self._options    
 
   @staticmethod
   def getAllPossibleLevels():
