@@ -1,3 +1,5 @@
+.. _gLogger_gLogger_basics:
+
 Basics
 ======
 

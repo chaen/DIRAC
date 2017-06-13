@@ -1,3 +1,5 @@
+.. _gLogger_oldgLogger:
+
 The old version of gLogger
 ============
 
