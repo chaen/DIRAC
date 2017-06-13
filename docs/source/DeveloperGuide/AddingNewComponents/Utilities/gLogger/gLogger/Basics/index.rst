@@ -217,7 +217,7 @@ arguments:
 +------------+------------------------------------------+
 
 We can find a complete table containing all the effects of the command
-line arguments .
+line arguments in the `Summary of the command line argument configuration`_ part.
 
 Set a level via the *cfg* file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -359,7 +359,7 @@ according to the argument value:
 +--------------------------------------+------------------------------------------+
 
 We can find a complete table containing all the effects of the command
-line arguments .
+line arguments in the `Summary of the command line argument configuration`_ part.
 
 Add the thread ID in the log record
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -399,7 +399,7 @@ A second way to set the boolean is to use the command line argument
 +--------------------------------------+------------------------------------------+
 
 We can find a complete table containing all the effects of the command
-line arguments .
+line arguments in the `Summary of the command line argument configuration`_ part.
 
 Add the caller path name and its line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -443,7 +443,7 @@ option at *False* in the *cfg* file:
 
     LogColor = False
 
-We can find a *cfg* file example containing different options .
+We can find a *cfg* file example containing different options in the `cfg file example`_ part.
 
 Get the option values
 ~~~~~~~~~~~~~~~~~~~~~
@@ -499,7 +499,7 @@ write the desired *Backend* objects in the *cfg* file using the
 
 Here, we add all of the *Backend* object types in the root *Logging*.
 Thus, a log record created will be sent to 4 different outputs. We can
-find a *cfg* file example containing different options .
+find a *cfg* file example containing different options in the `cfg file example`_ part.
 
 Configure the *Backend* objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -564,7 +564,7 @@ Summary of the command line argument configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is a complete table explaining the changes provided by the command
-line argument *-d*:
+line argument *-d*: 
 
 +--------------------------------------+----------------+----------------+-----------+
 | Argument                             | ShowHeader     | showThread     | Level     |
