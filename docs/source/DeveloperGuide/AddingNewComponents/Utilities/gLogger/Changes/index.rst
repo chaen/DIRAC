@@ -1,17 +1,24 @@
 .. _gLogger_changes:
 
+Changes
+=======
+
+Here is a list of the different changes due to the replacement of *gLogger*.
+
 Vocabulary changes
-==================
+------------------
+
 
 Now, *Logger* objects are renamed *Logging*. In the same way, a sub
 *Logger* becomes a child *Logging*. To finish, a message becomes a log
 record.
 
 Logger creation
-===============
+---------------
+
 
 *child* attribute in the *getSubLogger* method
-----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is no possibility to remove the system and the component names
 from the log record anymore. In this way, the *child* attribute becomes
@@ -23,7 +30,7 @@ child *Logging* now:
     gLogger.getSubLogger("logger")
 
 *Logging* and child *Logging*
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before the update, when a sub *Logger* got a sub *Logger*, we had always
 the same display:
@@ -50,10 +57,10 @@ all its parents:
     # ... Framework/log/sublog ALWAYS: message
 
 Levels
-======
+------
 
 Level system
-------------
+~~~~~~~~~~~~
 
 There are still 9 different levels in DIRAC, but the system changes. In
 fact, the old *gLogger* was composed by a *V* level model from *Always*
@@ -68,7 +75,7 @@ possible to create *exception* log records. They will appear as an
 *error* message with an additional stack trace.
 
 *setLevel()* functionality
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the developer does not have set a level to his *Logging*, this one
 takes the level of its parent by default. In this way, each time the
@@ -108,10 +115,10 @@ change, the level of the *Logging* will stay the same:
     # > ERROR
 
 Message
-=======
+-------
 
 *lExcInfo* and *lException* attributes
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As the *child* attribute, these attributes are now useless and should
 not be used. Here is the only way to create an exception log record now:
@@ -121,10 +128,10 @@ not be used. Here is the only way to create an exception log record now:
     gLogger.exception("message")
 
 Display
-=======
+-------
 
 Multiple line messages
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 The old *gLogger* allowed the developers to create log records on
 multiple lines with a prefix on each line:
@@ -143,7 +150,7 @@ present on the first line:
     on multiple lines
 
 Exception message display
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is also a minor change on the *exception* messages. At the top,
 there is the old exception display, at the bottom the new:
@@ -167,7 +174,7 @@ there is the old exception display, at the bottom the new:
     ZeroDivisionError: integer division or modulo by zero
 
 *registerBackends()* for all loggers
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now, each *Logging* can use the *registerBackends* method for their own
 needs. In this way, you can easily isolate log records from a specific
@@ -205,7 +212,7 @@ displayed by all of its parents. You can also notice its double presence
 in *stdout*.
 
 Local *showHeaders* and *showThreadIDs*
----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before, the *showHeaders* and the *showThreadIDs* options were globals,
 and any logger could change their values and this could impact all the
@@ -265,10 +272,10 @@ Moreover, change a format on a *Logging* which has no *Backend* have no
 effect on the other *Logging* objects.
 
 Multiple processes and threads
-==============================
+------------------------------
 
 Multiple threads
-----------------
+~~~~~~~~~~~~~~~~
 
 *gLogger* is now thread-safe. This means that you have the possibility
 to write safely in one file with two different threads.
