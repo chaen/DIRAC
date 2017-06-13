@@ -1,12 +1,7 @@
-gLogger
+The old version of gLogger
 ============
 
-*gLogger* is the current logging solution within DIRAC. It allows
-developers to create informational, warn or error messages in the
-middleware.
-
-In this document, we will focus on functionalities proposed by the
-logger and its integration in the middleware.
+**This is the old version of gLogger. You should not read this part if you are new in the DIRAC developpment.**
 
 Logger creation
 ---------------
