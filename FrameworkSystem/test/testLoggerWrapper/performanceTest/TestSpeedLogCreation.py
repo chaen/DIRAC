@@ -49,7 +49,7 @@ class TestSpeedLogCreation(object):
       logger = logging.getLogger("logging")
       start = time.time()
       for i in range(0, 1000000):
-        logger.error("%d" % i)
+        logger.error("%d",i)
       end = time.time()
       timeLogging.append(end - start)
 
