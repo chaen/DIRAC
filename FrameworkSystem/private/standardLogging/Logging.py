@@ -186,6 +186,8 @@ class Logging(object):
     :params level: integer representing the level to give to the logger
     :params directCall: boolean indicating if it is a call by the user or not
     """    
+    # if the level logging level was previously modified by the developer
+    # and it is not a direct call from him, then we return in order to stop the propagation
     if self._levelModified and not directCall: 
       return
 
