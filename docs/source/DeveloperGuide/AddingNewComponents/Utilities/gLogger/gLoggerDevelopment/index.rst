@@ -1,3 +1,6 @@
+gLogger Development
+===================
+
 Here is the *gLogger* documentation for developer briefly presenting the
 different components of the logging system and their locations.
 
