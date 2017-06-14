@@ -590,8 +590,7 @@ About multiple processes and threads
 Multiple processes
 ~~~~~~~~~~~~~~~~~~
 
-*DIRAC* is composed by many micro services running in multiple
-processes. *gLogger* object is naturally different for two distinct
+*gLogger* object is naturally different for two distinct
 processes and can not save the application from process conflicts.
 Indeed, *gLogger* is not process-safe, that means that two processes can
 encounter conflicts if they try to write on a same file at the same
@@ -601,7 +600,7 @@ Multiple threads
 ~~~~~~~~~~~~~~~~
 
 *gLogger* is based on the Python *logging* library which is completely
-thread-safe. Thus, it is also thread-safe.
+thread-safe. Nevertheless, we can not guarantee that *gLogger* is thread-safe too.
 
 Advanced part
 ------------------------------------
