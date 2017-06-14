@@ -503,6 +503,8 @@ Here, we add all of the *Backend* object types in the root *Logging*.
 Thus, a log record created will be sent to 4 different outputs. We can
 find a *cfg* file example containing different options in the `cfg file example`_ part.
 
+We can also notice that, in the future, we expect to have plugable *Backend* objects in order to allow anyone to define new types of *Backend* objects.
+
 Configure the *Backend* objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
