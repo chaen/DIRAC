@@ -99,11 +99,11 @@ DIRAC and here is a table describing them and their context of use.
 +------------+----------------------------------------------------------------------------------------------------+
 | Error      | Used when an error occur but do not need to force the program exit.                                |
 +------------+----------------------------------------------------------------------------------------------------+
-| Exception  | Actually a specification of the Error level which must be used before raising an exception.        |
+| Exception  | Actually a specification of the Error level which must be used when an exception is trapped.       |
 +------------+----------------------------------------------------------------------------------------------------+
 | Notice     | Used to provide an important information.                                                          |
 +------------+----------------------------------------------------------------------------------------------------+
-| Warn       | Used when an error can occur.                                                                      |
+| Warn       | Used when a potentially undesired behaviour can occur.                                             |
 +------------+----------------------------------------------------------------------------------------------------+
 | Info       | Used to provide information.                                                                       | 
 +------------+----------------------------------------------------------------------------------------------------+
