@@ -86,33 +86,45 @@ propagation:
 
     gLogger.setLevel('notice')
     log = gLogger.getSubLogger('log')
+    sublog = log.getSubLogger('sublog')
+    gLogger.getLevel()
     log.getLevel()
+    sublog.getLevel()
+    # > NOTICE
+    # > NOTICE
     # > NOTICE
 
     gLogger.setLevel('error')
+    gLogger.getLevel()
     log.getLevel()
+    sublog.getLevel()
+    # > ERROR
+    # > ERROR
     # > ERROR
 
 It is possible to limit this propagation setting the level of a
 *Logging* with the *setLevel()* method. Thus, even if the parent level
-change, the level of the *Logging* will stay the same:
+change, the level of the *Logging* will stay the same. See this example based
+on the previous snippet:
 
 ::
 
-    gLogger.setLevel('notice')
-    log = gLogger.getSubLogger('log')
-    log.setLevel('error')
-
+    # gLogger, log, sublog level: ERROR
+    log.setLevel('verbose')
     gLogger.getLevel()
-    # > NOTICE
     log.getLevel()
+    sublog.getLevel()
     # > ERROR
+    # > VERBOSE
+    # > VERBOSE
 
     gLogger.setLevel('debug')
     gLogger.getLevel()
-    # > DEBUG
     log.getLevel()
-    # > ERROR
+    sublog.getLevel()
+    # > DEBUG
+    # > VERBOSE
+    # > VERBOSE
 
 Message
 -------
