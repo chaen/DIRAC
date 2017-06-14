@@ -233,7 +233,7 @@ the *Logging* objects. It works exactly like the *setLevel()* method.
 
 If the developer does not have set a format to his *Logging*, this one
 takes the format of its parent by default. In this way, each time the
-parent format is modified, the level of its children changes too. It is
+parent format is modified, the format of its children changes too. It is
 a propagation:
 
 ::
@@ -244,9 +244,9 @@ a propagation:
     log.registerBackends(['stderr'])
     log.verbose("message")
     # stdout
-    # > VERBOSE: message
+    # > ...VERBOSE: message
     # stderr
-    # > VERBOSE: message
+    # > ...VERBOSE: message
 
     gLogger.showHeaders(False)
     log.verbose("message")
@@ -279,9 +279,6 @@ will stay the same:
     # > message
     # stderr
     # > VERBOSE: message
-
-Moreover, change a format on a *Logging* which has no *Backend* have no
-effect on the other *Logging* objects.
 
 Multiple processes and threads
 ------------------------------
