@@ -3,12 +3,10 @@ __RCSID__ = "$Id$"
 from DIRAC.FrameworkSystem.private.logging.Logger import Logger
 from DIRAC.FrameworkSystem.private.standardLogging.LoggingRoot import LoggingRoot
 
-# old logger
-# useful for testing the new gLogger
-# tests are in FrameworkSystem/test/testLoggerWrapper
-oldgLogger = Logger()
+# old logging system
+gLogger = Logger()
 
-# new gLogger
+# To update the logging system, you have to uncomment this line:
 gLogger = LoggingRoot()
 
 

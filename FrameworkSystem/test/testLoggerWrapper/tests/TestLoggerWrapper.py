@@ -10,8 +10,10 @@ import logging
 import sys
 from StringIO import StringIO
 
-from DIRAC import gLogger, oldgLogger
+from DIRAC import gLogger
+from DIRAC.FrameworkSystem.private.logging.Logger import Logger
 
+oldgLogger = Logger()
 
 def cleaningLog(log):
   """
