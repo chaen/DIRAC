@@ -22,14 +22,24 @@ class LogLevels(object):
   and the method getLevelName does not return errors or None values when a level
   does not exist. So at the moment, the LogLevels class is useful. 
   """
-  __levelDict = {"DEBUG": logging.DEBUG,
-                 "VERBOSE": 15,
-                 "INFO": logging.INFO,
-                 "WARN": logging.WARN,
-                 "NOTICE": 35,
-                 "ERROR": logging.ERROR,
-                 "ALWAYS": 45,
-                 "FATAL": logging.CRITICAL}
+
+  DEBUG = logging.DEBUG
+  VERBOSE = 15
+  INFO = logging.INFO
+  WARN = logging.WARN
+  NOTICE = 35
+  ERROR = logging.ERROR
+  ALWAYS = 45
+  FATAL = logging.CRITICAL
+
+  __levelDict = {"DEBUG": DEBUG,
+                 "VERBOSE": VERBOSE,
+                 "INFO": INFO,
+                 "WARN": WARN,
+                 "NOTICE": NOTICE,
+                 "ERROR": ERROR,
+                 "ALWAYS": ALWAYS,
+                 "FATAL": FATAL}
 
   @classmethod
   def getLevelValue(cls, sName):

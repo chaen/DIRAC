@@ -149,11 +149,7 @@ class Logging(object):
       if backendName in Logging._BACKENDSDICT:
         backend = Logging._BACKENDSDICT[backendName]()
 
-        # give a copy to avoid that the backends modify the original dictionary
-        parameters = None
-        if backendOptions is not None:
-          parameters = backendOptions
-        backend.createHandler(parameters)
+        backend.createHandler(backendOptions)
 
         # update the level of the new backend to respect the Logging level
         backend.setLevel(self._level)
@@ -171,9 +167,7 @@ class Logging(object):
     :return: boolean representing if the setting is done or not
     """
     result = False
-    
-    levelName = levelName.upper()
-    if levelName in LogLevels.getLevelNames():
+    if levelName.upper() in LogLevels.getLevelNames():
       self._setLevel(LogLevels.getLevelValue(levelName)) 
       result = True
     return result
@@ -217,8 +211,7 @@ class Logging(object):
     :return: boolean which give the answer
     """
     result = False
-    levelName = levelName.upper()
-    if levelName in LogLevels.getLevelNames():
+    if levelName.upper() in LogLevels.getLevelNames():
       result = self._level <= LogLevels.getLevelValue(levelName)
     return result
 
@@ -252,64 +245,55 @@ class Logging(object):
     """
     Always level
     """
-    level = LogLevels.getLevelValue('ALWAYS')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.ALWAYS, sMsg, sVarMsg)
 
   def notice(self, sMsg, sVarMsg=''):
     """
     Notice level
     """
-    level = LogLevels.getLevelValue('NOTICE')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.NOTICE, sMsg, sVarMsg)
 
   def info(self, sMsg, sVarMsg=''):
     """
     Info level
     """
-    level = LogLevels.getLevelValue('INFO')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.INFO, sMsg, sVarMsg)
 
   def verbose(self, sMsg, sVarMsg=''):
     """
     Verbose level
     """
-    level = LogLevels.getLevelValue('VERBOSE')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.VERBOSE, sMsg, sVarMsg)
 
   def debug(self, sMsg, sVarMsg=''):
     """
     Debug level
     """
-    level = LogLevels.getLevelValue('DEBUG')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.DEBUG, sMsg, sVarMsg)
 
   def warn(self, sMsg, sVarMsg=''):
     """
     Warn
     """
-    level = LogLevels.getLevelValue('WARN')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.WARN, sMsg, sVarMsg)
 
   def error(self, sMsg, sVarMsg=''):
     """
     Error level
     """
-    level = LogLevels.getLevelValue('ERROR')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.ERROR, sMsg, sVarMsg)
 
   def exception(self, sMsg="", sVarMsg='', lException=False, lExcInfo=False):
     """
     Exception level
     """
-    level = LogLevels.getLevelValue('ERROR')
-    return self._createLogRecord(level, sMsg, sVarMsg, exc_info=True)
+    return self._createLogRecord(LogLevels.ERROR, sMsg, sVarMsg, exc_info=True)
 
   def fatal(self, sMsg, sVarMsg=''):
     """
     Critical level
     """
-    level = LogLevels.getLevelValue('FATAL')
-    return self._createLogRecord(level, sMsg, sVarMsg)
+    return self._createLogRecord(LogLevels.FATAL, sMsg, sVarMsg)
 
   def _createLogRecord(self, level, sMsg, sVarMsg, exc_info=False):
     """
@@ -330,16 +314,12 @@ class Logging(object):
     # - 'varmessage': the variable message
     # - 'customname' : the name of the logger for the DIRAC usage: without 'root' and separated with '/'
     # extras attributes are not camel case because log record attributes are not either.
-    extra = {'componentname': self.getName(),
+    extra = {'componentname': Logging._componentName,
              'varmessage': sVarMsg,
              'customname': self.customName}
-    self._logger.log(level, "%s", sMsg, exc_info=exc_info,
-                     extra=extra)
+    self._logger.log(level, "%s", sMsg, exc_info=exc_info, extra=extra)
     # test to know if the message is displayed or not
-    result = False
-    if self._level <= level:
-      result = True
-    return result
+    return self._level <= level
 
   def showStack(self):
     """

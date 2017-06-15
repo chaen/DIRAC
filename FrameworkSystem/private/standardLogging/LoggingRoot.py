@@ -60,7 +60,7 @@ class LoggingRoot(Logging):
     # to do such an operation, we need to let pass all log messages to the root logger, so all logger needs to be
     # at debug. Then, all the backends have a level associated to a Logging level, which can be changed with the
     # setLevel method of Logging, and these backends will choose to send the log messages or not.
-    self._logger.setLevel(LogLevels.getLevelValue('DEBUG'))
+    self._logger.setLevel(LogLevels.DEBUG)
 
     # initialization of the UTC time
     # Actually, time.gmtime is equal to UTC time because it has its DST flag to 0
@@ -73,7 +73,7 @@ class LoggingRoot(Logging):
       logging.addLevelName(levels[level], level)
 
     # initialization of the default backend
-    self.setLevel('NOTICE')
+    self._setLevel(LogLevels.NOTICE)
     self.registerBackends(['stdout'])
 
     # configuration of the level and update of the format
@@ -139,11 +139,11 @@ class LoggingRoot(Logging):
       if arg.find("-d") == 0:
         debLevs += arg.count("d")
     if debLevs == 1:
-      self.setLevel('VERBOSE')
+      self._setLevel(LogLevels.VERBOSE)
     elif debLevs == 2:
-      self.setLevel('VERBOSE')
+      self._setLevel(LogLevels.VERBOSE)
       self.showHeaders(True)
     elif debLevs >= 3:
-      self.setLevel('DEBUG')
+      self._setLevel(LogLevels.DEBUG)
       self.showHeaders(True)
       self.showThreadIDs(True)
