@@ -14,7 +14,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.Logging import Logging
 
 class LoggingRoot(Logging):
   """
-  LoggingRoot is a Logging object and it is particular because it is the first parent of the chaine.
+  LoggingRoot is a Logging object and it is particular because it is the first parent of the chain.
   In this context, it has more possibilities because it is the one that initializes the logger of the 
   standard logging library and it configures it with the cfg file.
 

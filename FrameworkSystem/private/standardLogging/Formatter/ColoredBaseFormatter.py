@@ -11,7 +11,7 @@ from DIRAC.FrameworkSystem.private.standardLogging.Formatter.BaseFormatter impor
 
 class ColoredBaseFormatter(BaseFormatter):
   """
-  ColorBaseFormatter is used to format log record to create a string representing a log message. 
+  ColoredBaseFormatter is used to format log record to create a string representing a log message. 
   It is based on the BaseFormatter object which is based on the of the standard logging library.
 
   This custom formatter is useful for format messages to correspond with the gLogger format. 
