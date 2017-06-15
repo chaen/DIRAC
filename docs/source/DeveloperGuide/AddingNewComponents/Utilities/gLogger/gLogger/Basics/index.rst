@@ -403,39 +403,10 @@ A second way to set the boolean is to use the command line argument
 We can find a complete table containing all the effects of the command
 line arguments in the `Summary of the command line argument configuration`_ part.
 
-Add the caller path name and its line
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The *LogShowLine* option is only available from the *cfg* file and
-allows us to add extra information about the *Logging* call between the
-*Logging* name and the level of the message, like this:
-
-::
-
-    [Date] UTC [System]/[Component]/[Log][Path]:[Line] [Level]: [Message]
-    2017-04-25 15:51:01 UTC Framework/Atom/log[opt/dirac/DIRAC/FrameworkSystem/private/standardLogging/Logging.py:325]INFO: message
-
-It is composed by the caller object path and the line of the call. This
-option requires that you set *LogShowLine* at *True* in the *cfg* file
-and the root *Logging* level to *DEBUG* in order to be effective:
-
-::
-
-    ShowLogLine = True
-    LogLevel = DEBUG
-
-As the *threadIDIsShown* option, the *headerIsShown* boolean has to be
-at *True* too. Moreover, it is totally possible to have the thread ID
-and the caller path name at the same time.
-
-Nevertheless, this option is useless because always displays the same
-caller. It can be explained due to the *Logging* object which wrap the
-original Python *logging* library.
-
 Remove colors on the log records
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-*LogColor* option is only available from the *cfg* file too, and only
+*LogColor* option is only available from the *cfg* file, and only
 for the *stdout* and the *stderr* with agents, services and executors.
 By default, the *LogColor* option is set a *True* and adds colors on the
 log records according to their levels. You can remove colors setting the
