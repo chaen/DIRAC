@@ -73,7 +73,7 @@ class Logging(object):
       self._options = self._parent.getDisplayOptions()
       self._level = LogLevels.getLevelValue(father.getLevel())
     else:
-      self._options = {'headerIsShown': True, 'threadIDIsShown': False, 'Color': False, 'Path': False}
+      self._options = {'headerIsShown': True, 'threadIDIsShown': False, 'Color': False}
       # the native level is not used because it has to be to debug to send all messages to the log central
       self._level = None
 
@@ -333,7 +333,7 @@ class Logging(object):
     Generate the Backends format according to the options
     """
     # give options and level to AbstractBackend to receive the new format for the backends list
-    datefmt, fmt = AbstractBackend.createFormat(self._options, self._level)
+    datefmt, fmt = AbstractBackend.createFormat(self._options)
 
     for backend in self._backendsList:
       backend.setFormat(fmt, datefmt, self._options)

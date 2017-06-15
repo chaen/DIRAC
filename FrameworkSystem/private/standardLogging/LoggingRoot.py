@@ -116,7 +116,6 @@ class LoggingRoot(Logging):
 
       # Format options
       self._options['Color'] = gConfig.getValue("%s/LogColor" % cfgPath, False)
-      self._options['Path'] = gConfig.getValue("%s/LogShowLine" % cfgPath, False)
 
       desiredBackends, backendOptions = backends
       self.registerBackends(desiredBackends, backendOptions)

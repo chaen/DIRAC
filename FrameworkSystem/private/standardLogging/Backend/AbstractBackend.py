@@ -72,7 +72,7 @@ class AbstractBackend(object):
     self._handler.setLevel(level)
 
   @staticmethod
-  def createFormat(options, level):
+  def createFormat(options):
     """
     Create a format from the options given in parameters. 
     :params options: dictionary of options of the Logging which wants a new format
@@ -83,8 +83,6 @@ class AbstractBackend(object):
     datefmt = '%Y-%m-%d %H:%M:%S'
     if options['headerIsShown']:
       fmt += '%(asctime)s UTC %(componentname)s%(customname)s'
-      if options['Path'] and level == LogLevels.getLevelValue('DEBUG'):
-        fmt += ' [%(pathname)s:%(lineno)d]'
       if options['threadIDIsShown']:
         fmt += ' [%(thread)d]'
       fmt += ' %(levelname)s: '
