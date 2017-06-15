@@ -215,12 +215,12 @@ class Logging(object):
       result = self._level <= LogLevels.getLevelValue(levelName)
     return result
 
-  @staticmethod
-  def getName():
+  @classmethod
+  def getName(cls):
     """
     :return: "system name/component name"
     """
-    return Logging._componentName
+    return cls._componentName
 
   def getSubName(self):
     """
@@ -314,7 +314,7 @@ class Logging(object):
     # - 'varmessage': the variable message
     # - 'customname' : the name of the logger for the DIRAC usage: without 'root' and separated with '/'
     # extras attributes are not camel case because log record attributes are not either.
-    extra = {'componentname': Logging._componentName,
+    extra = {'componentname': self._componentName,
              'varmessage': sVarMsg,
              'customname': self.customName}
     self._logger.log(level, "%s", sMsg, exc_info=exc_info, extra=extra)
@@ -343,21 +343,14 @@ class Logging(object):
     Create a new Logging object, child of this Logging, if it does not exists.
     :params subName: the name of the child Logging
     """
-    result = self._childExists(subName)
-    if result is None:
-      child = Logging(self, self._logger.name, subName, self.customName)
-      self._children[subName] = child
-    else:
-      child = result
-    return child
-
-  def _childExists(self, name):
-    """
-    Check if the object has a child with "name".
-    :params name: the name of the child
-    :return: boolean, True if it exists, else False
-    """
-    return self._children.get(name)
+    #  Check if the object has a child with "subName".
+    result = self._children.get(subName)
+    if result is not None:
+      return result
+    # create a new child Logging
+    childLogging = Logging(self, self._logger.name, subName, self.customName)
+    self._children[subName] = childLogging
+    return childLogging
 
   def initialized(self):
     """
