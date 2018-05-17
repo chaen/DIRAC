@@ -151,6 +151,16 @@ class ServiceReactor( object ):
     return sockets
 
   def __acceptIncomingConnection( self, svcName = False ):
+    """
+      This method gets incomming connections.
+      This method just gets the incomming connection, checks IP address
+      and generates job. SSL/TLS handshake and execution of the remote call
+      are made by Service._processInThread() (in another thread) so
+      the service can accept other clients while another thread handling remote call
+
+      :param str svcName=False: Name of a service if you use multiple 
+                                services at the same time
+    """
     sockets = self.__getListeningSocketsList( svcName )
     while self.__alive:
       try:
