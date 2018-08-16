@@ -32,7 +32,8 @@ Note: If you wan to make sure that the CA is up to date, better to use the Bundl
 import os
 import tempfile
 
-from DIRAC.Core.Security import Locations, X509Chain, X509CRL
+from DIRAC.Core.Security import X509Chain, X509CRL
+from DIRAC.Core.Security import Locations
 from DIRAC import gLogger, S_OK, S_ERROR
 
 

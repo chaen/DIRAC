@@ -1,17 +1,28 @@
 language: python
+addons:
+  apt:
+    packages:
+    - swig
+    - libssl-dev
+    - libssl1.0.0
+    - python-setuptools
+    - python-twisted
 python:
   - "2.7"
 
 env:
   matrix:
     - CHECK=pytest
+    - CHECK=pytest_M2Crypto
+    - CHECK=pytest_security
+    - CHECK=pytest_M2Crypto_security
     - CHECK=docs
     - CHECK=pylint
     - CHECK=format
 
 
 # command to install dependencies
-install: 
+install:
   - "pip install --upgrade setuptools"
   - "pip install --upgrade pip"
   - "pip install -r requirements.txt"
@@ -21,6 +32,12 @@ script:
   - ls $PYTHONPATH
   - if [[ "${CHECK}" == "pytest"  ]];
     then pytest;
+    elif [[ "${CHECK}" == "pytest_M2Crypto"  ]];
+    then DIRAC_USE_M2CRYPTO=Yes pytest ;
+    elif [[ "${CHECK}" == "pytest_security"  ]];
+    then pytest Core/Security/test;
+    elif [[ "${CHECK}" == "pytest_M2Crypto_security"  ]];
+    then DIRAC_USE_M2CRYPTO=Yes pytest Core/Security/test;
     elif [[ "${CHECK}" == "docs"  ]];
     then .travis.d/checkDocs.sh;
     elif [[ "${CHECK}" == "pylint"  ]];
@@ -34,3 +51,10 @@ after_success:
   - if [[ "${CHECK}" == "pytest"  ]];
     then coveralls -i;
     fi
+#
+#
+# jobs:
+#   include:
+#     - stage: "M2Crypto"
+#       name: "M2Crypto"
+#       script: DIRAC_USE_M2CRYPTO=Yes travis_wait 30  pytest;

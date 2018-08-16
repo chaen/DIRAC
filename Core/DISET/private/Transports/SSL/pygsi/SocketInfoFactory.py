@@ -12,8 +12,8 @@ import GSI
 
 from DIRAC.Core.Utilities.ReturnValues import S_ERROR, S_OK
 from DIRAC.Core.Utilities import Network
-from DIRAC.Core.DISET.private.Transports.SSL.SocketInfo import SocketInfo
-from DIRAC.Core.DISET.private.Transports.SSL.SessionManager import gSessionManager
+from DIRAC.Core.DISET.private.Transports.SSL.pygsi.SocketInfo import SocketInfo
+from DIRAC.Core.DISET.private.Transports.SSL.pygsi.SessionManager import gSessionManager
 from DIRAC.FrameworkSystem.Client.Logger import gLogger
 
 
@@ -36,7 +36,7 @@ class SocketInfoFactory(object):
     for key in kwargs.keys():
       infoDict[key] = kwargs[key]
     try:
-      return S_OK(SocketInfo(infoDict))
+      return S_OK( SocketInfo(infoDict))
     except Exception as e:
       return S_ERROR("Error while creating SSL context: %s" % str(e))
 

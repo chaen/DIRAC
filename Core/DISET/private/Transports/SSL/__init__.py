@@ -1,2 +1,2 @@
-# $HeadURL$
-__RCSID__ = "$Id$"
+#!/usr/bin/env python
+

@@ -23,6 +23,7 @@ def getProxyLocation():
   if os.path.isfile("/tmp/%s" % proxyName):
     return "/tmp/%s" % proxyName
 
+
   # No gridproxy found
   return False
 

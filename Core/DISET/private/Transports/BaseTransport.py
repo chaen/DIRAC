@@ -141,6 +141,7 @@ class BaseTransport( object ):
     return False
 
   def _read( self, bufSize = 4096, skipReadyCheck = False ):
+    print "CHRIS BASE READ SHOULD NEVER BE HERE"
     try:
       if skipReadyCheck or self._readReady():
         data = self.oSocket.recv( bufSize )
@@ -153,8 +154,9 @@ class BaseTransport( object ):
     except Exception as e:
       return S_ERROR( "Exception while reading from peer: %s" % str( e ) )
 
-  def _write( self, buffer ):
-    return S_OK( self.oSocket.send( buffer ) )
+  def _write( self, buf ):
+    print "CHRIS BASE WRITE SHOULD NEVER BE HERE"
+    return S_OK( self.oSocket.send( buf ) )
 
   def sendData( self, uData, prefix = False ):
     self.__updateLastActionTimestamp()
@@ -196,6 +198,7 @@ class BaseTransport( object ):
       #While not found the message length or the ka, keep receiving
       while iSeparatorPosition == -1 and not isKeepAlive:
         retVal = self._read( 16384 )
+        # import ipdb; ipdb.set_trace
         #If error return
         if not retVal[ 'OK' ]:
           return retVal

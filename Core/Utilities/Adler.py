@@ -85,7 +85,6 @@ def fileAdler( fileName ):
       if not data:
         break
       yield data
-
   try:
     with open( fileName ) as inputFile:
       myAdler = 1
