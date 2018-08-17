@@ -450,15 +450,13 @@ and this is thread %s
       # the socket timeout is the default value which is 1.
       # later we increase to 5
       retVal = transport.initAsClient()
-      # If we have an issue connecting
-      if not retVal[ 'OK' ]:
-        # We try at most __nbOfRetry each URLs
+      # We try at most __nbOfRetry each URLs
       if not retVal['OK']:
         gLogger.warn("Issue getting socket:", "%s : %s : %s" % (transport, self.__URLTuple, retVal['Message']))
         # We try at most __nbOfRetry each URLs
         if self.__retry < self.__nbOfRetry * self.__nbOfUrls - 1:
           # Recompose the URL (why not using self.serviceURL ? )
-          url = "%s://%s:%d/%s" % ( self.__URLTuple[0], self.__URLTuple[1], int( self.__URLTuple[2] ), self.__URLTuple[3] )
+          url = "%s://%s:%d/%s" % (self.__URLTuple[0], self.__URLTuple[1], int(self.__URLTuple[2]), self.__URLTuple[3])
           # Add the url to the list of banned URLs if it is not already there. (Can it happen ? I don't think so)
           # Recompose the URL (why not using self.serviceURL ? )
           url = "%s://%s:%d/%s" % (self.__URLTuple[0], self.__URLTuple[1], int(self.__URLTuple[2]), self.__URLTuple[3])
@@ -470,17 +468,15 @@ and this is thread %s
           self.__retry += 1
           # If it is our last attempt for each URL, we increase the timeout
           if self.__retryCounter == self.__nbOfRetry - 1:
-            transport.setSocketTimeout( 5 ) # we increase the socket timeout in case the network is not good
-          gLogger.info( "Retry connection: ", "%d" % self.__retry )
-          # If we tried all the URL, we increase the global counter (__retryCounter), and sleep
             transport.setSocketTimeout(5)  # we increase the socket timeout in case the network is not good
           gLogger.info("Retry connection", ": %d to %s" % (self.__retry, self.serviceURL))
           # If we tried all the URL, we increase the global counter (__retryCounter), and sleep
           if len(self.__bannedUrls) == self.__nbOfUrls:
             self.__retryCounter += 1
-            self.__retryDelay = 3. / self.__nbOfUrls  if self.__nbOfUrls > 1 else 2  # we run only one service! In that case we increase the retry delay.
-            gLogger.info( "Waiting %f seconds before retry all service(s)" % self.__retryDelay )
-            time.sleep( self.__retryDelay )
+            # we run only one service! In that case we increase the retry delay.
+            self.__retryDelay = 3. / self.__nbOfUrls if self.__nbOfUrls > 1 else 2
+            gLogger.info("Waiting %f seconds before retry all service(s)" % self.__retryDelay)
+            time.sleep(self.__retryDelay)
           # rediscover the URL
             # we run only one service! In that case we increase the retry delay.
             self.__retryDelay = 3. / self.__nbOfUrls if self.__nbOfUrls > 1 else 2
