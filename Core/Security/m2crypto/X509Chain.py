@@ -281,6 +281,8 @@ class X509Chain(object):
     """
     Generate a proxy and get it as a string
 
+    Check here: https://github.com/eventbrite/m2crypto/blob/master/demo/x509/ca.py#L45
+
     Args:
         lifeTime (int): expected lifetime in seconds of proxy
         diracGroup (str): diracGroup to add to the certificate
