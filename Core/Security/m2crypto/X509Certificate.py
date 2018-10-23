@@ -1,10 +1,11 @@
 """ X509Certificate is a class for managing X509 certificates alone
 """
+
 __RCSID__ = "$Id$"
 
+import datetime
 import os
 import M2Crypto
-import datetime
 
 
 from DIRAC import S_OK, S_ERROR
@@ -15,19 +16,23 @@ from DIRAC.ConfigurationSystem.Client.Helpers import Registry
 from DIRAC.Core.Security.m2crypto import asn1_utils
 
 
-
-
 class X509Certificate(object):
+  """ The X509Certificate object represents ... a X509Certificate.
+      It is a wrapper around a lower level implementation (M2Crypto in this case) of a certificate.
+      It can be a host or user certificate.
+  """
 
   def __init__(self, x509Obj=None, certString=None):
     """
-    Constructor.
+      Constructor.
 
-    :param x509Obj: (optional) certificate instance
-    :type x509Obj: M2Crypto.X509.X509
-    :param certString: text representation of certificate
-    :type certString: String
+      :param x509Obj: (optional) certificate instance
+      :type x509Obj: M2Crypto.X509.X509
+      :param certString: text representation of certificate
+      :type certString: String
+
     """
+
     self.__valid = False
     if x509Obj:
       self.__certObj = x509Obj
@@ -39,21 +44,33 @@ class X509Certificate(object):
       self.loadFromString(certString)
 
   def getCertObject(self):
+    """ Return the wrapped certificate
+
+        :returns: ~M2Crypto.X509.X509 object
+    """
     return self.__certObj
 
   def load(self, certificate):
     """ Load a x509 certificate either from a file or from a string
+
+        :param certificate: path to the file or PEM encoded string
+
+        :returns: S_OK on success, otherwise S_ERROR
     """
 
     if os.path.exists(certificate):
       return self.loadFromFile(certificate)
-    else:
-      return self.loadFromString(certificate)
+
+    return self.loadFromString(certificate)
 
   def loadFromFile(self, certLocation):
     """
-    Load a x509 cert from a pem file
-    Return : S_OK / S_ERROR
+       Load a x509 cert from a pem file
+
+       :param certLocation: path to the certificate file
+
+      :returns: S_OK / S_ERROR.
+
     """
     try:
       with open(certLocation, 'r') as fd:
@@ -64,43 +81,62 @@ class X509Certificate(object):
 
   def loadFromString(self, pemData):
     """
-    Load a x509 cert from a string containing the pem data
-    Return : S_OK / S_ERROR
+      Load a x509 cert from a string containing the pem data
+
+      :param pemData: pem encoded string
+
+      :returns: S_OK / S_ERROR
     """
     try:
       self.__certObj = M2Crypto.X509.load_cert_string(str(pemData), M2Crypto.X509.FORMAT_PEM)
     except Exception as e:
       return S_ERROR(DErrno.ECERTREAD, "Can't load pem data: %s" % e)
+
     self.__valid = True
     return S_OK()
 
   def setCertificate(self, x509Obj):
     """
-    Set certificate object
-    Return: S_OK/S_ERROR
+      Set certificate object
+
+      :param x509Obj: ~M2Crypto.X509.X509 object
+
+      :returns: S_OK/S_ERROR
     """
     if not isinstance(x509Obj, M2Crypto.X509.X509):
       return S_ERROR(DErrno.ETYPE, "Object %s has to be of type M2Crypto.X509.X509" % str(x509Obj))
+
     self.__certObj = x509Obj
     self.__valid = True
     return S_OK()
 
   def hasExpired(self):
     """
-    Check if a certificate file/proxy is still valid
-    Return: S_OK( True/False )/S_ERROR
+      Check if the loaded certificate is still valid
+
+      :returns: S_OK( True/False )/S_ERROR
     """
     if not self.__valid:
       return S_ERROR(DErrno.ENOCERT)
+
     notAfter = self.__certObj.get_not_after().get_datetime()
-    notAfter = notAfter.replace(tzinfo=Time.dateTime().tzinfo)
-    return S_OK(notAfter < Time.dateTime())
+
+    now = datetime.datetime.utcnow()
+
+    # M2Crypto does things correctly by setting a timezone info in the datetime
+    # However, we do not in DIRAC, and so we can't compare the dates.
+    # We have to remove the timezone info from M2Crypto
+    notAfter = notAfter.replace(tzinfo=None)
+
+    return S_OK(notAfter < now)
 
   def getNotAfterDate(self):
     """
-    Get not after date of a certificate
-    Return: S_OK( datetime )/S_ERROR
+      Get not after date of a certificate
+
+      :returns: S_OK( datetime )/S_ERROR
     """
+
     if not self.__valid:
       return S_ERROR(DErrno.ENOCERT)
 
@@ -110,16 +146,25 @@ class X509Certificate(object):
     # However, we do not in DIRAC, and so we can't compare the dates.
     # We have to remove the timezone info from M2Crypto
     notAfter = notAfter.replace(tzinfo=None)
+
     return S_OK(notAfter)
 
-  def setNotAfter(self, notafter):
+  def setNotAfter(self, notAfter):
+    #TODO: Should probably get ride of that method. Used only to generate a proxy
     """
-    Set not after date of a certificate
-    Return: S_OK/S_ERROR
+      Set not after date of a certificate.
+
+
+
+      :param notAfter: M2Crypto.ASN1.ASN1_UTCTIME object.
+
+      Return: S_OK/S_ERROR
     """
     if not self.__valid:
       return S_ERROR(DErrno.ENOCERT)
-    self.__certObj.set_not_after(notafter)
+
+    self.__certObj.set_not_after(notAfter)
+
     return S_OK()
 
   def getNotBeforeDate(self):
@@ -293,9 +338,9 @@ class X509Certificate(object):
     Get voms extensions
     """
     try:
-      vomsExt =  asn1_utils.decodeVOMSExtension(self.__certObj)
+      vomsExt = asn1_utils.decodeVOMSExtension(self.__certObj)
       return S_OK(vomsExt)
-    except LookupError :
+    except LookupError:
       return S_ERROR(DErrno.EVOMS, "No VOMS data available")
     #
     # decoder = asn1.Decoder()
@@ -403,143 +448,5 @@ class X509Certificate(object):
     self.__certObj.add_ext(extension)
     return S_OK()
 
-# # utility functions for handling VOMS Extension
-#
-#
-# def extract_DN(inp):
-#   """
-#   Return DN extracted from given ASN.1 decoder
-#   """
-#   while not inp.peek().nr == asn1.Numbers.Set:  # looking for the sequence of sets, so if set is next, we're here
-#     inp = enterSequence(inp)
-#   dn = ""
-#   while inp.peek():  # each set has OID and value
-#     inp.enter()
-#     inp.enter()
-#     _, oid = inp.read()
-#     _, value = inp.read()
-#     dn += DN_MAPPING[oid]
-#     dn += value
-#     inp.leave()
-#     inp.leave()
-#   return dn
-#
-#
-# def enterSequence(seq, levels=1):
-#   """
-#   Enter sequence in ASN.1 decoder
-#   """
-#   while levels:
-#     tag = seq.peek()
-#     if not tag.typ == asn1.Types.Constructed:
-#       return seq
-#     seq.enter()
-#     levels -= 1
-#   return seq
-#
-#
-# def leaveSequence(inp):
-#   """
-#   Leave sequence in ASN.1 decoder. Leaves all nested sequences if there are no more values to read
-#   """
-#   while not inp.peek():
-#     inp.leave()
-#   return inp
 
-
-#https://www.ogf.org/documents/GFD.182.pdf
-#
-# def parseForVOMS(inp):
-#   """
-#   Parse ASN.1 encoded X509 Extension. Recursively looks for VOMS extension.
-#   """
-#   while not inp.eof():
-#     tag = inp.peek()
-#     if tag.typ == asn1.Types.Primitive:
-#       tag, value = inp.read()
-#       if tag.nr == asn1.Numbers.ObjectIdentifier and value == VOMS_EXTENSION_OID:  # we have our voms
-#         voms_decoder = asn1.Decoder()
-#         _, value = inp.read()
-#         voms_decoder.start(value)
-#         data = processVOMSExtension(voms_decoder)
-#         return data
-#       else:
-#         pass
-#         # we don't care about other extensions, but I wanted to make it clear, that's why "else: pass", sorry not sorry
-#     elif tag.typ == asn1.Types.Constructed:
-#       inp.enter()
-#       data = parseForVOMS(inp)
-#       if data:
-#         return data
-#       inp.leave()
-#
-#
-# def processVOMSExtension(inp):
-#   """
-#   Extact VOMS information from ASN.1 decoder containing VOMS extension
-#   """
-#   data = {}
-#
-#   # we have sequential access, no random access, only way to advance is to read
-#   while inp.peek().nr == asn1.Numbers.Sequence:
-#     inp = enterSequence(inp)  # get one level deeper
-#   inp.read()  # skippinng, this is not value we are looking for
-#   data['subject'] = extract_DN(inp)
-#
-#   # jump back to level, where there is something to read
-#   inp = leaveSequence(inp)
-#   inp.read()  # there is one more value in this sequence, but we don't care
-#   inp = leaveSequence(inp)
-#   data['issuer'] = extract_DN(inp)
-#
-#   inp = leaveSequence(inp)
-#   # skipping two fields
-#   inp.read()
-#   inp.read()
-#
-#   inp.enter()
-#   _, notBefore = inp.read()
-#   _, notAfter = inp.read()
-#   data['notBefore'] = datetime.datetime.strptime(notBefore[:-1], '%Y%m%d%H%M%S')
-#   data['notAfter'] = datetime.datetime.strptime(notAfter[:-1], '%Y%m%d%H%M%S')
-#
-#   fqan = []
-#   inp = leaveSequence(inp)
-#
-#   while not inp.peek().nr == asn1.Numbers.ObjectIdentifier:
-#     inp = enterSequence(inp)
-#
-#   if inp.peek().nr == asn1.Numbers.ObjectIdentifier:
-#     _, value = inp.read()
-#     if value == VOMS_FQANS_OID:
-#       while inp.peek().nr == asn1.Numbers.Set:
-#         inp = enterSequence(inp)
-#       inp = enterSequence(inp)
-#       inp.read()  # skipping
-#       inp = enterSequence(inp)
-#       _, value = inp.read()
-#       fqan.append(value.decode('utf-8'))
-#       _, value = inp.read()
-#       fqan.append(value.decode('utf-8'))
-#       data['fqan'] = fqan
-#
-#   inp = leaveSequence(inp)
-#   inp = enterSequence(inp, 2)
-#   _, value = inp.read()
-#   if value == VOMS_TAGS_EXT_OID:
-#     dec = asn1.Decoder()
-#     _, vv = inp.read()
-#     dec.start(vv)
-#     dec = enterSequence(dec, 3)
-#     dec.read()  # skipping
-#     dec = enterSequence(dec, 2)
-#     _, name = dec.read()
-#     _, value = dec.read()
-#     _, aux = dec.read()
-#
-#     data['attribute'] = "%s = %s (%s)" % (name.decode('utf-8'), value.decode('utf-8'), aux.decode('utf-8'))
-#     data['vo'] = aux.decode('utf-8')
-#
-#   if 'vo' not in data and 'fqan' in data:
-#     data['vo'] = fqan[0].split('/')[1]
-#   return data
+# https://www.ogf.org/documents/GFD.182.pdf
