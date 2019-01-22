@@ -1,7 +1,5 @@
 __RCSID__ = "$Id$"
 
-from .logCall import logCall
-
 import os
 import time
 import GSI
@@ -9,9 +7,8 @@ from DIRAC.Core.Utilities.LockRing import LockRing
 from DIRAC.Core.Utilities.ReturnValues import S_ERROR, S_OK
 from DIRAC.Core.DISET.private.Transports.BaseTransport import BaseTransport
 from DIRAC.FrameworkSystem.Client.Logger import gLogger
-from DIRAC.Core.DISET.private.Transports.SSL.SocketInfoFactory import gSocketInfoFactory
+from DIRAC.Core.DISET.private.Transports.SSL.pygsi.SocketInfoFactory import gSocketInfoFactory
 from DIRAC.Core.Utilities.Devloader import Devloader
-from DIRAC.Core.Security import Locations
 if os.getenv('DIRAC_USE_M2CRYPTO', 'NO').lower() in ('yes', 'true'):
   from DIRAC.Core.Security.m2crypto.X509Chain import X509Chain
   from DIRAC.Core.Security.m2crypto.X509Certificate import X509Certificate
@@ -25,13 +22,11 @@ class SSLTransport( BaseTransport ):
 
   __readWriteLock = LockRing().getLock()
 
-  @logCall
   def __init__( self, *args, **kwargs ):
     self.__writesDone = 0
     self.__locked = False
     BaseTransport.__init__( self, *args, **kwargs )
 
-  @logCall
   def __lock( self, timeout = 1000 ):
     while self.__locked and timeout:
       time.sleep( 0.005 )
@@ -46,7 +41,6 @@ class SSLTransport( BaseTransport ):
     SSLTransport.__readWriteLock.release()
     return True
 
-  @logCall
   def __unlock( self ):
     self.__locked = False
 
@@ -56,7 +50,6 @@ class SSLTransport( BaseTransport ):
     """
     gSocketInfoFactory.setSocketTimeout( timeout )
 
-  @logCall
   def initAsClient( self ):
     retVal = gSocketInfoFactory.getSocket( self.stServerAddress, **self.extraArgsDict )
     if not retVal[ 'OK' ]:
@@ -68,7 +61,6 @@ class SSLTransport( BaseTransport ):
     self.remoteAddress = self.oSocket.getpeername()
     return S_OK()
 
-  @logCall
   def initAsServer( self ):
     if not self.serverMode():
       raise RuntimeError( "Must be initialized as server mode" )
@@ -83,7 +75,6 @@ class SSLTransport( BaseTransport ):
     Devloader().addStuffToClose( self.oSocket )
     return S_OK()
 
-  @logCall
   def close( self ):
     gLogger.debug( "Closing socket" )
     try:
@@ -104,7 +95,6 @@ class SSLTransport( BaseTransport ):
 
 
 
-  @logCall
   def renewServerContext( self ):
     BaseTransport.renewServerContext( self )
     result = gSocketInfoFactory.renewServerContext( self.oSocketInfo )
@@ -114,7 +104,6 @@ class SSLTransport( BaseTransport ):
     self.oSocket = self.oSocketInfo.getSSLSocket()
     return S_OK()
 
-  @logCall
   def handshake( self ):
     """
       Initiate the client-server handshake and extract credentials
@@ -131,7 +120,6 @@ class SSLTransport( BaseTransport ):
       self.peerCredentials[ key ] = creds[ key ]
     return S_OK()
 
-  @logCall
   def setClientSocket( self, oSocket ):
     if self.serverMode():
       raise RuntimeError( "Must be initialized as client mode" )
@@ -140,7 +128,6 @@ class SSLTransport( BaseTransport ):
     self.remoteAddress = self.oSocket.getpeername()
     self.oSocket.settimeout( self.oSocketInfo.infoDict[ 'timeout' ] )
 
-  @logCall
   def acceptConnection( self ):
     oClientTransport = SSLTransport( self.stServerAddress )
     oClientSocket, _stClientAddress = self.oSocket.accept()
@@ -152,7 +139,6 @@ class SSLTransport( BaseTransport ):
     return S_OK( oClientTransport )
 
 
-  @logCall
   def _read( self, bufSize = 4096, skipReadyCheck = False ):
     self.__lock()
     try:
@@ -179,8 +165,7 @@ class SSLTransport( BaseTransport ):
   def isLocked( self ):
     return self.__locked
 
-  @logCall
-  def _write( self, buffer ):
+  def _write( self, buf ):
     self.__lock()
     try:
       #Renegotiation
@@ -201,12 +186,12 @@ class SSLTransport( BaseTransport ):
       timeout = self.oSocketInfo.infoDict[ 'timeout' ]
       if timeout:
         start = time.time()
-      while sentBytes < len( buffer ):
+      while sentBytes < len( buf ):
         try:
           if timeout:
             if time.time() - start > timeout:
               return S_ERROR( "Socket write timeout exceeded" )
-          sent = self.oSocket.write( buffer[ sentBytes: ] )
+          sent = self.oSocket.write( buf[ sentBytes: ] )
           if sent == 0:
             return S_ERROR( "Connection closed by peer" )
           if sent > 0:
@@ -220,99 +205,3 @@ class SSLTransport( BaseTransport ):
       return S_OK( sentBytes )
     finally:
       self.__unlock()
-
-
-def checkSanity( urlTuple, kwargs ):
-  """
-  Check that all ssl environment is ok
-  """
-  useCerts = False
-  certFile = ''
-  if "useCertificates" in kwargs and kwargs[ 'useCertificates' ]:
-    certTuple = Locations.getHostCertificateAndKeyLocation()
-    if not certTuple:
-      gLogger.error( "No cert/key found! " )
-      return S_ERROR( "No cert/key found! " )
-    certFile = certTuple[0]
-    useCerts = True
-  elif "proxyString" in kwargs:
-    if not isinstance( kwargs[ 'proxyString' ], basestring ):
-      gLogger.error( "proxyString parameter is not a valid type", str( type( kwargs[ 'proxyString' ] ) ) )
-      return S_ERROR( "proxyString parameter is not a valid type" )
-  else:
-    if "proxyLocation" in kwargs:
-      certFile = kwargs[ "proxyLocation" ]
-    else:
-      certFile = Locations.getProxyLocation()
-    if not certFile:
-      gLogger.error( "No proxy found" )
-      return S_ERROR( "No proxy found" )
-    elif not os.path.isfile( certFile ):
-      gLogger.error( "Proxy file does not exist", certFile )
-      return S_ERROR( "%s proxy file does not exist" % certFile )
-
-  #For certs always check CA's. For clients skipServerIdentityCheck
-  if 'skipCACheck' not in kwargs or not kwargs[ 'skipCACheck' ]:
-    if not Locations.getCAsLocation():
-      gLogger.error( "No CAs found!" )
-      return S_ERROR( "No CAs found!" )
-
-  if "proxyString" in kwargs:
-    certObj = X509Chain()
-    retVal = certObj.loadChainFromString( kwargs[ 'proxyString' ] )
-    if not retVal[ 'OK' ]:
-      gLogger.error( "Can't load proxy string" )
-      return S_ERROR( "Can't load proxy string" )
-  else:
-    if useCerts:
-      certObj = X509Certificate()
-      certObj.loadFromFile( certFile )
-    else:
-      certObj = X509Chain()
-      certObj.loadChainFromFile( certFile )
-
-  retVal = certObj.hasExpired()
-  if not retVal[ 'OK' ]:
-    gLogger.error( "Can't verify proxy or certificate file", "%s:%s" % ( certFile, retVal[ 'Message' ] ) )
-    return S_ERROR( "Can't verify file %s:%s" % ( certFile, retVal[ 'Message' ] ) )
-  else:
-    if retVal[ 'Value' ]:
-      notAfter = certObj.getNotAfterDate()
-      if notAfter[ 'OK' ]:
-        notAfter = notAfter[ 'Value' ]
-      else:
-        notAfter = "unknown"
-      gLogger.error( "PEM file has expired", "%s is not valid after %s" % ( certFile, notAfter ) )
-      return S_ERROR( "PEM file %s has expired, not valid after %s" % ( certFile, notAfter ) )
-
-  idDict = {}
-  retVal = certObj.getDIRACGroup( ignoreDefault = True )
-  if retVal[ 'OK' ] and retVal[ 'Value' ] != False:
-    idDict[ 'group' ] = retVal[ 'Value' ]
-  if useCerts:
-    idDict[ 'DN' ] = certObj.getSubjectDN()[ 'Value' ]
-  else:
-    idDict[ 'DN' ] = certObj.getIssuerCert()[ 'Value' ].getSubjectDN()[ 'Value' ]
-
-  return S_OK( idDict )
-
-def delegate( delegationRequest, kwargs ):
-  """
-  Check delegate!
-  """
-  if "useCertificates" in kwargs and kwargs[ 'useCertificates' ]:
-    chain = X509Chain()
-    certTuple = Locations.getHostCertificateAndKeyLocation()
-    chain.loadChainFromFile( certTuple[0] )
-    chain.loadKeyFromFile( certTuple[1] )
-  elif "proxyObject" in kwargs:
-    chain = kwargs[ 'proxyObject' ]
-  else:
-    if "proxyLocation" in kwargs:
-      procLoc = kwargs[ "proxyLocation" ]
-    else:
-      procLoc = Locations.getProxyLocation()
-    chain = X509Chain()
-    chain.loadChainFromFile( procLoc )
-    chain.loadKeyFromFile( procLoc )
-  return chain.generateChainFromRequestString( delegationRequest )

@@ -3,7 +3,6 @@
 import os
 import select
 import socket
-import time
 import threading
 
 from pytest import fixture
@@ -11,13 +10,22 @@ from pytest import fixture
 from DIRAC.Core.Security.test.x509TestUtilities import CERTDIR, USERCERT, getCertOption
 
 from DIRAC.ConfigurationSystem.Client.ConfigurationData import gConfigurationData
-from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport,M2SSLTransport
-print CERTDIR
-# CERTDIR = os.path.join(os.path.dirname(x509TestUtilities.__file__), 'certs/')
+from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport, M2SSLTransport
 
+# TODO: Expired hostcert
+# TODO: Expired usercert
+# TODO: Expired proxy
+# TODO: Invalid/missing CA
+# TODO: Connect Timeouts
+# TODO: SSL Algorithms & Ciphers
+# TODO: Missing hostcert
+# TODO: Missing usercert
+# TODO: Missing proxy
+# TODO: Session test?
+# TODO: Reload of CAs?
 
 # Define all the locations
-caLocation = os.path.join(CERTDIR, 'ca/')
+caLocation = os.path.join(CERTDIR, 'ca')
 hostCertLocation = os.path.join(CERTDIR, 'host/hostcert.pem')
 hostKeyLocation = os.path.join(CERTDIR, 'host/hostkey.pem')
 gConfigurationData.setOptionInCFG('/DIRAC/Security/CALocation', caLocation)
@@ -27,18 +35,20 @@ gConfigurationData.setOptionInCFG('/DIRAC/Security/KeyFile', hostKeyLocation)
 proxyFile = os.path.join(os.path.dirname(__file__), 'proxy.pem')
 
 
-
 MAGIC_QUESTION = "Who let the dog out"
 MAGIC_ANSWER = "Who, Who, who ?"
 
+PORT_NUMBER = 50000
 
-PORT_NUMBER = 1234
-
-# TRANSPORTTYPES = (PlainTransport.PlainTransport, M2SSLTransport.SSLTransport)
-# TRANSPORTTYPES = (SSLTransport.SSLTransport, )
-TRANSPORTTYPES = (M2SSLTransport.SSLTransport, )
-# TRANSPORTTYPES = (GSISSLTransport.SSLTransport, )
-
+# Transports are now tested in pairs:
+# "Server-Client"
+# This allows for interoperatbility tests between GSI and M2 versions.
+# Each pair is defined as a string.
+TRANSPORTTESTS = ("Plain-Plain",
+                  "M2-M2",
+                  "M2-GSI",
+                  "GSI-GSI",
+                  "GSI-M2")
 
 
 # https://www.ibm.com/developerworks/linux/library/l-openssl/index.html
@@ -53,7 +63,7 @@ class DummyServiceReactor(object):
         :param transportObject: type of TransportObject we will use
         :param port: port to listen to
     """
-
+    self.__prepared = False
     self.port = port
     self.transportObject = transportObject
 
@@ -69,22 +79,23 @@ class DummyServiceReactor(object):
         It more or less does Service._processInThread
     """
 
-    print "CHRIS DUMMY handleConnection"
     self.clientTransport = clientTransport
-    print "CHRIS DUMMY BEFORE HANDSHAKE"
     res = clientTransport.handshake()
-    print "CHRIS DUMMY AFTER %s"%res
     assert res['OK'], res
 
     self.receivedMessage = clientTransport.receiveData(1024)
-    print "FINAL RESULT YOUHOU %s"%self.receivedMessage
     clientTransport.sendData(MAGIC_ANSWER)
     clientTransport.close()
 
-  def serve(self):
-    """ Create the listener, and listen """
+  def prepare(self):
+    """ Start listening """
+    if not self.__prepared:
+      self.__createListeners()
+    self.__prepared = True
 
-    self.__createListeners()
+  def serve(self):
+    """ Wait for connections and handle the first one. """
+    self.prepare()
     self.__acceptIncomingConnection()
 
   def __createListeners(self):
@@ -93,7 +104,7 @@ class DummyServiceReactor(object):
     res = self.transport.initAsServer()
     assert res['OK']
 
-  def __acceptIncomingConnection(self, ):
+  def __acceptIncomingConnection(self):
     """
       This method just gets the incoming connection, and handle it, once.
     """
@@ -113,39 +124,45 @@ class DummyServiceReactor(object):
     """ Close the connection """
     self.transport.close()
 
+def transportByName(transport):
+  """ A helper function to get a transport class by 'friendly' name. """
+  if transport.lower() == "plain":
+    return PlainTransport.PlainTransport
+  elif transport.lower() == "m2":
+    return M2SSLTransport.SSLTransport
+  elif transport.lower() == "gsi":
+    return GSISSLTransport.SSLTransport
+  raise RuntimeError("Unknown Transport Name: %s" % transport)
 
-@fixture(scope="function", params=TRANSPORTTYPES)
+
+@fixture(scope="function", params=TRANSPORTTESTS)
 def create_serverAndClient(request):
   """ This function starts a server, and closes it after
     The server will use the parametrized transport type
   """
+  testStr = request.param
+  serverName, clientName = testStr.split("-")
+  serverClass = transportByName(serverName)
+  clientClass = transportByName(clientName)
 
-  transportObject = request.param
-
-  sr = DummyServiceReactor(transportObject, PORT_NUMBER)
+  sr = DummyServiceReactor(serverClass, PORT_NUMBER)
   server_thread = threading.Thread(target=sr.serve)
+  sr.prepare()
   server_thread.start()
 
   # Create the client
   clientOptions = {'clientMode': True,
                    'proxyLocation': proxyFile,
                   }
-
-  time.sleep(1)
-
-
-  clientTransport = transportObject(("127.0.0.1", PORT_NUMBER), bServerMode=False, **clientOptions)
+  clientTransport = clientClass(("localhost", PORT_NUMBER), bServerMode=False, **clientOptions)
   res = clientTransport.initAsClient()
   assert res['OK'], res
 
   yield sr, clientTransport
 
-
   clientTransport.close()
   sr.closeListeningConnections()
   server_thread.join()
-  time.sleep(1)
-
 
 def ping_server(clientTransport):
   """ This sends a message to the server and expects an answer
@@ -156,8 +173,6 @@ def ping_server(clientTransport):
 
   clientTransport.setSocketTimeout(5)
   clientTransport.sendData(MAGIC_QUESTION)
-  print "CHRIS UNTIL HERE IT IS FINE"
-  # time.sleep(3)
   serverReturn = clientTransport.receiveData()
   return serverReturn
 
@@ -176,12 +191,13 @@ def test_getRemoteInfo(create_serverAndClient):
   serv, client = create_serverAndClient
   ping_server(client)
 
-  assert client.getRemoteAddress() == ('127.0.0.1', PORT_NUMBER)
+  addr_info = client.getRemoteAddress()
+  assert addr_info[0] in ('127.0.0.1', '::ffff:127.0.0.1', '::1')
+  assert addr_info[1] == PORT_NUMBER
   assert client.peerCredentials == {} # The peer credentials are not filled on the client side
 
-
   # We do not know about the port, so check only the address, taking into account bloody IPv6
-  assert serv.clientTransport.getRemoteAddress()[0] in ('127.0.0.1', '::ffff:127.0.0.1')
+  assert serv.clientTransport.getRemoteAddress()[0] in ('127.0.0.1', '::ffff:127.0.0.1', '::1')
   peerCreds =  serv.clientTransport.peerCredentials
 
   # There are no credentials for PlainTransport
