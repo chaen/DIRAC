@@ -1,4 +1,4 @@
-""" X509Certificate is a class for managing X509 certificates alone
+""" X509Certificate is a class for managing X509 certificates alone m2
 """
 
 __RCSID__ = "$Id$"
@@ -11,7 +11,6 @@ import M2Crypto
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import Time
 from DIRAC.Core.Utilities import DErrno
-from DIRAC.Core.Security.m2crypto import DIRAC_GROUP_OID
 from DIRAC.ConfigurationSystem.Client.Helpers import Registry
 from DIRAC.Core.Security.m2crypto import asn1_utils
 
@@ -150,11 +149,9 @@ class X509Certificate(object):
     return S_OK(notAfter)
 
   def setNotAfter(self, notAfter):
-    #TODO: Should probably get ride of that method. Used only to generate a proxy
+    # TODO: Should probably get ride of that method. Used only to generate a proxy
     """
       Set not after date of a certificate.
-
-
 
       :param notAfter: M2Crypto.ASN1.ASN1_UTCTIME object.
 
@@ -435,8 +432,8 @@ class X509Certificate(object):
     """
     try:
       ext = self.__certObj.get_ext(name)
-    except LookupError as LE:
-      return S_ERROR(LE)
+    except LookupError as e:
+      return S_ERROR(e)
     return S_OK(ext)
 
   def addExtension(self, extension):
