@@ -1,22 +1,22 @@
 """ X509Chain is a class for managing X509 chains with their Pkeys
 
-Link to the RFC 3820https://tools.ietf.org/html/rfc3820
+Link to the RFC 3820: https://tools.ietf.org/html/rfc3820
 In particular, limited proxy: https://tools.ietf.org/html/rfc3820#section-3.8
 
 """
 __RCSID__ = "$Id$"
 
-import copy
+
 import os
 import stat
 import tempfile
 import hashlib
 import random
 
-import M2Crypto
 import re
 import time
-# import GSI  # XXX Still needed for some parts I haven't finished yet
+
+import M2Crypto
 
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
@@ -26,6 +26,7 @@ from DIRAC.Core.Security.m2crypto.X509Certificate import X509Certificate
 
 random.seed()
 
+# pylint: disable=broad-except
 
 class X509Chain(object):
 
@@ -81,7 +82,6 @@ class X509Chain(object):
     """
     certList = []
 
-
     certStack = sslConnection.get_peer_cert_chain()
     for cert in certStack:
       certList.append(X509Certificate(x509Obj=cert))
@@ -89,7 +89,7 @@ class X509Chain(object):
     # Servers don't receive the whole chain, the last cert comes alone
     # if not self.infoDict['clientMode']:
     if True:
-      certList.insert(0, X509Certificate(x509Obj = sslConnection.get_peer_cert()))
+      certList.insert(0, X509Certificate(x509Obj=sslConnection.get_peer_cert()))
     peerChain = X509Chain(certList=certList)
 
     return peerChain
@@ -113,7 +113,7 @@ class X509Chain(object):
     """
     self.__loadedChain = False
     try:
-      self.__certList = self.__certListFromPemString(data, dataFormat)
+      self.__certList = self.__certListFromPemString(data, dataFormat=dataFormat)
     except Exception as e:
       return S_ERROR(DErrno.ECERTREAD, "%s" % repr(e).replace(',)', ')'))
     if not self.__certList:
@@ -123,7 +123,8 @@ class X509Chain(object):
     self.__checkProxyness()
     return S_OK()
 
-  def __certListFromPemString(self, certString, format=M2Crypto.X509.FORMAT_PEM):
+  @staticmethod
+  def __certListFromPemString(certString, dataFormat=M2Crypto.X509.FORMAT_PEM):
     """
     Create certificates list from string. String sould contain certificates, just like plain text proxy file.
     """
@@ -250,8 +251,7 @@ class X509Chain(object):
       return S_ERROR(DErrno.ENOCHAIN)
     if self.__isProxy:
       return S_OK(self.__certList[self.__firstProxyStep + 1])
-    else:
-      return S_OK(self.__certList[-1])
+    return S_OK(self.__certList[-1])
 
   def getPKeyObj(self):
     """
@@ -277,7 +277,7 @@ class X509Chain(object):
       return S_ERROR(DErrno.ENOCHAIN)
     return S_OK(len(self.__certList))
 
-  def generateProxyToString(self, lifeTime, diracGroup=False, strength=1024, limited=False, proxyKey=False, rfc=True):
+  def generateProxyToString(self, lifeTime, diracGroup=False, strength=1024, limited=False, proxyKey=False, rfc=True):  # pylint: disable=unused-argument
     """
     Generate a proxy and get it as a string
 
@@ -344,7 +344,7 @@ class X509Chain(object):
       proxyString += crt.asPem()
     return S_OK(proxyString)
 
-  def generateProxyToFile(self, filePath, lifeTime, diracGroup=False, strength=1024, limited=False, rfc=True):
+  def generateProxyToFile(self, filePath, lifeTime, diracGroup=False, strength=1024, limited=False, rfc=True):  # pylint: disable=unused-argument
     """
     Generate a proxy and put it into a file
 
@@ -507,7 +507,7 @@ class X509Chain(object):
       # Check the RFC
       contraint = [line.split(":")[1].strip() for line in ext.get_value().split("\n")
                    if line.split(":")[0] == "Policy Language"]
-      if len(contraint) == 0:
+      if not contraint:
         return 0
       if contraint[0] == LIMITED_PROXY_OID:
         limited = True
@@ -538,14 +538,14 @@ class X509Chain(object):
       return S_ERROR(DErrno.EX509, "Chain does not contain a valid proxy")
     if self.isPUSP()['Value']:
       return self.getCertInChain(self.__firstProxyStep - 2)['Value'].getDIRACGroup(ignoreDefault=ignoreDefault)
-    else:
-      # The code below will find the first match of the DIRAC group
-      for i in range(len(self.__certList) - 1, -1, -1):
-        retVal = self.getCertInChain(i)['Value'].getDIRACGroup(ignoreDefault=True)
-        if retVal['OK'] and 'Value' in retVal and retVal['Value']:
-          return retVal
-      # No DIRAC group found, try to get the default one
-      return self.getCertInChain(self.__firstProxyStep)['Value'].getDIRACGroup(ignoreDefault=ignoreDefault)
+
+    # The code below will find the first match of the DIRAC group
+    for i in range(len(self.__certList) - 1, -1, -1):
+      retVal = self.getCertInChain(i)['Value'].getDIRACGroup(ignoreDefault=True)
+      if retVal['OK'] and 'Value' in retVal and retVal['Value']:
+        return retVal
+    # No DIRAC group found, try to get the default one
+    return self.getCertInChain(self.__firstProxyStep)['Value'].getDIRACGroup(ignoreDefault=ignoreDefault)
 
   def hasExpired(self):
     """
