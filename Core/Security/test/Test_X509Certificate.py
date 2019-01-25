@@ -12,7 +12,7 @@
 
 """
 
-# redefined-outer-name is needed because we keep bassing get_X509Certificate_class as param
+# redefined-outer-name is needed because we keep passing get_X509Certificate_class as param
 # pylint: disable=redefined-outer-name
 
 from .x509TestUtilities import deimportDIRAC, CERTS, CERTCONTENTS, getCertOption, HOSTCERT, VOMSPROXY, VOMS_PROXY_ATTR

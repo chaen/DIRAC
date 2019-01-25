@@ -1,6 +1,6 @@
 # List of OIDs used in handling VOMS extension.
 # VOMS extension is encoded in ASN.1 format and it's surprisingly hard to decode. OIDs describe content of sections
-# of the data. There is no "official list of OIDs", ones used here are sourced from analysing VOMS extensions itself
+# of the data. There is no "official list of OIDs", ones used here are sourced from analyzing VOMS extensions itself
 # and different pieces of code and presentations in subject of X509 certificates, certificate extensions and VOMS.
 # Googling names or values of those OIDs, especially VOMS related, usually result in up to three pages of results,
 # mainly Java code defining those values like code below.
@@ -23,6 +23,5 @@ DN_MAPPING = {
     DOMAIN_COMPONENT_OID: '/DC=',
     ORGANIZATIONAL_UNIT_NAME_OID: '/OU=',
     COMMON_NAME_OID: '/CN=',
-    ORGANIZATION_NAME: '/O='
-
+    ORGANIZATION_NAME: '/O=',
 }
