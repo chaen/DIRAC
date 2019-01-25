@@ -8,6 +8,8 @@ from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
 from DIRAC.Core.Security.m2crypto.X509Chain import X509Chain
 
+# pylint: disable=broad-except
+
 
 class X509Request(object):
   """
@@ -49,7 +51,7 @@ class X509Request(object):
       return S_ERROR(DErrno.ENOCERT)
     try:
       reqStr = self.__reqObj.as_pem()
-    except Exception, e:
+    except Exception as e:
       return S_ERROR(DErrno.EX509, "Can't serialize request: %s" % e)
     return S_OK(reqStr)
 
@@ -74,7 +76,7 @@ class X509Request(object):
       return S_ERROR(DErrno.ENOCERT)
     try:
       pkeyStr = self.__pkeyObj.as_pem(cipher=None, callback=M2Crypto.util.no_passphrase_callback)
-    except Exception, e:
+    except Exception as e:
       return S_ERROR(DErrno.EX509, "Can't serialize pkey: %s" % e)
     return S_OK(pkeyStr)
 
@@ -96,11 +98,11 @@ class X509Request(object):
   def loadAllFromString(self, pemData):
     try:
       self.__reqObj = M2Crypto.X509.load_request_string(pemData)
-    except Exception, e:
+    except Exception as e:
       return S_ERROR(DErrno.ENOCERT, str(e))
     try:
       self.__pkeyObj = M2Crypto.EVP.load_key_string(pemData)
-    except Exception, e:
+    except Exception as e:
       return S_ERROR(DErrno.ENOPKEY, str(e))
     self.__valid = True
     return S_OK()

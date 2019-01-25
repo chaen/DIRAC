@@ -241,8 +241,8 @@ CERT_ATTRS = {
 }
 
 VOMS_PROXY_ATTR = {
-    'notBefore': datetime(2018, 9, 10, 15, 42, 16),
-    'notAfter': datetime(2018, 9, 11, 3, 42, 16),
+    'notBefore': datetime(2018, 10, 23, 9, 11, 44),
+    'notAfter': datetime(2024, 7, 6, 17, 11, 44),
     'fqan': ['/fakevo/Role=user/Capability=NULL'],
     'vo': 'fakevo',
     'subject': '/O=Dirac Computing/O=CERN/CN=MrUser',

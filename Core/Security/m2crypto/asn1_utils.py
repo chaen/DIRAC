@@ -2,7 +2,7 @@
 It has been done based on the reading of the VOMS standard (https://www.ogf.org/documents/GFD.182.pdf)
 and on the RFC 5755 (http://www.ietf.org/rfc/rfc5755.txt)
 
-This module relies on definition of the RFC 3281, which is the predecesor of 5755, but it still
+This module relies on definition of the RFC 3281, which is the predecessor of 5755, but it still
 seems to work for what we are interested in.
 
 To summarize, the attributes we are interested in are called CertificateAttributes, and are stored in proxy extensions.
@@ -15,17 +15,17 @@ C library (https://github.com/italiangrid/voms) instead...
 
 """
 
-from string import ascii_letters, digits
 from pyasn1.codec.der.decoder import decode as der_decode
-from pyasn1.type import namedtype,univ, char as asn1char
+from pyasn1.type import namedtype, univ, char as asn1char
 from pyasn1_modules import rfc2459, rfc3281
-from DIRAC.Core.Security.m2crypto import VOMS_EXTENSION_OID, VOMS_FQANS_OID, DN_MAPPING,VOMS_TAGS_EXT_OID, DIRAC_GROUP_OID
-
+from DIRAC.Core.Security.m2crypto import VOMS_EXTENSION_OID, VOMS_FQANS_OID, DN_MAPPING,\
+    VOMS_TAGS_EXT_OID, DIRAC_GROUP_OID
 
 
 class _ACSequence(univ.SequenceOf):
   """ This describe a sequence of AC, as per GFD 182"""
   componentType = rfc3281.AttributeCertificate()
+
 
 class _ACSequenceOfSequence(univ.SequenceOf):
   """ A Sequence of Sequence of AC. In contradiction to GFD formal description,
@@ -45,20 +45,24 @@ class _VOMSTag(univ.Sequence):
       namedtype.NamedType('qualifier', univ.OctetString()),
   )
 
+
 class _VOMSTags(univ.SequenceOf):
   """ Sequence of VOMSTag as per GOF 182"""
   componentType = _VOMSTag()
+
 
 class _TagList(univ.Sequence):
   """ TagList as per GOF 182"""
   componentType = namedtype.NamedTypes(
       namedtype.NamedType('policyAuthority', rfc2459.GeneralNames()),
-      namedtype.NamedType('tags', _VOMSTags() )
+      namedtype.NamedType('tags', _VOMSTags())
   )
+
 
 class _TagContainer(univ.SequenceOf):
   """ TagContainer as per GOF 182"""
   componentType = _TagList()
+
 
 class _TagContainers(univ.SequenceOf):
   """ Sequence of TagContainer
@@ -79,7 +83,7 @@ def decodeDIRACGroup(m2cert):
 
   diracGroupOctetString = retrieveExtension(m2cert, DIRAC_GROUP_OID)
   #diracGroupUTF8Str, _rest = der_decode(diracGroupOctetString, asn1Spec = asn1char.UTF8String())
-  diracGroupUTF8Str, _rest = der_decode(diracGroupOctetString, asn1Spec = asn1char.IA5String())
+  diracGroupUTF8Str, _rest = der_decode(diracGroupOctetString, asn1Spec=asn1char.IA5String())
 
   return diracGroupUTF8Str.asOctets()
 
@@ -106,7 +110,7 @@ def decodeVOMSExtension(m2cert):
   vomsExtensionDict = {}
   vomsExtensionOctetString = retrieveExtension(m2cert, VOMS_EXTENSION_OID)
   # Decode it as a ACSequenceOfSequence, which is what it is...
-  vomsExtensionSeqOfSeq, _rest = der_decode(vomsExtensionOctetString, asn1Spec = _ACSequenceOfSequence())
+  vomsExtensionSeqOfSeq, _rest = der_decode(vomsExtensionOctetString, asn1Spec=_ACSequenceOfSequence())
 
   # In principle, according to GFD 182, there could be more than one VO VOMS AC per proxy.
   # The standard specifies that we have to accept at least the first one, which is what
@@ -131,9 +135,7 @@ def decodeVOMSExtension(m2cert):
   notAfter = certAttrInfo['attrCertValidityPeriod']['notAfterTime'].asDateTime
   vomsExtensionDict['notAfter'] = notAfter.replace(tzinfo=None)
 
-
   ########## Retrieving the issuer ##########
-
 
   # Get the issuer. A bit tricky, because we have to reconstruct the full DN ourselves
   # The GFD 182 and RFC 3281 give enough restriction such that we can afford some direct
@@ -152,10 +154,9 @@ def decodeVOMSExtension(m2cert):
     attrValUTF8Str, _rest = der_decode(rdnNameAttr['value'], asn1char.UTF8String())
     attrVal = attrValUTF8Str.asOctets()
     #
-    issuer += '%s%s'%(DN_MAPPING[attrOid ], attrVal)
+    issuer += '%s%s' % (DN_MAPPING[attrOid], attrVal)
 
   vomsExtensionDict['issuer'] = issuer
-
 
   #### Issuer retrieved #####
 
@@ -180,12 +181,11 @@ def decodeVOMSExtension(m2cert):
     attrValUTF8Str, _rest = der_decode(rdnNameAttr['value'], asn1char.UTF8String())
     attrVal = attrValUTF8Str.asOctets()
 
-    subject += '%s%s'%(DN_MAPPING[attrOid ], attrVal)
+    subject += '%s%s' % (DN_MAPPING[attrOid], attrVal)
 
   vomsExtensionDict['subject'] = subject
 
   #### Retrieving the FQAN ####
-
 
   # According to GFD182, there may be more attributes that just the FQAN, even though it
   # does not seem to be the case in practice. So we make sure to have the good one
@@ -205,7 +205,6 @@ def decodeVOMSExtension(m2cert):
 
   vomsExtensionDict['vo'] = voName
 
-
   # Now retrieve the position of the holder (group, role)
   fqanList = []
   for fqanPositionObj in fqanObj['values']:
@@ -215,12 +214,10 @@ def decodeVOMSExtension(m2cert):
 
   ############# End of the FQAN ################
 
-
   # Now the Tags, called attributes in the dict...
 
   tagDescriptions = []
   vomsTagsOIDObj = univ.ObjectIdentifier(VOMS_TAGS_EXT_OID)
-
 
   # First find the tag containers
   tagExtensionObj = [extObj for extObj in certAttrInfo['extensions'] if extObj['extnID'] == vomsTagsOIDObj]
@@ -231,7 +228,6 @@ def decodeVOMSExtension(m2cert):
     tagExtensionObj = tagExtensionObj[0]
 
     tagContainersObj, _rest = der_decode(tagExtensionObj['extnValue'], asn1Spec=_TagContainers())
-
 
     # TODO in principle, we should check that this value
     # and the one of the policyAuthority of the fqan are the same
@@ -245,18 +241,15 @@ def decodeVOMSExtension(m2cert):
         for tag in tagList:
           # This gives a string like
           # nickname = chaen (lhcb)
-          tagDescriptions.append('%s = %s (%s)'%(tag['name'].asOctets(),
-                                                 tag['value'].asOctets(),
-                                                 tag['qualifier'].asOctets()))
-
-
+          tagDescriptions.append('%s = %s (%s)' % (tag['name'].asOctets(),
+                                                   tag['value'].asOctets(),
+                                                   tag['qualifier'].asOctets()))
 
     vomsExtensionDict['attribute'] = ','.join(tagDescriptions)
 
   ##### Tags are done ################
 
   return vomsExtensionDict
-
 
 
 def retrieveExtension(m2Cert, extensionOID):
@@ -287,4 +280,4 @@ def retrieveExtension(m2Cert, extensionOID):
       return extension['extnValue']
 
   # If we are here, it means that we could not find the expected extension.
-  raise LookupError("Could not find extension with OID %s"%extensionOID )
+  raise LookupError("Could not find extension with OID %s" % extensionOID)

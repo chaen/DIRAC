@@ -14,6 +14,8 @@ import M2Crypto
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
 
+# pylint: disable=broad-except
+
 
 class X509CRL(object):
 
