@@ -598,10 +598,13 @@ class X509Chain(object):
     x509 = self.getCertInChain(0)['Value']
     return x509.generateProxyRequest(bitStrength, limited)
 
-  def generateChainFromRequestString(self, pemData, lifetime=86400, requireLimited=False, diracGroup=False):
+  def generateChainFromRequestString(self, pemData, lifetime=86400, requireLimited=False, diracGroup=False, rfc = True):
     """
     Generate a x509 chain from a request
+
+    :param rfc:ignored
     return S_OK( string ) / S_ERROR
+
     """
     if not self.__loadedChain:
       return S_ERROR(DErrno.ENOCHAIN)

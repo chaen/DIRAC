@@ -7,13 +7,14 @@ __RCSID__ = "$Id$"
 
 import os
 import socket
+import threading
 from M2Crypto import SSL, threading as M2Threading
 
-from DIRAC.Core.Utilities.ReturnValues import S_OK
+from DIRAC.Core.Utilities.ReturnValues import S_OK, S_ERROR
 from DIRAC.Core.DISET.private.Transports.BaseTransport import BaseTransport
 from DIRAC.Core.DISET.private.Transports.SSL.M2Utils import getM2SSLContext, getM2PeerInfo
 
-# For now we have to set an environment variable for proxy support in OpenSSL
+# TODO: For now we have to set an environment variable for proxy support in OpenSSL
 # Eventually we may need to add API support for this to M2Crypto...
 os.environ['OPENSSL_ALLOW_PROXY_CERTS'] = '1'
 M2Threading.init()
@@ -26,6 +27,7 @@ M2Threading.init()
 # into proper DIRAC style errors.
 
 # TODO: Log useful messages to the logger
+
 
 class SSLTransport(BaseTransport):
   """ SSL Transport implementaiton using the M2Crypto library. """
@@ -49,12 +51,26 @@ class SSLTransport(BaseTransport):
     self.remoteAddress = None
     self.peerCredentials = {}
     self.__timeout = 1
-    self.__locked = False # We don't support locking, so this is always false.
+    self.__locked = False  # We don't support locking, so this is always false.
+
     self.__ctx = kwargs.pop('ctx', None)
     if not self.__ctx:
       self.__ctx = getM2SSLContext(**kwargs)
+
     self.__kwargs = kwargs
     BaseTransport.__init__(self, *args, **kwargs)
+
+
+  # @property
+  # def oSocket(self):
+  #   return self.__tLocal.oSocket
+  #
+  # @oSocket.setter
+  # def oSocket(self, socketObj):
+  #   self.__tLocal.oSocket = socketObj
+
+
+
 
   def setSocketTimeout(self, timeout):
     """ Set the timeout for socket operations.
@@ -66,10 +82,39 @@ class SSLTransport(BaseTransport):
     """ Prepare this client socket for use. """
     if self.serverMode():
       raise RuntimeError("SSLTransport is in server mode.")
-    self.oSocket = self.__getConnection()
-    self.oSocket.connect(self.stServerAddress)
-    self.remoteAddress = self.oSocket.getpeername()
-    return S_OK()
+
+    error = None
+    host, port = self.stServerAddress
+
+    # The following piece of code was inspired by the python socket documentation
+    # as well as the implementation of M2Crypto.httpslib.HTTPSConnection
+
+    # We ignore the returned sockaddr because SSL.Connection.connect needs
+    # a host name.
+    addrInfoList = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
+                                      socket.SOCK_STREAM)
+    for (family, _socketType, _proto, _canonname, _socketAddress) in \
+            addrInfoList:
+
+      try:
+        self.oSocket = SSL.Connection(self.__ctx, family=family)
+
+        # set SNI server name since we know it at this point
+        self.oSocket.set_tlsext_host_name(host)
+
+        self.oSocket.connect((host, port))
+        self.remoteAddress = self.oSocket.getpeername()
+
+        return S_OK()
+      except socket.error as e:
+        # Other exception are probably SSL-related, in that case we
+        # abort and the exception is forwarded to the caller.
+        error = e
+
+        if self.oSocket is not None:
+          self.oSocket.close()
+
+    return S_ERROR(error)
 
   def initAsServer(self):
     """ Prepare this server socket for use. """
@@ -94,6 +139,12 @@ class SSLTransport(BaseTransport):
   def close(self):
     """ Close this socket. """
     if self.oSocket:
+      # Surprisingly (to me at least), M2Crypto does not close
+      # the socket when calling SSL.Connection.close
+      # It only does it when the garbage collector kicks in
+      # We have to manually close it here, otherwise the connections
+      # will hang forever
+      self.oSocket.socket.close()
       self.oSocket.close()
       self.oSocket = None
     return S_OK()
@@ -137,7 +188,8 @@ class SSLTransport(BaseTransport):
     """ Read bufSize bytes from the buffer.
         skipReadyCheck is ignored.
     """
-    return S_OK(self.oSocket.read(bufSize))
+    read = self.oSocket.read(bufSize)
+    return S_OK(read)
 
   def isLocked(self):
     """ Returns if this instance is locked.
@@ -149,4 +201,5 @@ class SSLTransport(BaseTransport):
     """ Write all bytes contained within iterable "buf" to the
         connected peer.
     """
-    return S_OK(self.oSocket.write(buf))
+    wrote = self.oSocket.write(buf)
+    return S_OK(wrote)

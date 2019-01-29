@@ -75,6 +75,13 @@ os.environ['OPENSSL_ALLOW_PROXY_CERTS'] = "True"
 
 __RCSID__ = "$Id$"
 
+# Now that's one hell of a hack :)
+# _strptime is not thread safe, resulting in obscure callstack
+# whenever you would have multiple threads and calling datetime.datetime.strptime
+# (AttributeError: 'module' object has no attribute '_strptime')
+# Importing _strptime before instantiating the threads seem to be a working workaround
+import _strptime
+
 
 # Define Version
 

@@ -47,6 +47,7 @@ def __loadM2SSLCTXProxy(ctx, proxyPath=None):
   # See __loadM2SSLCTXHostcert for description of why lambda is needed.
   ctx.load_cert_chain(proxyPath, proxyPath, callback=lambda: "")
 
+
 def getM2SSLContext(ctx=None, **kwargs):
   """ Gets an M2Crypto.SSL.Context configured using the standard
       DIRAC connection keywords from kwargs. The keywords are:
@@ -72,7 +73,9 @@ def getM2SSLContext(ctx=None, **kwargs):
     ctx = SSL.Context()
 
   # Set certificates for connection
-  if kwargs.get('clientMode', False) and not kwargs.get('useCertificates', False):
+  # CHRIS: I think clientMode was just an internal of pyGSI implementation
+  # if kwargs.get('clientMode', False) and not kwargs.get('useCertificates', False):
+  if not kwargs.get('useCertificates', False):
     # Client mode has a choice of possible options
     if kwargs.get('proxyString', None):
       # We don't support this any more, there is no easy way
@@ -85,6 +88,7 @@ def getM2SSLContext(ctx=None, **kwargs):
   else:
     # Server mode always uses hostcert
     __loadM2SSLCTXHostcert(ctx)
+
 
   # Set peer verification
   if kwargs.get('skipCACheck', False):
@@ -118,6 +122,8 @@ def getM2SSLContext(ctx=None, **kwargs):
     # SSL_OP_NO_SSLv2, SSL_OP_NO_SSLv3, SSL_OP_NO_TLSv1
   ciphers = kwargs.get('sslCiphers', DEFAULT_SSL_CIPHERS)
   ctx.set_cipher_list(ciphers)
+  # log the debug messages
+  ctx.set_info_callback()
   return ctx
 
 def getM2PeerInfo(conn):
