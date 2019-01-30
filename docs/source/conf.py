@@ -37,7 +37,7 @@ print 'conf.py: %s as DIRACVERSION' % diracRelease
 # Set this environment variable such tha the documentation
 # generated for the various X509* classes is the one with M2Crypto
 if not 'DIRAC_USE_M2CRYPTO' in os.environ:
-  os.environ['DIRAC_USE_M2CRYPTO'] = True
+  os.environ['DIRAC_USE_M2CRYPTO'] = "Yes"
 
 #...............................................................................
 # configuration
