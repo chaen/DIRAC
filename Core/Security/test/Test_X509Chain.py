@@ -29,7 +29,10 @@ from string import ascii_letters, digits
 
 from hypothesis import given, settings
 from hypothesis.strategies import integers, text
-settings.max_examples = 200
+
+# Way to define number of maximum tests
+settings.register_profile("x509_tests", max_examples=200)
+settings.load_profile("x509_tests")
 
 from pytest import mark, fixture, skip, raises, approx
 parametrize = mark.parametrize
