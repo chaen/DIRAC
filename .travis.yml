@@ -13,13 +13,14 @@ python:
 env:
   matrix:
     - CHECK=pytest
+    - CHECK=pytest_M2Crypto
     - CHECK=docs
     - CHECK=pylint
     - CHECK=format
 
 
 # command to install dependencies
-install: 
+install:
   - "pip install --upgrade setuptools"
   - "pip install --upgrade pip"
   - "pip install -r requirements.txt"
@@ -29,6 +30,8 @@ script:
   - ls $PYTHONPATH
   - if [[ "${CHECK}" == "pytest"  ]];
     then pytest;
+    elif [[ "${CHECK}" == "pytest_M2Crypto"  ]];
+    then DIRAC_USE_M2Crypto=Yes pytest;
     elif [[ "${CHECK}" == "docs"  ]];
     then .travis.d/checkDocs.sh;
     elif [[ "${CHECK}" == "pylint"  ]];
