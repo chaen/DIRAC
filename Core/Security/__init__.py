@@ -19,9 +19,13 @@ from pkgutil import extend_path
 
 X509Chain = None
 X509CRL = None
+X509Certificate = None
+X509Request = None
 
 locals().pop('X509Chain')
 locals().pop('X509CRL')
+locals().pop('X509Certificate')
+locals().pop('X509Request')
 ####
 
 

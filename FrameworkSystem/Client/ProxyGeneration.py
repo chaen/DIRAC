@@ -137,7 +137,7 @@ class CLIParams(object):
 
 
 
-from DIRAC.Core.Security.X509Chain import X509Chain
+from DIRAC.Core.Security.X509Chain import X509Chain #pylint: disable=import-error
 from DIRAC.ConfigurationSystem.Client.Helpers import Registry
 from DIRAC.Core.Security import Locations
 

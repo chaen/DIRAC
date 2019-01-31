@@ -243,7 +243,7 @@ class X509Certificate(object):
       if lastEntry[0] == 'CN' and lastEntry[1] == "limited proxy":
         limited = True
 
-    from DIRAC.Core.Security.X509Request import X509Request
+    from DIRAC.Core.Security.pygsi.X509Request import X509Request #pylint: disable=import-error
 
     req = X509Request()
     req.generateProxyRequest(bitStrength=bitStrength, limited=limited)
