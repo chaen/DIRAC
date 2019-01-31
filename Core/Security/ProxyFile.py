@@ -9,7 +9,7 @@ import tempfile
 
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
-from DIRAC.Core.Security.X509Chain import X509Chain, g_X509ChainType
+from DIRAC.Core.Security.X509Chain import X509Chain, g_X509ChainType #pylint: disable=import-error
 from DIRAC.Core.Security.Locations import getProxyLocation
 
 def writeToProxyFile( proxyContents, fileName = False ):

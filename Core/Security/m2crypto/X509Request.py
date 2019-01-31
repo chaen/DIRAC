@@ -6,7 +6,7 @@ __RCSID__ = "$Id$"
 import M2Crypto
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
-from DIRAC.Core.Security.m2crypto.X509Chain import X509Chain
+from DIRAC.Core.Security.m2crypto.X509Chain import X509Chain #pylint: disable=import-error
 
 # pylint: disable=broad-except
 

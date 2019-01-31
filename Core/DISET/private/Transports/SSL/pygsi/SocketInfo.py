@@ -12,8 +12,8 @@ from DIRAC.Core.Utilities.Network import checkHostsMatch
 from DIRAC.Core.Utilities.LockRing import LockRing
 from DIRAC.FrameworkSystem.Client.Logger import gLogger
 from DIRAC.Core.Security import Locations
-from DIRAC.Core.Security.X509Chain import X509Chain
-from DIRAC.Core.Security.X509CRL import X509CRL
+from DIRAC.Core.Security.X509Chain import X509Chain #pylint: disable=import-error
+
 
 DEFAULT_SSL_CIPHERS = "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS"
 

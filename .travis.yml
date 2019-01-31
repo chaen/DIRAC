@@ -29,9 +29,9 @@ script:
   - export PYTHONPATH=${PWD%/*}
   - ls $PYTHONPATH
   - if [[ "${CHECK}" == "pytest"  ]];
-    then travis_wait 30 pytest;
+    then pytest -s;
     elif [[ "${CHECK}" == "pytest_M2Crypto"  ]];
-    then DIRAC_USE_M2CRYPTO=Yes travis_wait 30  pytest;
+    then DIRAC_USE_M2CRYPTO=Yes pytest -s;
     elif [[ "${CHECK}" == "docs"  ]];
     then .travis.d/checkDocs.sh;
     elif [[ "${CHECK}" == "pylint"  ]];
@@ -45,3 +45,10 @@ after_success:
   - if [[ "${CHECK}" == "pytest"  ]];
     then coveralls -i;
     fi
+#
+#
+# jobs:
+#   include:
+#     - stage: "M2Crypto"
+#       name: "M2Crypto"
+#       script: DIRAC_USE_M2CRYPTO=Yes travis_wait 30  pytest;
