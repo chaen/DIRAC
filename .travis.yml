@@ -31,7 +31,7 @@ script:
   - if [[ "${CHECK}" == "pytest"  ]];
     then pytest;
     elif [[ "${CHECK}" == "pytest_M2Crypto"  ]];
-    then DIRAC_USE_M2Crypto=Yes pytest;
+    then DIRAC_USE_M2CRYPTO=Yes pytest;
     elif [[ "${CHECK}" == "docs"  ]];
     then .travis.d/checkDocs.sh;
     elif [[ "${CHECK}" == "pylint"  ]];
