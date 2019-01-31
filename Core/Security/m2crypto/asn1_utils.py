@@ -97,8 +97,8 @@ def decodeVOMSExtension(m2cert):
         * notBefore: datetime.datetime
         * notAfter: datetime.datetime
         * attribute: (string). Comma separated list of VOMS tags presented as bellow
-                              "<tagName> = <tagValue> (<tagQualifier>)"
-                              Typically, the nickname will look like
+                               "<tagName> = <tagValue> (<tagQualifier>)"
+                               Typically, the nickname will look like
                                'nickname = chaen (lhcb)',
 
         * fqan: List of VOMS "position" (['/lhcb/Role=production/Capability=NULL', '/lhcb/Role=NULL/Capability=NULL'])

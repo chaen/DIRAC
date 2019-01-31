@@ -135,6 +135,7 @@ def getM2PeerInfo(conn):
          isProxy - Boolean, True if chain ends with proxy
          isLimitedProxy - Boolean, True if chain ends with limited proxy
          group - String, DIRAC group for this peer, if known
+
       Returns a dict of details.
   """
   chain = X509Chain.generateX509ChainFromSSLConnection(conn)
