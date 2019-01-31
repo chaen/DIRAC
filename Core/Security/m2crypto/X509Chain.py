@@ -602,8 +602,8 @@ class X509Chain(object):
     """
     Generate a x509 chain from a request
 
-    :param rfc:ignored
-    return S_OK( string ) / S_ERROR
+    :param rfc: ignored
+    :returns: S_OK( string ) / S_ERROR
 
     """
     if not self.__loadedChain:

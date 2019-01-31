@@ -29,9 +29,9 @@ script:
   - export PYTHONPATH=${PWD%/*}
   - ls $PYTHONPATH
   - if [[ "${CHECK}" == "pytest"  ]];
-    then travis_wait pytest;
+    then travis_wait 30 pytest;
     elif [[ "${CHECK}" == "pytest_M2Crypto"  ]];
-    then DIRAC_USE_M2CRYPTO=Yes pytest;
+    then DIRAC_USE_M2CRYPTO=Yes travis_wait 30  pytest;
     elif [[ "${CHECK}" == "docs"  ]];
     then .travis.d/checkDocs.sh;
     elif [[ "${CHECK}" == "pylint"  ]];
