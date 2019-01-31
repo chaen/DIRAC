@@ -51,6 +51,7 @@ def __loadM2SSLCTXProxy(ctx, proxyPath=None):
 def getM2SSLContext(ctx=None, **kwargs):
   """ Gets an M2Crypto.SSL.Context configured using the standard
       DIRAC connection keywords from kwargs. The keywords are:
+
         - clientMode: Boolean, if False hostcerts are always used. If True
                                a proxy is used unless other flags are set.
         - useCertificates: Boolean, Set to true to use hostcerts in client
@@ -64,6 +65,7 @@ def getM2SSLContext(ctx=None, **kwargs):
                               cipher format, e.g. "SSLv3:TLSv1".
         - sslCiphers: String, OpenSSL style cipher string of ciphers to allow
                               on this connection.
+
       If an existing context "ctx" is provided, it is just reconfigured with
       the selected arguments.
 
@@ -130,6 +132,7 @@ def getM2PeerInfo(conn):
   """ Gets the details of the current peer as a standard dict. The peer
       details are obtained from the supplied M2 SSL Connection obj "conn".
       The details returned are:
+
          DN - Full peer DN as string
          x509Chain - Full chain of peer
          isProxy - Boolean, True if chain ends with proxy
