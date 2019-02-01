@@ -49,16 +49,9 @@ class ColoredBaseFormatter(BaseFormatter):
 
     :params record: the log record containing all the information about the log message: name, level, threadid...
     """
-    try:
 
-      stringRecord = super(ColoredBaseFormatter, self).format(record)
-    except TypeError:
-      print "CHRIS FOR FUCK SAKE !!"
-      print "Globals %s"%globals()
-      print "self %s"%self
-      print "ColoredBaseFormatter %s"%ColoredBaseFormatter
-      print "record %s"%(record,)
-      return ""
+    stringRecord = super(ColoredBaseFormatter, self).format(record)
+
     # post treatment
     if self._options['Color'] and sys.stdout.isatty() and sys.stderr.isatty():
       params = []
