@@ -36,8 +36,8 @@ script:
     then DIRAC_USE_M2CRYPTO=Yes pytest --ignore=Core/Security/test ;
     if [[ "${CHECK}" == "pytest_security"  ]];
     then pytest Core/Security/test;
-    elif [[ "${CHECK}" == "pytest_M2Crypto"  ]];
-    then DIRAC_USE_M2CRYPTO=Yes pytest Core/Security/test; ;
+    elif [[ "${CHECK}" == "pytest_M2Crypto_security"  ]];
+    then DIRAC_USE_M2CRYPTO=Yes pytest Core/Security/test;
     elif [[ "${CHECK}" == "docs"  ]];
     then .travis.d/checkDocs.sh;
     elif [[ "${CHECK}" == "pylint"  ]];
