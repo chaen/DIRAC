@@ -16,12 +16,15 @@ def getProxyLocation():
   for envVar in ['GRID_PROXY_FILE', 'X509_USER_PROXY']:
     if envVar in os.environ:
       proxyPath = os.path.realpath(os.environ[envVar])
+      print "CHRIS FOUND PROXYPATH FIRST %s"%proxyPath
       if os.path.isfile(proxyPath):
         return proxyPath
   #/tmp/x509up_u<uid>
   proxyName = "x509up_u%d" % os.getuid()
   if os.path.isfile("/tmp/%s" % proxyName):
+    print "CHRIS FOUND PROXYPATH then %s"%proxyName
     return "/tmp/%s" % proxyName
+
 
   # No gridproxy found
   return False
@@ -81,6 +84,7 @@ def getHostCertificateAndKeyLocation(specificLocation=None):
   for fileType in ("cert", "key"):
     # Direct file in config
     retVal = gConfig.getOption('%s/%sFile' % (g_SecurityConfPath, fileType.capitalize()))
+    print "CHRIS OPTION %s"%retVal
     if retVal['OK']:
       fileDict[fileType] = retVal['Value']
       continue

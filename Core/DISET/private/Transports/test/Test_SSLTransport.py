@@ -26,6 +26,13 @@ from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport,
 # TODO: Reload of CAs?
 
 # Define all the locations
+
+from DIRAC.Core.Utilities.CFG import CFG
+gConfigurationData.localCFG = CFG()
+gConfigurationData.remoteCFG = CFG()
+gConfigurationData.mergedCFG = CFG()
+gConfigurationData.generateNewVersion()
+
 caLocation = os.path.join(CERTDIR, 'ca')
 hostCertLocation = os.path.join(CERTDIR, 'host/hostcert.pem')
 hostKeyLocation = os.path.join(CERTDIR, 'host/hostkey.pem')
