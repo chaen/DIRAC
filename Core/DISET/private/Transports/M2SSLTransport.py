@@ -180,7 +180,7 @@ class SSLTransport(BaseTransport):
         the client connection.
     """
     oClient, _ = self.oSocket.accept()
-    oClientTrans = SSLTransport(self.stServerAddress, self.__ctx)
+    oClientTrans = SSLTransport(self.stServerAddress, ctx = self.__ctx)
     oClientTrans.setClientSocket(oClient)
     return S_OK(oClientTrans)
 
