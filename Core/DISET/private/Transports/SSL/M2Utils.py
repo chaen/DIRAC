@@ -73,12 +73,15 @@ def getM2SSLContext(ctx=None, **kwargs):
   """
   if not ctx:
     ctx = SSL.Context()
-
   # Set certificates for connection
   # CHRIS: I think clientMode was just an internal of pyGSI implementation
   # if kwargs.get('clientMode', False) and not kwargs.get('useCertificates', False):
   # if not kwargs.get('useCertificates', False):
-  if not kwargs.get('bServerMode', False) and not kwargs.get('useCertificates', False):
+  if kwargs.get('bServerMode', False) or kwargs.get('useCertificates', False):
+    # Server mode always uses hostcert
+    __loadM2SSLCTXHostcert(ctx)
+
+  else:
     # Client mode has a choice of possible options
     if kwargs.get('proxyString', None):
       # We don't support this any more, there is no easy way
@@ -88,9 +91,6 @@ def getM2SSLContext(ctx=None, **kwargs):
     else:
       # Use normal proxy
       __loadM2SSLCTXProxy(ctx, proxyPath=kwargs.get('proxyLocation', None))
-  else:
-    # Server mode always uses hostcert
-    __loadM2SSLCTXHostcert(ctx)
 
 
   # Set peer verification

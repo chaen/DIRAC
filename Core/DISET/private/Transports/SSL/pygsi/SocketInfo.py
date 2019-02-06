@@ -12,7 +12,7 @@ from DIRAC.Core.Utilities.Network import checkHostsMatch
 from DIRAC.Core.Utilities.LockRing import LockRing
 from DIRAC.FrameworkSystem.Client.Logger import gLogger
 from DIRAC.Core.Security import Locations
-from DIRAC.Core.Security.X509Chain import X509Chain #pylint: disable=import-error
+from DIRAC.Core.Security.pygsi.X509Chain import X509Chain
 
 
 DEFAULT_SSL_CIPHERS = "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS"
@@ -66,11 +66,14 @@ class SocketInfo:
     isLimitedProxyChain = peerChain.isLimitedProxy()['Value']
     if isProxyChain:
       if peerChain.isPUSP()['Value']:
-        identitySubject = peerChain.getCertInChain(-2)['Value'].getSubjectNameObject()['Value']
+        identitySubject = peerChain.getCertInChain(
+            -2)['Value'].getSubjectNameObject()['Value']
       else:
-        identitySubject = peerChain.getIssuerCert()['Value'].getSubjectNameObject()['Value']
+        identitySubject = peerChain.getIssuerCert(
+        )['Value'].getSubjectNameObject()['Value']
     else:
-      identitySubject = peerChain.getCertInChain(0)['Value'].getSubjectNameObject()['Value']
+      identitySubject = peerChain.getCertInChain(
+          0)['Value'].getSubjectNameObject()['Value']
     credDict = {}
     credDict = {'DN': identitySubject.one_line(),
                 'CN': identitySubject.commonName,
@@ -161,7 +164,8 @@ class SocketInfo:
             caCert = GSI.crypto.load_certificate(GSI.crypto.FILETYPE_PEM, pemData)
             if caCert.has_expired():
               continue
-            caID = (caCert.get_subject().one_line(), caCert.get_issuer().one_line())
+            caID = (caCert.get_subject().one_line(),
+                    caCert.get_issuer().one_line())
             caNotAfter = caCert.get_not_after()
             if caID not in casDict:
               casDict[caID] = (caNotAfter, caCert)
@@ -185,7 +189,8 @@ class SocketInfo:
               continue
             except Exception as e:
               if fileName.find(".r0") == len(fileName) - 2:
-                gLogger.exception("LOADING %s ,Exception: %s" % (filePath, str(e)))
+                gLogger.exception("LOADING %s ,Exception: %s" %
+                                  (filePath, str(e)))
 
         gLogger.debug("Loaded %s CAs [%s CRLs]" % (casFound, crlsFound))
         SocketInfo.__cachedCAsCRLs = ([casDict[k][1] for k in casDict],
@@ -223,7 +228,8 @@ class SocketInfo:
     except:
       return S_ERROR("SSL method %s is not valid" % self.infoDict['sslMethod'])
     self.sslContext = GSI.SSL.Context(method)
-    self.sslContext.set_cipher_list(self.infoDict.get('sslCiphers', DEFAULT_SSL_CIPHERS))
+    self.sslContext.set_cipher_list(
+        self.infoDict.get('sslCiphers', DEFAULT_SSL_CIPHERS))
     if contextOptions:
       self.sslContext.set_options(contextOptions)
     #self.sslContext.set_read_ahead( 1 )
@@ -241,7 +247,8 @@ class SocketInfo:
       caStore = result['Value']
       self.sslContext.set_cert_store(caStore)
     else:
-      self.sslContext.set_verify(GSI.SSL.VERIFY_NONE, None, gsiEnable)  # Demand a certificate
+      self.sslContext.set_verify(
+          GSI.SSL.VERIFY_NONE, None, gsiEnable)  # Demand a certificate
     return S_OK()
 
   def __generateContextWithCerts(self):
@@ -258,7 +265,6 @@ class SocketInfo:
     self.sslContext.use_certificate_chain_file(certKeyTuple[0])
     self.sslContext.use_privatekey_file(certKeyTuple[1])
     return S_OK()
-
 
   def __generateContextWithProxy(self):
     if 'proxyLocation' in self.infoDict:
@@ -278,7 +284,6 @@ class SocketInfo:
     self.sslContext.use_privatekey_file(proxyPath)
     return S_OK()
 
-
   def __generateContextWithProxyString(self):
     proxyString = self.infoDict['proxyString']
     self.setLocalCredentialsLocation((proxyString, proxyString))
@@ -289,7 +294,6 @@ class SocketInfo:
     self.sslContext.use_certificate_chain_string(proxyString)
     self.sslContext.use_privatekey_string(proxyString)
     return S_OK()
-
 
   def __generateServerContext(self):
     retVal = self.__generateContextWithCerts()
