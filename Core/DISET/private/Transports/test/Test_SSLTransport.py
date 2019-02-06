@@ -9,6 +9,7 @@ from pytest import fixture
 
 from DIRAC.Core.Security.test.x509TestUtilities import CERTDIR, USERCERT, getCertOption
 
+
 from DIRAC.ConfigurationSystem.Client.ConfigurationData import gConfigurationData
 from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport, M2SSLTransport
 
@@ -124,6 +125,7 @@ class DummyServiceReactor(object):
     """ Close the connection """
     self.transport.close()
 
+
 def transportByName(transport):
   """ A helper function to get a transport class by 'friendly' name. """
   if transport.lower() == "plain":
@@ -153,8 +155,9 @@ def create_serverAndClient(request):
   # Create the client
   clientOptions = {'clientMode': True,
                    'proxyLocation': proxyFile,
-                  }
-  clientTransport = clientClass(("localhost", PORT_NUMBER), bServerMode=False, **clientOptions)
+                   }
+  clientTransport = clientClass(
+      ("localhost", PORT_NUMBER), bServerMode=False, **clientOptions)
   res = clientTransport.initAsClient()
   assert res['OK'], res
 
@@ -163,6 +166,7 @@ def create_serverAndClient(request):
   clientTransport.close()
   sr.closeListeningConnections()
   server_thread.join()
+
 
 def ping_server(clientTransport):
   """ This sends a message to the server and expects an answer
@@ -194,11 +198,13 @@ def test_getRemoteInfo(create_serverAndClient):
   addr_info = client.getRemoteAddress()
   assert addr_info[0] in ('127.0.0.1', '::ffff:127.0.0.1', '::1')
   assert addr_info[1] == PORT_NUMBER
-  assert client.peerCredentials == {} # The peer credentials are not filled on the client side
+  # The peer credentials are not filled on the client side
+  assert client.peerCredentials == {}
 
   # We do not know about the port, so check only the address, taking into account bloody IPv6
-  assert serv.clientTransport.getRemoteAddress()[0] in ('127.0.0.1', '::ffff:127.0.0.1', '::1')
-  peerCreds =  serv.clientTransport.peerCredentials
+  assert serv.clientTransport.getRemoteAddress()[0] in (
+      '127.0.0.1', '::ffff:127.0.0.1', '::1')
+  peerCreds = serv.clientTransport.peerCredentials
 
   # There are no credentials for PlainTransport
   if client.__class__.__name__ == 'PlainTransport':
