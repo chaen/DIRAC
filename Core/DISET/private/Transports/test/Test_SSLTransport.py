@@ -7,11 +7,14 @@ import threading
 
 from pytest import fixture
 
+from DIRAC import gLogger
+gLogger.setLevel('debug')
 from DIRAC.Core.Security.test.x509TestUtilities import CERTDIR, USERCERT, getCertOption
 
 
 from DIRAC.ConfigurationSystem.Client.ConfigurationData import gConfigurationData
 from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport, M2SSLTransport
+
 
 # TODO: Expired hostcert
 # TODO: Expired usercert
@@ -40,6 +43,8 @@ gConfigurationData.setOptionInCFG('/DIRAC/Security/CALocation', caLocation)
 gConfigurationData.setOptionInCFG('/DIRAC/Security/CertFile', hostCertLocation)
 gConfigurationData.setOptionInCFG('/DIRAC/Security/KeyFile', hostKeyLocation)
 
+
+print "CONF %s"%gConfigurationData.getMergedCFGAsString()
 proxyFile = os.path.join(os.path.dirname(__file__), 'proxy.pem')
 
 
@@ -134,7 +139,7 @@ class DummyServiceReactor(object):
 
 
 def transportByName(transport):
-  """ A helper function to get a transport class by 'friendly' name. """
+  """ helper function to get a transport class by 'friendly' name. """
   if transport.lower() == "plain":
     return PlainTransport.PlainTransport
   elif transport.lower() == "m2":
