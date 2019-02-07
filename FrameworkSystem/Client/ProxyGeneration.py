@@ -181,23 +181,15 @@ def generateProxy(params):
   if timeLeft < 30:
     gLogger.notice("\nYour certificate will expire in %d days. Please renew it!\n" % timeLeft)
 
-  # Here I am not sure why it was done differently so leave the switch for the time being
-  if os.getenv('DIRAC_USE_M2CRYPTO', 'NO').lower() in ('yes', 'true'):
+  # First try reading the key from the file   
+  retVal = testChain.loadKeyFromFile(params.keyLoc, password=params.userPasswd)  # XXX why so commented?
+  if not retVal['OK']:
     passwdPrompt = "Enter Certificate password:"
     if params.stdinPasswd:
       userPasswd = sys.stdin.readline().strip("\n")
     else:
       userPasswd = getpass.getpass(passwdPrompt)
     params.userPasswd = userPasswd
-  else:
-    retVal = testChain.loadKeyFromFile(params.keyLoc, password=params.userPasswd)  # XXX why so commented?
-    if not retVal['OK']:
-      passwdPrompt = "Enter Certificate password:"
-      if params.stdinPasswd:
-        userPasswd = sys.stdin.readline().strip("\n")
-      else:
-        userPasswd = getpass.getpass(passwdPrompt)
-      params.userPasswd = userPasswd
 
   # Find location
   proxyLoc = params.proxyLoc
