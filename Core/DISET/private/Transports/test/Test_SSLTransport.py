@@ -15,9 +15,6 @@ from DIRAC.ConfigurationSystem.Client.ConfigurationData import gConfigurationDat
 from DIRAC.Core.Utilities.CFG import CFG
 from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport, M2SSLTransport
 
-from DIRAC import gLogger
-gLogger.setLevel('debug')
-
 # TODO: Expired hostcert
 # TODO: Expired usercert
 # TODO: Expired proxy
