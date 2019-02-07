@@ -7,14 +7,16 @@ import threading
 
 from pytest import fixture
 
-from DIRAC import gLogger
-gLogger.setLevel('debug')
+
 from DIRAC.Core.Security.test.x509TestUtilities import CERTDIR, USERCERT, getCertOption
 
 
 from DIRAC.ConfigurationSystem.Client.ConfigurationData import gConfigurationData
+from DIRAC.Core.Utilities.CFG import CFG
 from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport, M2SSLTransport
 
+from DIRAC import gLogger
+gLogger.setLevel('debug')
 
 # TODO: Expired hostcert
 # TODO: Expired usercert
@@ -30,21 +32,9 @@ from DIRAC.Core.DISET.private.Transports import PlainTransport, GSISSLTransport,
 
 # Define all the locations
 
-from DIRAC.Core.Utilities.CFG import CFG
-gConfigurationData.localCFG = CFG()
-gConfigurationData.remoteCFG = CFG()
-gConfigurationData.mergedCFG = CFG()
-gConfigurationData.generateNewVersion()
-
 caLocation = os.path.join(CERTDIR, 'ca')
 hostCertLocation = os.path.join(CERTDIR, 'host/hostcert.pem')
 hostKeyLocation = os.path.join(CERTDIR, 'host/hostkey.pem')
-gConfigurationData.setOptionInCFG('/DIRAC/Security/CALocation', caLocation)
-gConfigurationData.setOptionInCFG('/DIRAC/Security/CertFile', hostCertLocation)
-gConfigurationData.setOptionInCFG('/DIRAC/Security/KeyFile', hostKeyLocation)
-
-
-print "CONF %s"%gConfigurationData.getMergedCFGAsString()
 proxyFile = os.path.join(os.path.dirname(__file__), 'proxy.pem')
 
 
@@ -154,6 +144,19 @@ def create_serverAndClient(request):
   """ This function starts a server, and closes it after
     The server will use the parametrized transport type
   """
+
+  # Reinitialize the configuration.
+  # We do it here rather than at the start of the module
+  # to accomodate for pytest when going through all the DIRAC tests
+
+  gConfigurationData.localCFG = CFG()
+  gConfigurationData.remoteCFG = CFG()
+  gConfigurationData.mergedCFG = CFG()
+  gConfigurationData.generateNewVersion()
+  gConfigurationData.setOptionInCFG('/DIRAC/Security/CALocation', caLocation)
+  gConfigurationData.setOptionInCFG('/DIRAC/Security/CertFile', hostCertLocation)
+  gConfigurationData.setOptionInCFG('/DIRAC/Security/KeyFile', hostKeyLocation)
+
   testStr = request.param
   serverName, clientName = testStr.split("-")
   serverClass = transportByName(serverName)
@@ -178,6 +181,12 @@ def create_serverAndClient(request):
   clientTransport.close()
   sr.closeListeningConnections()
   server_thread.join()
+
+  # Clean the config
+  gConfigurationData.localCFG = CFG()
+  gConfigurationData.remoteCFG = CFG()
+  gConfigurationData.mergedCFG = CFG()
+  gConfigurationData.generateNewVersion()
 
 
 def ping_server(clientTransport):
