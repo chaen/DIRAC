@@ -126,7 +126,7 @@ def getM2SSLContext(ctx=None, **kwargs):
   ciphers = kwargs.get('sslCiphers', DEFAULT_SSL_CIPHERS)
   ctx.set_cipher_list(ciphers)
   # log the debug messages
-  ctx.set_info_callback()
+  #ctx.set_info_callback()
   return ctx
 
 def getM2PeerInfo(conn):
