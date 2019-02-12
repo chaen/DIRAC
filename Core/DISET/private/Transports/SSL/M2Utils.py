@@ -134,7 +134,7 @@ def getM2SSLContext(ctx=None, **kwargs):
 def getM2PeerInfo(conn):
   """ Gets the details of the current peer as a standard dict. The peer
       details are obtained from the supplied M2 SSL Connection obj "conn".
-      The details returned are:
+      The details returned are those from ~X509Chain.getCredentials:
 
          DN - Full peer DN as string
          x509Chain - Full chain of peer
@@ -148,7 +148,8 @@ def getM2PeerInfo(conn):
   creds = chain.getCredentials()
   if not creds['OK']:
     raise RuntimeError("Failed to get SSL peer info (%s)." % creds['Message'])
-  peer = {}
+  peer = creds['Value']
+  
   peer['x509Chain'] = chain
   isProxy = chain.isProxy()
   if not isProxy['OK']:
@@ -164,4 +165,5 @@ def getM2PeerInfo(conn):
   if not isLimited['OK']:
     raise RuntimeError("Failed to get SSL peer isProxy (%s)." % isLimited['Message'])
   peer['isLimitedProxy'] = isLimited['Value']
+
   return peer
