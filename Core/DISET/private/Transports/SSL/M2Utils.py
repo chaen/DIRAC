@@ -16,6 +16,7 @@ DEFAULT_SSL_CIPHERS = "AES256-GCM-SHA384:AES256-SHA256:AES256-SHA:CAMELLIA256-SH
 # Verify depth of peer certs
 VERIFY_DEPTH = 50
 
+
 def __loadM2SSLCTXHostcert(ctx):
   """ Load hostcert & key from the default location and set them as the
       credentials for SSL context ctx.
@@ -32,6 +33,7 @@ def __loadM2SSLCTXHostcert(ctx):
   # Make sure we never stall on a password prompt if the hostkey has a password
   # by specifying a blank string.
   ctx.load_cert(hostcert, hostkey, callback=lambda: "")
+
 
 def __loadM2SSLCTXProxy(ctx, proxyPath=None):
   """ Load proxy from proxyPath (or default location if not specified) and
@@ -92,7 +94,6 @@ def getM2SSLContext(ctx=None, **kwargs):
       # Use normal proxy
       __loadM2SSLCTXProxy(ctx, proxyPath=kwargs.get('proxyLocation', None))
 
-
   # Set peer verification
   if kwargs.get('skipCACheck', False):
     # Don't validate peer, but still request creds
@@ -126,8 +127,9 @@ def getM2SSLContext(ctx=None, **kwargs):
   ciphers = kwargs.get('sslCiphers', DEFAULT_SSL_CIPHERS)
   ctx.set_cipher_list(ciphers)
   # log the debug messages
-  #ctx.set_info_callback()
+  # ctx.set_info_callback()
   return ctx
+
 
 def getM2PeerInfo(conn):
   """ Gets the details of the current peer as a standard dict. The peer
@@ -147,12 +149,17 @@ def getM2PeerInfo(conn):
   if not creds['OK']:
     raise RuntimeError("Failed to get SSL peer info (%s)." % creds['Message'])
   peer = {}
-  peer['DN'] = creds['Value']['identity']
   peer['x509Chain'] = chain
   isProxy = chain.isProxy()
   if not isProxy['OK']:
     raise RuntimeError("Failed to get SSL peer isProxy (%s)." % isProxy['Message'])
   peer['isProxy'] = isProxy['Value']
+
+  if peer['isProxy']:
+    peer['DN'] = creds['Value']['identity']
+  else:
+    peer['DN'] = creds['Value']['subject']
+
   isLimited = chain.isLimitedProxy()
   if not isLimited['OK']:
     raise RuntimeError("Failed to get SSL peer isProxy (%s)." % isLimited['Message'])
