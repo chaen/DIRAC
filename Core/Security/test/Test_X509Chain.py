@@ -40,7 +40,7 @@ from .x509TestUtilities import CERTS, CERTKEYS, CERTCONTENTS, deimportDIRAC, ENC
 
 
 ONE_YEAR_IN_SECS = 3600 * 24 * 365
-THIRTY_YEARS_IN_SEC = 30 * ONE_YEAR_IN_SECS
+TWENTY_YEARS_IN_SEC = 20 * ONE_YEAR_IN_SECS
 
 # Validity date wont go further than 2050, See RFC 5280 4.1.2.5 for more information.
 NO_LATER_THAN_2050_IN_SEC = int((datetime.strptime("2049-12-31", "%Y-%M-%d") - datetime.now()).total_seconds())
@@ -446,7 +446,7 @@ def test_proxyLifetime(get_proxy, lifetime):
 
 
 @settings(max_examples=200)
-@given(lifetime=integers(min_value=THIRTY_YEARS_IN_SEC, max_value=NO_LATER_THAN_2050_IN_SEC))
+@given(lifetime=integers(min_value=TWENTY_YEARS_IN_SEC, max_value=NO_LATER_THAN_2050_IN_SEC))
 def test_tooLong_proxyLifetime(get_proxy, lifetime):
   """" Generate a proxy with various lifetime, longer than the certificate length
         :param lifetime: lifetime of the proxy in seconds
@@ -526,7 +526,7 @@ def test_getIssuerCert(get_proxy):
   #                                               diracGroup=diracGroup,
   #                                               rfc = rfcIfPossible)
 @settings(max_examples=200)
-@given(diracGroup=text(ascii_letters + '-', min_size=1), lifetime=integers(min_value=1, max_value=THIRTY_YEARS_IN_SEC))
+@given(diracGroup=text(ascii_letters + '-', min_size=1), lifetime=integers(min_value=1, max_value=TWENTY_YEARS_IN_SEC))
 def test_delegation(get_X509Request, get_proxy, diracGroup, lifetime):
   """
       Test the delegation mechanism.
