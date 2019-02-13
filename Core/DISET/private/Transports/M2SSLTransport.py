@@ -156,6 +156,7 @@ class SSLTransport(BaseTransport):
     """ Renews the server context.
         This reloads the certificates and re-initialises the SSL context.
     """
+    print "CHRIS RENEWING CONTEXT"
     if not self.serverMode():
       raise RuntimeError("SSLTransport is in client mode.")
     self.__ctx = getM2SSLContext(self.__ctx, **self.__kwargs)
