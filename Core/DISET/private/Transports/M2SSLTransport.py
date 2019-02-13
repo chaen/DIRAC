@@ -113,6 +113,7 @@ class SSLTransport(BaseTransport):
 
         if self.oSocket is not None:
           self.oSocket.close()
+          self.oSocket.socket.close()
 
     return S_ERROR(error)
 
@@ -144,8 +145,10 @@ class SSLTransport(BaseTransport):
       # It only does it when the garbage collector kicks in
       # We have to manually close it here, otherwise the connections
       # will hang forever
-      self.oSocket.socket.close()
+      # self.oSocket.socket.close()
       self.oSocket.close()
+      self.oSocket.socket.close()
+      # del self.oSocket
       self.oSocket = None
     return S_OK()
 
