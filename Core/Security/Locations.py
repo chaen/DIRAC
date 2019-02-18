@@ -18,11 +18,10 @@ def getProxyLocation():
       proxyPath = os.path.realpath(os.environ[envVar])
       if os.path.isfile(proxyPath):
         return proxyPath
-  #/tmp/x509up_u<uid>
+  # /tmp/x509up_u<uid>
   proxyName = "x509up_u%d" % os.getuid()
   if os.path.isfile("/tmp/%s" % proxyName):
     return "/tmp/%s" % proxyName
-
 
   # No gridproxy found
   return False

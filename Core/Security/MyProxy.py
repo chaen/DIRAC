@@ -4,7 +4,6 @@
 __RCSID__ = "$Id$"
 
 import re
-import os
 from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.Utilities.Subprocess import shellCall
 from DIRAC.Core.Utilities import List

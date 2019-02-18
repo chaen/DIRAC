@@ -18,7 +18,6 @@
 __RCSID__ = "$id:"
 
 import sys
-import os
 import cStringIO
 
 import DIRAC

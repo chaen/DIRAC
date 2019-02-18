@@ -162,7 +162,6 @@ class Refresher(threading.Thread):
       oClient = RPCClient(sServer,
                           useCertificates=gConfigurationData.useServerCertificate(),
                           skipCACheck=gConfigurationData.skipCACheck())
-
       dRetVal = _updateFromRemoteLocation(oClient)
       if dRetVal['OK']:
         return dRetVal

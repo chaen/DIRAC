@@ -71,6 +71,10 @@ from pkgutil import extend_path
 __path__ = extend_path(__path__, __name__)
 
 # Set the environment variable such that openssl accepts proxy cert
+# Sadly, this trick was removed in openssl >= 1.1.0
+# https://github.com/openssl/openssl/commit/8e21938ce3a5306df753eb40a20fe30d17cf4a68
+# Lets see if they would accept to put it back
+# https://github.com/openssl/openssl/issues/8177
 os.environ['OPENSSL_ALLOW_PROXY_CERTS'] = "True"
 
 __RCSID__ = "$Id$"

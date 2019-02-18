@@ -17,9 +17,26 @@ else:
   from DIRAC.Core.DISET.private.Transports.GSISSLTransport import SSLTransport
 
 
-# This was lost when splitting gsi and M2crypto implementation
-def delegate(*args, **kwargs):
-  return S_ERROR("TO BE IMPLEMENTED CHRIS")
+def delegate(delegationRequest, kwargs):
+  """
+  Check delegate!
+  """
+  if kwargs.get("useCertificates"):
+    chain = X509Chain()
+    certTuple = Locations.getHostCertificateAndKeyLocation()
+    chain.loadChainFromFile(certTuple[0])
+    chain.loadKeyFromFile(certTuple[1])
+  elif "proxyObject" in kwargs:
+    chain = kwargs['proxyObject']
+  else:
+    if "proxyLocation" in kwargs:
+      procLoc = kwargs["proxyLocation"]
+    else:
+      procLoc = Locations.getProxyLocation()
+    chain = X509Chain()
+    chain.loadChainFromFile(procLoc)
+    chain.loadKeyFromFile(procLoc)
+  return chain.generateChainFromRequestString(delegationRequest)
 
 
 def checkSanity(urlTuple, kwargs):
@@ -87,7 +104,7 @@ def checkSanity(urlTuple, kwargs):
 
   idDict = {}
   retVal = certObj.getDIRACGroup(ignoreDefault=True)
-  if retVal['OK'] and retVal['Value'] != False:
+  if retVal['OK'] and retVal['Value'] is not False:
     idDict['group'] = retVal['Value']
   if useCerts:
     idDict['DN'] = certObj.getSubjectDN()['Value']

@@ -8,14 +8,13 @@ import random
 import types
 import hashlib
 import urllib
-import os
 
 from DIRAC import gConfig, gLogger, S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
 from DIRAC.Core.Base.DB import DB
 
-from DIRAC.Core.Security.X509Request import X509Request #pylint: disable=import-error
-from DIRAC.Core.Security.X509Chain import X509Chain, isPUSPdn #pylint: disable=import-error
+from DIRAC.Core.Security.X509Request import X509Request  # pylint: disable=import-error
+from DIRAC.Core.Security.X509Chain import X509Chain, isPUSPdn  # pylint: disable=import-error
 from DIRAC.Core.Security.MyProxy import MyProxy
 from DIRAC.Core.Security.VOMS import VOMS
 from DIRAC.Core.Security import Properties

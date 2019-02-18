@@ -126,8 +126,10 @@ def getM2SSLContext(ctx=None, **kwargs):
     # SSL_OP_NO_SSLv2, SSL_OP_NO_SSLv3, SSL_OP_NO_TLSv1
   ciphers = kwargs.get('sslCiphers', DEFAULT_SSL_CIPHERS)
   ctx.set_cipher_list(ciphers)
+
   # log the debug messages
-  ctx.set_info_callback()
+  #ctx.set_info_callback()
+  
   return ctx
 
 

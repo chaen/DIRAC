@@ -4,7 +4,6 @@
 ###########################################################from DIRAC.Core.Base import Script#############
 
 import sys
-import os
 import getpass
 import DIRAC
 from DIRAC.Core.Base import Script

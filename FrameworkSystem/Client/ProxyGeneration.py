@@ -4,7 +4,6 @@
 ########################################################################
 
 import sys
-import os
 import getpass
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Base import Script

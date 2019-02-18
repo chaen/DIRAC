@@ -2,7 +2,6 @@
  Set of utilities to retrieve Information from proxy
 """
 
-import os
 import base64
 
 from DIRAC import S_OK, S_ERROR

@@ -36,7 +36,7 @@ class SocketInfoFactory(object):
     for key in kwargs.keys():
       infoDict[key] = kwargs[key]
     try:
-      return S_OK( SocketInfo(infoDict))
+      return S_OK(SocketInfo(infoDict))
     except Exception as e:
       return S_ERROR("Error while creating SSL context: %s" % str(e))
 
