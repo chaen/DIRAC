@@ -14,6 +14,8 @@ from DIRAC.Core.Utilities.ReturnValues import S_OK, S_ERROR
 from DIRAC.Core.DISET.private.Transports.BaseTransport import BaseTransport
 from DIRAC.Core.DISET.private.Transports.SSL.M2Utils import getM2SSLContext, getM2PeerInfo
 
+
+
 # TODO: For now we have to set an environment variable for proxy support in OpenSSL
 # Eventually we may need to add API support for this to M2Crypto...
 os.environ['OPENSSL_ALLOW_PROXY_CERTS'] = '1'
@@ -114,6 +116,7 @@ class SSLTransport(BaseTransport):
         if self.oSocket is not None:
           self.oSocket.close()
           self.oSocket.socket.close()
+          self.oSocket = None
 
     return S_ERROR(error)
 
@@ -145,7 +148,6 @@ class SSLTransport(BaseTransport):
       # It only does it when the garbage collector kicks in
       # We have to manually close it here, otherwise the connections
       # will hang forever
-      # self.oSocket.socket.close()
       self.oSocket.close()
       self.oSocket.socket.close()
       # del self.oSocket
