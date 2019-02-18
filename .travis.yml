@@ -1,20 +1,26 @@
 language: python
-addons:
-  apt:
-    packages:
-    - swig
-    - libssl-dev
-    - libssl1.0.0
-    - python-setuptools
-    - python-twisted
+# addons:
+#   apt:
+#     packages:
+#     - swig
+#     - libssl-dev
+#     - libssl1.0.0
+#     - python-setuptools
+#     - python-twisted
 python:
   - "2.7"
 
 env:
   matrix:
+    # Runs the normal pytest on DIRAC except the Core/Security/ tests
     - CHECK=pytest
+    # Runs the normal pytest on DIRAC, using M2Crypto except the Core/Security/ tests
     - CHECK=pytest_M2Crypto
+    # Runs pytest against Core/Security/
     - CHECK=pytest_security
+    # Runs pytest against Core/Security/, with M2Crypto. 
+    # It should not be any different from pytest_security
+    # since we hardode tests for both pyGSI and M2Crypto
     - CHECK=pytest_M2Crypto_security
     - CHECK=docs
     - CHECK=pylint
@@ -51,10 +57,3 @@ after_success:
   - if [[ "${CHECK}" == "pytest"  ]];
     then coveralls -i;
     fi
-#
-#
-# jobs:
-#   include:
-#     - stage: "M2Crypto"
-#       name: "M2Crypto"
-#       script: DIRAC_USE_M2CRYPTO=Yes travis_wait 30  pytest;
