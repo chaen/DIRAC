@@ -1,15 +1,11 @@
+
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Inspired from https://gist.github.com/RichardBronosky/454964087739a449da04
 See http://www.python.org/dev/peps/pep-0008/ for more PEP-8 details
-
-
-
 This module's docstring summary line.
-
 This is a multi-line docstring. Paragraphs are separated with blank lines.
 Normally we should have a limit of a 79 according to pep8, but in DIRAC we allow 120. I am writting a very long line on purpose, but it will not be split
-
 """
 
 # I am writting a very long line on purpose, and contrary to the very long line in the docstring, this comment will be split
@@ -37,7 +33,6 @@ A_CONSTANT = 'ugh.'
 # This function uses 4 space indentation, in DIRAC we want two.
 def naming_convention():
     """Write docstrings for ALL public classes, funcs and methods.
-
        Functions use snake_case.
     """
     if x == 4:  # x is blue <== USEFUL 1-liner comment (2 spaces before #)
@@ -48,9 +43,7 @@ def naming_convention():
 
 class NamingConvention(object):
   """First line of a docstring is short and next to the quotes.
-
      Class and exception names are CapWords.
-
      Closing quotes are on their own line
      """
 
@@ -93,7 +86,6 @@ class NamingConvention(object):
   # 1 empty line between in-class def'ns
   def foo_method(self, x, y=None):
     """Method and function names are lower_case_with_underscores.
-
        Always use self as first arg.
     """
     pass
