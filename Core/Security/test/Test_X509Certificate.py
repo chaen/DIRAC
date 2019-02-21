@@ -48,6 +48,21 @@ def get_X509Certificate_class(request):
 
 
 @parametrize('cert_file', CERTS)
+def test_executeOnlyIfCertLoaded(cert_file, get_X509Certificate_class):
+  """" Tests whether the executeOnlyIfCertLoaded decorator works"""
+  x509Cert = get_X509Certificate_class()
+  # Since we did not load the certificate, we should get S_ERROR
+  res = x509Cert.getNotAfterDate()
+  from DIRAC.Core.Utilities.DErrno import ENOCERT
+  assert res['Errno'] == ENOCERT
+
+  # Now load it
+  x509Cert.load(cert_file)
+  res = x509Cert.getNotAfterDate()
+  assert res['OK']
+
+
+@parametrize('cert_file', CERTS)
 def test_load(cert_file, get_X509Certificate_class):
   """" Just load a certificate """
   x509Cert = get_X509Certificate_class()
@@ -85,11 +100,12 @@ def test_loadFromFile_non_existing_file(get_X509Certificate_class):
   assert res['Errno'] == EOF
 
 
+# pylint: disable=unused-argument
 @parametrize('cert_content_type', CERTCONTENTS)
-def test_loadFromString(cert_content_type, get_X509Certificate_class, indirect=('hostcertcontent', 'usercertcontent')):  # pylint: disable=unused-argument
+def test_loadFromString(cert_content_type, get_X509Certificate_class, indirect=('hostcertcontent', 'usercertcontent')):
   """" Just load a certificate from PEM string
       :param cert_content_type: either HOSTCERTCONTENT or USERCERTCONTENT
-
+      :param indirect: pytest trick, see https://docs.pytest.org/en/latest/example/parametrize.html#apply-indirect-on-particular-arguments
   """
   x509Cert = get_X509Certificate_class()
   res = x509Cert.loadFromString(CERTCONTENTS[cert_content_type])
@@ -325,7 +341,7 @@ def test_getExtensions_on_cert(cert_file, get_X509Certificate_class):
 
 ###########################################################################
 # Temporary. For the time being, we need a real proxy !
-def test_getVOMSData( get_X509Certificate_class):
+def test_getVOMSData(get_X509Certificate_class):
   """" Load a valid certificate and check the output is a positive integer"""
 
   x509Cert = get_X509Certificate_class()

@@ -277,7 +277,8 @@ class X509Chain(object):
       return S_ERROR(DErrno.ENOCHAIN)
     return S_OK(len(self.__certList))
 
-  def generateProxyToString(self, lifeTime, diracGroup=False, strength=1024, limited=False, proxyKey=False, rfc=True):  # pylint: disable=unused-argument
+
+  def generateProxyToString(self, lifetime, diracGroup=False, strength=1024, limited=False, proxyKey=False, rfc=True):  # pylint: disable=unused-argument
     """
     Generate a proxy and get it as a string
 
@@ -304,38 +305,12 @@ class X509Chain(object):
       proxyKey = M2Crypto.EVP.PKey()
       proxyKey.assign_rsa(M2Crypto.RSA.gen_key(strength, 65537, callback=M2Crypto.util.quiet_genparam_callback))
 
-    proxyCert = X509Certificate()
+    proxyExtensions = self.__getProxyExtensionList(diracGroup, limited)
+    res = X509Certificate.generateProxyCertFromIssuer(issuerCert, proxyExtensions, proxyKey, lifetime=lifetime)
+    if not res['OK']:
+      return res
+    proxyCert = res['Value']
 
-    proxyCert.setSerialNumber(int(random.random() * 10 ** 10))
-    # No easy way to deep-copy certificate subject
-    cloneSubject = M2Crypto.X509.X509_Name()
-    parts = issuerCert.getSubjectNameObject()['Value'].as_text().split(', ')
-    for part in parts:
-      nid, val = part.split('=', 1)
-      cloneSubject.add_entry_by_txt(field=nid, type=M2Crypto.ASN1.MBSTRING_ASC, entry=val, len=-1, loc=-1, set=0)
-    cloneSubject.add_entry_by_txt(field="CN", type=M2Crypto.ASN1.MBSTRING_ASC,
-                                  entry=str(int(random.random() * 10 ** 10)), len=-1, loc=-1, set=0)
-    proxyCert.setSubject(cloneSubject)
-    for extension in self.__getProxyExtensionList(diracGroup, limited):
-      proxyCert.addExtension(extension)
-
-    subject = issuerCert.getSubjectNameObject()
-    if subject['OK']:
-      proxyCert.setIssuer(subject['Value'])
-    else:
-      return subject
-    version = issuerCert.getVersion()
-    if version['OK']:
-      proxyCert.setVersion(version['Value'])
-    else:
-      return version
-    proxyCert.setPublicKey(proxyKey)
-    proxyNotBefore = M2Crypto.ASN1.ASN1_UTCTIME()
-    proxyNotBefore.set_time(int(time.time()) - 900)
-    proxyCert.setNotBefore(proxyNotBefore)
-    proxyNotAfter = M2Crypto.ASN1.ASN1_UTCTIME()
-    proxyNotAfter.set_time(int(time.time()) + lifeTime)
-    proxyCert.setNotAfter(proxyNotAfter)
     proxyCert.sign(self.__keyObj, 'sha256')
     proxyString = "%s%s" % (proxyCert.asPem(), proxyKey.as_pem(
         cipher=None, callback=M2Crypto.util.no_passphrase_callback))
@@ -343,6 +318,74 @@ class X509Chain(object):
       crt = self.__certList[i]
       proxyString += crt.asPem()
     return S_OK(proxyString)
+
+
+  # def old_generateProxyToString(self, lifeTime, diracGroup=False, strength=1024, limited=False, proxyKey=False, rfc=True):  # pylint: disable=unused-argument
+  #   """
+  #   Generate a proxy and get it as a string
+
+  #   Check here: https://github.com/eventbrite/m2crypto/blob/master/demo/x509/ca.py#L45
+
+  #   Args:
+  #       lifeTime (int): expected lifetime in seconds of proxy
+  #       diracGroup (str): diracGroup to add to the certificate
+  #       strength (int): length in bits of the pair
+  #       limited (bool): Create a limited proxy
+  #       rfc: placeholder and ignored
+
+  #   """
+  #   if not self.__loadedChain:
+  #     return S_ERROR(DErrno.ENOCHAIN)
+  #   if not self.__loadedPKey:
+  #     return S_ERROR(DErrno.ENOPKEY)
+
+  #   issuerCert = self.__certList[0]
+
+  #   if not proxyKey:
+  #     # Generating key is a two step process: create key object and then assign RSA key.
+  #     # This contains both the private and public key
+  #     proxyKey = M2Crypto.EVP.PKey()
+  #     proxyKey.assign_rsa(M2Crypto.RSA.gen_key(strength, 65537, callback=M2Crypto.util.quiet_genparam_callback))
+
+  #   proxyCert = X509Certificate.generateNewCertificate()
+
+  #   proxyCert.setSerialNumber(int(random.random() * 10 ** 10))
+  #   # No easy way to deep-copy certificate subject
+  #   cloneSubject = M2Crypto.X509.X509_Name()
+  #   parts = issuerCert.getSubjectNameObject()['Value'].as_text().split(', ')
+  #   for part in parts:
+  #     nid, val = part.split('=', 1)
+  #     cloneSubject.add_entry_by_txt(field=nid, type=M2Crypto.ASN1.MBSTRING_ASC, entry=val, len=-1, loc=-1, set=0)
+  #   cloneSubject.add_entry_by_txt(field="CN", type=M2Crypto.ASN1.MBSTRING_ASC,
+  #                                 entry=str(int(random.random() * 10 ** 10)), len=-1, loc=-1, set=0)
+  #   proxyCert.setSubject(cloneSubject)
+  #   for extension in self.__getProxyExtensionList(diracGroup, limited):
+  #     proxyCert.addExtension(extension)
+
+  #   subject = issuerCert.getSubjectNameObject()
+  #   if subject['OK']:
+  #     proxyCert.setIssuer(subject['Value'])
+  #   else:
+  #     return subject
+  #   version = issuerCert.getVersion()
+  #   if version['OK']:
+  #     proxyCert.setVersion(version['Value'])
+  #   else:
+  #     return version
+  #   proxyCert.setPublicKey(proxyKey)
+  #   proxyNotBefore = M2Crypto.ASN1.ASN1_UTCTIME()
+  #   proxyNotBefore.set_time(int(time.time()) - 900)
+  #   proxyCert.setNotBefore(proxyNotBefore)
+  #   proxyNotAfter = M2Crypto.ASN1.ASN1_UTCTIME()
+  #   proxyNotAfter.set_time(int(time.time()) + lifeTime)
+  #   proxyCert.setNotAfter(proxyNotAfter)
+  #   proxyCert.sign(self.__keyObj, 'sha256')
+  #   proxyString = "%s%s" % (proxyCert.asPem(), proxyKey.as_pem(
+  #       cipher=None, callback=M2Crypto.util.no_passphrase_callback))
+  #   for i in range(len(self.__certList)):
+  #     crt = self.__certList[i]
+  #     proxyString += crt.asPem()
+  #   return S_OK(proxyString)
 
   def generateProxyToFile(self, filePath, lifeTime, diracGroup=False, strength=1024, limited=False, rfc=True):  # pylint: disable=unused-argument
     """

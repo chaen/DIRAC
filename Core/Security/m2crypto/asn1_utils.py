@@ -94,6 +94,7 @@ def decodeVOMSExtension(m2cert):
       :param m2cert: M2Crypto X509 object, a certificate
 
       :returns: A dictionnary containing the following fields:
+
         * notBefore: datetime.datetime
         * notAfter: datetime.datetime
         * attribute: (string). Comma separated list of VOMS tags presented as bellow
@@ -120,8 +121,8 @@ def decodeVOMSExtension(m2cert):
 
   ######
   # TODO in principle, we should check the signature of the Attribute...
-  #_signatureAlgorith = vomsCertAttribute['signatureAlgorithm']
-  #_signatureValue = vomsCertAttribute['signatureValue']
+  # _signatureAlgorith = vomsCertAttribute['signatureAlgorithm']
+  # _signatureValue = vomsCertAttribute['signatureValue']
   ######
 
   certAttrInfo = vomsCertAttribute['acinfo']
