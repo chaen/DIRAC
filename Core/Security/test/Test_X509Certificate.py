@@ -185,48 +185,48 @@ def test_getIssuerDN(cert_file, get_X509Certificate_class):
   assert res['Value'] == getCertOption(cert_file, 'issuerDN')
 
 
-# TODO: this method seems not to be used anyway
-@parametrize('cert_file', CERTS)
-def test_getSubjectNameObject(cert_file, get_X509Certificate_class):
-  """" Load a valid certificate and check its subject object. """
-  x509Cert = get_X509Certificate_class()
-  x509Cert.load(cert_file)
+# # TODO: this method seems not to be used anyway
+# @parametrize('cert_file', CERTS)
+# def test_getSubjectNameObject(cert_file, get_X509Certificate_class):
+#   """" Load a valid certificate and check its subject object. """
+#   x509Cert = get_X509Certificate_class()
+#   x509Cert.load(cert_file)
 
-  res = x509Cert.getSubjectNameObject()
+#   res = x509Cert.getSubjectNameObject()
 
-  assert res['OK']
-  # We cannot compare the objects themselves because it is a different object...
-  expectedValue = getCertOption(cert_file, 'subjectDN')
-  try:
-    # This works in the case of pyGSI
-    returnedValue = res['Value'].one_line()
-  except AttributeError:
-    # This works in the case of M2Crypto
-    returnedValue = str(res['Value'])
+#   assert res['OK']
+#   # We cannot compare the objects themselves because it is a different object...
+#   expectedValue = getCertOption(cert_file, 'subjectDN')
+#   try:
+#     # This works in the case of pyGSI
+#     returnedValue = res['Value'].one_line()
+#   except AttributeError:
+#     # This works in the case of M2Crypto
+#     returnedValue = str(res['Value'])
 
-  assert returnedValue == expectedValue
+#   assert returnedValue == expectedValue
 
 
-# TODO: this method seems not to be used anyway
-@parametrize('cert_file', CERTS)
-def test_getIssuerNameObject(cert_file, get_X509Certificate_class):
-  """" Load a valid certificate and check its subject object. """
-  x509Cert = get_X509Certificate_class()
-  x509Cert.load(cert_file)
+# # TODO: this method seems not to be used anyway
+# @parametrize('cert_file', CERTS)
+# def test_getIssuerNameObject(cert_file, get_X509Certificate_class):
+#   """" Load a valid certificate and check its subject object. """
+#   x509Cert = get_X509Certificate_class()
+#   x509Cert.load(cert_file)
 
-  res = x509Cert.getIssuerNameObject()
+#   res = x509Cert.getIssuerNameObject()
 
-  assert res['OK']
-  # We cannot compare the objects themselves because it is a different object...
-  expectedValue = getCertOption(cert_file, 'issuerDN')
-  try:
-    # This works in the case of pyGSI
-    returnedValue = res['Value'].one_line()
-  except AttributeError:
-    # This works in the case of M2Crypto
-    returnedValue = str(res['Value'])
+#   assert res['OK']
+#   # We cannot compare the objects themselves because it is a different object...
+#   expectedValue = getCertOption(cert_file, 'issuerDN')
+#   try:
+#     # This works in the case of pyGSI
+#     returnedValue = res['Value'].one_line()
+#   except AttributeError:
+#     # This works in the case of M2Crypto
+#     returnedValue = str(res['Value'])
 
-  assert returnedValue == expectedValue
+#   assert returnedValue == expectedValue
 
 
 @mark.skip(reason="no way of currently testing this")

@@ -1,14 +1,14 @@
 """ X509Certificate is a class for managing X509 certificates
 
-    Proxy RFC: https://tools.ietf.org/html/rfc38200
-    X509RFC: https://tools.ietf.org/html/rfc5280
+Proxy RFC: https://tools.ietf.org/html/rfc38200
+
+X509RFC: https://tools.ietf.org/html/rfc5280
 
 """
 
 __RCSID__ = "$Id$"
 
 import datetime
-import functools
 import os
 import random
 import time
@@ -17,40 +17,32 @@ import M2Crypto
 
 
 from DIRAC import S_OK, S_ERROR
-from DIRAC.Core.Utilities import Time
 from DIRAC.Core.Utilities import DErrno
 from DIRAC.ConfigurationSystem.Client.Helpers import Registry
 from DIRAC.Core.Security.m2crypto import asn1_utils
+from DIRAC.Core.Utilities.Decorators import executeOnlyIf
 
 
-def executeOnlyIfCertLoaded(meth):
-  """ This decorator is a utility function just to avoid having to test in
-      every methods whether the certificate has been properly loaded.
-  """
+# Init the rand seed
+random.seed()
 
-  # This utilities allow to preserve the original help
-  # Of the method being decorated
-  @functools.wraps(meth)
-  def innerFunc(*args, **kwargs):
-    """ Test whether the certificate has been loaded.been
-        If not returns S_ERROR()
-    """
-    self = args[0]
-    if not self._certLoaded:  # pylint: disable=protected-access
-      return S_ERROR(DErrno.ENOCERT)
-    return meth(*args, **kwargs)
 
-  return innerFunc
+# Decorator to execute the method only of the certificate has been loaded
+executeOnlyIfCertLoaded = executeOnlyIf('_certLoaded', S_ERROR(DErrno.ENOCERT))
 
 
 class X509Certificate(object):
   """ The X509Certificate object represents ... a X509Certificate.
-      It is a wrapper around a lower level implementation (M2Crypto in this case) of a certificate.
-      It can be a host or user certificate.
 
-      Also, a proxy certificate is a X509Certificate, however it is useless without all the chain of issuers.
+      It is a wrapper around a lower level implementation (M2Crypto in this case) of a certificate.
+      In theory, tt can be a host or user certificate. Also, a proxy certificate is a X509Certificate, however it is useless without all the chain of issuers.
       That's why one has the X509Chain.
 
+      In practice, X509Certificate is just used for checking  if the host certificate has expired.
+      This class will most probably disappear once we get ride of pyGSI. After all, a X509Certificate
+      is nothing but a X509Chain of length 1.
+
+      Note that the SSL connection itself does not use this class, it gives directly the certificate to the library
     """
 
   def __init__(self, x509Obj=None, certString=None):
@@ -69,18 +61,8 @@ class X509Certificate(object):
     if x509Obj:
       self.__certObj = x509Obj
       self._certLoaded = True
-    # else:
-    #   self.__certObj = M2Crypto.X509.X509()
-    #   self._certLoaded = True
-    if certString:
+    elif certString:
       self.loadFromString(certString)
-
-  # def getCertObject(self):
-  #   """ Return the wrapped certificate
-
-  #       :returns: ~M2Crypto.X509.X509 object
-  #   """
-  #   return self.__certObj
 
   # Pylint is surprisingly picky here, so remove that warning
   # pylint: disable=protected-access
@@ -97,7 +79,7 @@ class X509Certificate(object):
         :param x509ExtensionStack: M2Crypto.X509.X509_Extension_Stack object to add to the new certificate.
                                    It contains all the X509 extensions needed for the proxy (e.g. DIRAC group).
                                    See ~X509Chain.__getProxyExtensionList
-        :param proxyKey: a M2Crypto.EVP.PKey instance with the RSA key already assigned, used to sign the certificate.
+        :param proxyKey: a M2Crypto.EVP.PKey instance with private and public key
         :param lifetime: duration of the proxy in second. Default 3600
 
 
@@ -241,20 +223,6 @@ class X509Certificate(object):
 
     return S_OK(notAfter)
 
-  # @executeOnlyIfCertLoaded
-  # def setNotAfter(self, notAfter):
-  #   """
-  #     Set not after date of a certificate. This method is not meant to be used, but to generate a proxy.
-
-  #     :param notAfter: M2Crypto.ASN1.ASN1_UTCTIME object.
-
-  #     :returns: S_OK/S_ERROR
-  #   """
-
-  #   self.__certObj.set_not_after(notAfter)
-
-  #   return S_OK()
-
   @executeOnlyIfCertLoaded
   def getNotBeforeDate(self):
     """
@@ -302,54 +270,28 @@ class X509Certificate(object):
     """
     return S_OK(self.__certObj.get_subject())
 
-  @executeOnlyIfCertLoaded
-  def getIssuerNameObject(self):
-    """
-      Get issuer name object
-
-      :returns: S_OK( X509Name )/S_ERROR
-    """
-    return S_OK(self.__certObj.get_issuer())
+  # The following method is in pyGSI,
+  # but are only used by the pyGSI SSL implementation
+  # So I do not really need them
 
   # @executeOnlyIfCertLoaded
-  # def setIssuer(self, nameObject):
+  # def getIssuerNameObject(self):
   #   """
-  #     Set issuer name object
+  #     Get issuer name object
 
-  #     :returns: S_OK/S_ERROR
+  #     :returns: S_OK( X509Name )/S_ERROR
   #   """
-  #   self.__certObj.set_issuer(nameObject)
-  #   return S_OK()
+  #   return S_OK(self.__certObj.get_issuer())
 
   @executeOnlyIfCertLoaded
   def getPublicKey(self):
     """
       Get the public key of the certificate
+
+      :returns: S_OK(M2crypto.EVP.PKey)
+
     """
     return S_OK(self.__certObj.get_pubkey())
-
-  # @executeOnlyIfCertLoaded
-  # def setPublicKey(self, pubkey):
-  #   """
-  #    Set the public key of the certificate
-  #   """
-  #   self.__certObj.set_pubkey(pubkey)
-  #   return S_OK()
-
-  # @executeOnlyIfCertLoaded
-  # def getVersion(self):
-  #   """
-  #     Get the version of the certificate
-  #   """
-  #   return S_OK(self.__certObj.get_version())
-
-  # @executeOnlyIfCertLoaded
-  # def setVersion(self, version):
-  #   """
-  #    Set the version of the certificate
-  #   """
-  #   self.__certObj.set_version(version)
-  #   return S_OK()
 
   @executeOnlyIfCertLoaded
   def getSerialNumber(self):
@@ -360,42 +302,47 @@ class X509Certificate(object):
     """
     return S_OK(self.__certObj.get_serial_number())
 
-  # @executeOnlyIfCertLoaded
-  # def setSerialNumber(self, serial):
-  #   """
-  #     Set certificate serial number
-
-  #     :returns: S_OK/S_ERROR
-  #   """
-  #   self.__certObj.set_serial_number(serial)
-  #   return S_OK()
-
   @executeOnlyIfCertLoaded
   def sign(self, key, algo):
     """
       Sign the cerificate using provided key and algorithm.
+
+      :param key: M2crypto.EVP.PKey object with private and public key
+      :param algo: algorithm to sign the certificate
+
+      :returns: S_OK/S_ERROR
     """
-    self.__certObj.sign(key, algo)
+    try:
+      self.__certObj.sign(key, algo)
+    except BaseException as e:
+      return S_ERROR(repr(e))
+
     return S_OK()
 
   @executeOnlyIfCertLoaded
   def getDIRACGroup(self, ignoreDefault=False):
     """
       Get the dirac group if present
+
+      If no group is found in the certificate, we query the CS to get the default group
+      for the given user. This can be disabled using the ignoreDefault parameter
+
+      Note that the lookup in the CS only can work for a proxy of first generation,
+      since we search based on the issuer DN
+
+      :param ignoreDefault: if True, do not lookup the CS
+
+      :returns: S_OK(group name/bool)
     """
     try:
       return S_OK(asn1_utils.decodeDIRACGroup(self.__certObj))
     except LookupError:
       pass
 
-    # extCount = self.__certObj.get_ext_count()
-    # for extIdx in xrange(extCount):
-    #
-    #   ext = self.__certObj.get_ext_at(extIdx)
-    #   if ext.get_name() == "diracGroup":
-    #     return S_OK(ext.get_value())
     if ignoreDefault:
       return S_OK(False)
+
+    # And here is the flaw :)
     result = self.getIssuerDN()
     if not result['OK']:
       return result
@@ -405,6 +352,8 @@ class X509Certificate(object):
   def hasVOMSExtensions(self):
     """
       Has voms extensions
+
+      :returns: S_OK(bool) if voms extensions are found
     """
     try:
       self.__certObj.get_ext('vomsExtensions')
@@ -414,57 +363,70 @@ class X509Certificate(object):
       pass
     return S_OK(False)
 
+  @executeOnlyIfCertLoaded
   def getVOMSData(self):
     """
-      Get voms extensions
+      Get voms extensions data
+
+      :returns: S_ERROR/S_OK(dict). For the content of the dict, see :py:func:`~DIRAC.Core.Security.m2crypto.asn1_utils.decodeVOMSExtension`
     """
     try:
       vomsExt = asn1_utils.decodeVOMSExtension(self.__certObj)
       return S_OK(vomsExt)
     except LookupError:
       return S_ERROR(DErrno.EVOMS, "No VOMS data available")
-    #
-    # decoder = asn1.Decoder()
-    # decoder.start(self.__certObj.as_der())
-    # data = parseForVOMS(decoder)
-    # if data:
-    #   return S_OK(data)
-    # else:
-    #   return S_ERROR(DErrno.EVOMS, "No VOMS data available")
 
   @executeOnlyIfCertLoaded
   def generateProxyRequest(self, bitStrength=1024, limited=False):
     """
-      Generate a proxy request
-      Return S_OK( X509Request ) / S_ERROR
+      Generate a proxy request. See :py:class:`DIRAC.Core.Security.m2crypto.X509Request.X509Request`
+
+      In principle, there is no reason to have this here, since a the X509Request is independant of
+      the  509Certificate  when generating it. The only reason is to check whether the current Certificate
+      is limited or not.
+
+      :param bitStrength: strength of the key
+      :param limited: if True or if the current certificate is limited (see proxy RFC), creates a request for a limited proxy
+
+      :returns: S_OK( :py:class:`DIRAC.Core.Security.m2crypto.X509Request.X509Request` ) / S_ERROR
     """
 
     if not limited:
+      # We check whether "limited proxy" is in the subject
       subj = self.__certObj.get_subject()
+      # M2Crypto does not understand the [:-1] syntax...
       lastEntry = subj[len(subj) - 1]
       if lastEntry.get_data() == "limited proxy":
         limited = True
 
+    # The import is done here to avoid circular import
+    # X509Certificate -> X509Request -> X509Chain -> X509Certificate
     from DIRAC.Core.Security.m2crypto.X509Request import X509Request
 
     req = X509Request()
     req.generateProxyRequest(bitStrength=bitStrength, limited=limited)
+
     return S_OK(req)
 
   @executeOnlyIfCertLoaded
   def getRemainingSecs(self):
     """
       Get remaining lifetime in secs
+
+      :returns: S_OK(remaining seconds)
     """
-    notAfter = self.__certObj.get_not_after().get_datetime()
-    notAfter = notAfter.replace(tzinfo=Time.dateTime().tzinfo)
-    remaining = notAfter - Time.dateTime()
-    return S_OK(max(0, remaining.days * 86400 + remaining.seconds))
+    notAfter = self.getNotAfterDate()['Value']
+    now = datetime.datetime.utcnow()
+    remainingSeconds = max(0, int((notAfter - now).total_seconds()))
+
+    return S_OK(remainingSeconds)
 
   @executeOnlyIfCertLoaded
   def getExtensions(self):
     """
       Get a decoded list of extensions
+
+      :returns: S_OK( list of tuple (extensionName, extensionValue))
     """
     extList = []
     for i in xrange(self.__certObj.get_ext_count()):
@@ -474,37 +436,27 @@ class X509Certificate(object):
       except BaseException:
         value = "Cannot decode value"
       extList.append((sn, value))
+
     return S_OK(sorted(extList))
 
   @executeOnlyIfCertLoaded
   def verify(self, pkey):
     """
-      Verify certificate using provided key
+      Verify the signature of the certificate using the public key provided
+
+      :param pkey: ~M2Crypto.EVP.PKey object
 
       :returns: S_OK(bool) where the boolean shows the success of the verification
     """
     ret = self.__certObj.verify(pkey)
     return S_OK(ret == 1)
 
-  # @executeOnlyIfCertLoaded
-  # def setSubject(self, subject):
-  #   """
-  #     Set subject using provided X509Name object
-  #   """
-  #   self.__certObj.set_subject(subject)
-  #   return S_OK()
-
-  # def get_subject(self):
-  #   """
-  #     Deprecated way of getting subject DN. Only for backward compatibility reasons.
-  #   """
-  #   # XXX This function should be deleted when all code depending on it is updated.
-  #   return self.getSubjectDN()['Value']  # XXX FIXME awful awful hack
-
   @executeOnlyIfCertLoaded
   def asPem(self):
     """
-      Return cerificate as PEM string
+      Return certificate as PEM string
+
+      :returns: pem string
     """
     return self.__certObj.as_pem()
 
@@ -512,6 +464,10 @@ class X509Certificate(object):
   def getExtension(self, name):
     """
       Return X509 Extension with given name
+
+      :param name: name of the extension
+
+      :returns: S_OK with M2Crypto.X509.X509_Extension object, or S_ERROR
     """
     try:
       ext = self.__certObj.get_ext(name)
@@ -519,10 +475,3 @@ class X509Certificate(object):
       return S_ERROR(e)
     return S_OK(ext)
 
-  # @executeOnlyIfCertLoaded
-  # def addExtension(self, extension):
-  #   """
-  #     Add extension to the certificate
-  #   """
-  #   self.__certObj.add_ext(extension)
-  #   return S_OK()
