@@ -264,10 +264,13 @@ def getCertOption(cert, optionName):
 
 
 def deimportDIRAC():
-  """ clean all what has already been imported from DIRAC
-  """
+  """ clean all what has already been imported from DIRAC.
 
+      This method is extremely fragile, but hopefuly, we can get ride of all these
+      messy tests soon, when PyGSI has gone.
+  """
   for mod in list(sys.modules):
+    # You should be careful with what you remove....
     if (mod == 'DIRAC' or mod.startswith('DIRAC.')) and not mod.startswith('DIRAC.Core.Security.test'):
       sys.modules.pop(mod)
 

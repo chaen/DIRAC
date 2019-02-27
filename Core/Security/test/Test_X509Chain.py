@@ -39,6 +39,7 @@ from .x509TestUtilities import CERTS, CERTKEYS, CERTCONTENTS, deimportDIRAC, ENC
     X509CHAINTYPES, get_X509Request, get_X509Chain_from_X509Request
 
 
+
 ONE_YEAR_IN_SECS = 3600 * 24 * 365
 TWENTY_YEARS_IN_SEC = 20 * ONE_YEAR_IN_SECS
 
@@ -52,8 +53,13 @@ def get_proxy(request):
       It also 'de-import' DIRAC before and after
   """
   # Clean before
-  deimportDIRAC()
 
+  # Oh what a dirty hack....
+  # When you do the delegation, you call both Request and Proxy generation fixtures.
+  # So if you do the cleaning twice, you end up in a terrible mess.
+  # So, do not do the cleaning if you are in the test_delegation method
+  if request.function.func_name != 'test_delegation':
+    deimportDIRAC()
   x509Class = request.param
 
   if x509Class == 'GSI_X509Chain':
@@ -88,7 +94,6 @@ def get_proxy(request):
 
   # Clean after
   deimportDIRAC()
-
 
 @parametrize('cert_file', CERTS)
 def test_loadChainFromFile(cert_file, get_X509Chain_class):
@@ -531,6 +536,7 @@ def test_delegation(get_X509Request, get_proxy, diracGroup, lifetime):
   """
       Test the delegation mechanism.
       Generate a proxy request (pyGSI or M2Crypto) and generate the proxy from there (PyGSI or M2Crypto)
+      NOTE: DO NOT CHANGE THE NAME OF THIS TEST FUNCTION ! See get_proxy code for details
 
       :param diracGroup: group of the initial proxy
       :param lifetime: requested lifetime of the delegated proxy
@@ -538,7 +544,6 @@ def test_delegation(get_X509Request, get_proxy, diracGroup, lifetime):
 
   # The server side generates a request
   # Equivalent to ProxyManager.requestDelegationUpload
-
   x509Req = get_X509Request()
   x509Req.generateProxyRequest()
   reqStr = x509Req.dumpRequest()['Value']
@@ -557,6 +562,7 @@ def test_delegation(get_X509Request, get_proxy, diracGroup, lifetime):
 
   # This is sent back to the server
   delegatedProxyString = res['Value']
+
 
   ######################################################
   # Equivalent to ProxyManager.completeDelegationUpload
