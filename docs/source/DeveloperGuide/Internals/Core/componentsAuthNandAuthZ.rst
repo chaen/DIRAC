@@ -78,11 +78,12 @@ First AuthManager try to get it from gConfig, then try to get it from hardcoded 
 AuthManager also extract properties from user with credential dictionary and configuration system to check if properties matches. So you don't have to extract properties by yourself, but if needed you can use :py:class:`DIRAC.Core.Security.CS.getPropertiesForGroup()`
 
 
+.. _about_proxies:
+
 =============
 About proxies
 =============
 
-.. _about_proxies
 
 DIRAC uses X509 for authentication. Proxies are an extension to the traditional X509 certificate PKI infrastructure. For a detailed explanation, please see the RFC 3820.
 

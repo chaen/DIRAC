@@ -833,6 +833,7 @@ class X509Chain(object):
     """
     Dump the current chain as a PEM encoded string
     The order would be:
+
       * first certificate
       * private key (without passphrase)
       * other certificates
