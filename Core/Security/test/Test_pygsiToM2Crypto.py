@@ -19,7 +19,7 @@ def deimportModule(modName):
     if mod == modName or mod.startswith('%s.' % modName):
       sys.modules.pop(mod)
 
-  # from DIRAC.Core.Security.m2crypto.X509Chain import X509Chain, isPUSPdn, g_X509ChainType
+  # from DIRAC.Core.Security.m2crypto.X509Chain import X509Chain, isPUSPdn
   # from DIRAC.Core.Security.m2crypto.X509CRL import X509CRL
   # from DIRAC.Core.Security.m2crypto.X509Request import X509Request
   #

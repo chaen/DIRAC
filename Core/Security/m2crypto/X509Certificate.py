@@ -35,7 +35,8 @@ class X509Certificate(object):
   """ The X509Certificate object represents ... a X509Certificate.
 
       It is a wrapper around a lower level implementation (M2Crypto in this case) of a certificate.
-      In theory, tt can be a host or user certificate. Also, a proxy certificate is a X509Certificate, however it is useless without all the chain of issuers.
+      In theory, tt can be a host or user certificate. Also, a proxy certificate is a X509Certificate,
+      however it is useless without all the chain of issuers.
       That's why one has the X509Chain.
 
       In practice, X509Certificate is just used for checking  if the host certificate has expired.
@@ -368,7 +369,8 @@ class X509Certificate(object):
     """
       Get voms extensions data
 
-      :returns: S_ERROR/S_OK(dict). For the content of the dict, see :py:func:`~DIRAC.Core.Security.m2crypto.asn1_utils.decodeVOMSExtension`
+      :returns: S_ERROR/S_OK(dict). For the content of the dict,
+            see :py:func:`~DIRAC.Core.Security.m2crypto.asn1_utils.decodeVOMSExtension`
     """
     try:
       vomsExt = asn1_utils.decodeVOMSExtension(self.__certObj)
@@ -386,11 +388,11 @@ class X509Certificate(object):
       is limited or not.
 
       :param bitStrength: strength of the key
-      :param limited: if True or if the current certificate is limited (see proxy RFC), creates a request for a limited proxy
+      :param limited: if True or if the current certificate is limited (see proxy RFC),
+                      creates a request for a limited proxy
 
       :returns: S_OK( :py:class:`DIRAC.Core.Security.m2crypto.X509Request.X509Request` ) / S_ERROR
     """
-
     if not limited:
       # We check whether "limited proxy" is in the subject
       subj = self.__certObj.get_subject()
@@ -474,4 +476,3 @@ class X509Certificate(object):
     except LookupError as e:
       return S_ERROR(e)
     return S_OK(ext)
-

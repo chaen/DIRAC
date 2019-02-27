@@ -122,6 +122,8 @@ def executeOnlyIf(attrName, returnedError, attrVal=None):
 
       This decorator will do the test for you.
 
+      Pitty, but it breaks the doc, as functools.wrap does not propagate the default attribute discovery
+
       :param attrName: the name of the attribute to test. If undefined, equivalent to its value being None
       :param returnedError: what to return if the attribute value is not what we expect
       :param attrVal: if set to anything else than None, we check that the attribute value is what is give.

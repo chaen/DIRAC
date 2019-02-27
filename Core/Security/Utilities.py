@@ -58,10 +58,11 @@ def generateCAFile(location=None):
       with open(fn, "w") as fd:
         for caFile in os.listdir(caDir):
           caFile = os.path.join(caDir, caFile)
-          result = X509Chain.X509Chain.instanceFromFile(caFile)
+          chain = X509Chain.X509Chain()
+          result = chain.loadChainFromFile(caFile)
           if not result['OK']:
             continue
-          chain = result['Value']
+
           expired = chain.hasExpired()
           if not expired['OK'] or expired['Value']:
             continue

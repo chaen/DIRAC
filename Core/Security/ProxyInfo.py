@@ -6,7 +6,7 @@ import base64
 
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
-from DIRAC.Core.Security.X509Chain import X509Chain, g_X509ChainType #pylint: disable=import-error
+from DIRAC.Core.Security.X509Chain import X509Chain  #pylint: disable=import-error
 from DIRAC.Core.Security.VOMS import VOMS
 from DIRAC.Core.Security import Locations
 
@@ -40,7 +40,7 @@ def getProxyInfo(proxy=False, disableVOMS=False):
   """
   # Discover proxy location
   proxyLocation = False
-  if type(proxy) == g_X509ChainType:
+  if isinstance(proxy, X509Chain):
     chain = proxy
   else:
     if not proxy:
