@@ -7,14 +7,11 @@ __RCSID__ = "$Id$"
 
 import os
 import socket
-import threading
 from M2Crypto import SSL, threading as M2Threading
 
 from DIRAC.Core.Utilities.ReturnValues import S_OK, S_ERROR
 from DIRAC.Core.DISET.private.Transports.BaseTransport import BaseTransport
 from DIRAC.Core.DISET.private.Transports.SSL.M2Utils import getM2SSLContext, getM2PeerInfo
-
-
 
 # TODO: For now we have to set an environment variable for proxy support in OpenSSL
 # Eventually we may need to add API support for this to M2Crypto...
@@ -61,18 +58,6 @@ class SSLTransport(BaseTransport):
 
     self.__kwargs = kwargs
     BaseTransport.__init__(self, *args, **kwargs)
-
-
-  # @property
-  # def oSocket(self):
-  #   return self.__tLocal.oSocket
-  #
-  # @oSocket.setter
-  # def oSocket(self, socketObj):
-  #   self.__tLocal.oSocket = socketObj
-
-
-
 
   def setSocketTimeout(self, timeout):
     """ Set the timeout for socket operations.
@@ -175,6 +160,9 @@ class SSLTransport(BaseTransport):
         to the value of oSocket.
         This method is intended to be used to create client connection objects
         from a server and should be considered to be an internal function.
+
+        :param oSocket: client socket SSL.Connection object
+
     """
     self.oSocket = oSocket
     self.remoteAddress = self.oSocket.getpeername()
@@ -183,15 +171,22 @@ class SSLTransport(BaseTransport):
   def acceptConnection(self):
     """ Accept a new client, returns a new SSLTransport object representing
         the client connection.
+
+        :returns: S_OK(SSLTransport object)
     """
     oClient, _ = self.oSocket.accept()
-    oClientTrans = SSLTransport(self.stServerAddress, ctx = self.__ctx)
+    oClientTrans = SSLTransport(self.stServerAddress, ctx=self.__ctx)
     oClientTrans.setClientSocket(oClient)
     return S_OK(oClientTrans)
 
   def _read(self, bufSize=4096, skipReadyCheck=False):
     """ Read bufSize bytes from the buffer.
-        skipReadyCheck is ignored.
+
+        :param bufSize: size of the buffer to read
+        :param skipReadyCheck: ignored.
+
+
+        :returns: S_OK(number of byte read)
     """
     read = self.oSocket.read(bufSize)
     return S_OK(read)
@@ -199,12 +194,18 @@ class SSLTransport(BaseTransport):
   def isLocked(self):
     """ Returns if this instance is locked.
         Always returns false.
+
+        :returns: False
     """
     return self.__locked
 
   def _write(self, buf):
     """ Write all bytes contained within iterable "buf" to the
         connected peer.
+
+        :param buf: iterable buffer
+
+        :returns: S_OK(number of bytes written)
     """
     wrote = self.oSocket.write(buf)
     return S_OK(wrote)
