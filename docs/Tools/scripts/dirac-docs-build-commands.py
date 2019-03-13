@@ -144,7 +144,8 @@ def createUserGuideFoldersAndIndices():
 Commands Reference
 ==================
 
-.. this page is created in docs/Tools/buildScriptsDocs.py
+.. this page is created in docs/Tools/dirac-docs-build-commands.py
+
 
 This page is the work in progress. See more material here soon !
 
@@ -235,7 +236,8 @@ def createSectionIndex(mT, sectionPath):
   sectionIndexRST = systemHeader + """
 In this subsection the %s commands are collected
 
-.. this page is created in docs/Tools/buildScriptsDocs.py
+.. this page is created in docs/Tools/dirac-docs-build-commands.py
+
 
 .. toctree::
    :maxdepth: 2
