@@ -8,7 +8,7 @@ import shutil
 from DIRAC import gLogger, gConfig
 from DIRAC import S_OK, S_ERROR
 
-class jsonOccupancy(object):
+class WLCGjsonOccupancy(object):
   def __init__(self, se):
     self.se = se
     self.log = se.log.getSubLogger('jsonOccupancy')
