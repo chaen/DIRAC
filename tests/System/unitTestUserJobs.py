@@ -3,6 +3,10 @@
 
 # pylint: disable=wrong-import-position, invalid-name
 
+from __future__ import print_function, absolute_import, unicode_literals
+
+__RCSID__ = "$Id$"
+
 import unittest
 import time
 
@@ -18,7 +22,7 @@ from DIRAC.Core.Security.ProxyInfo import getProxyInfo
 time.sleep(3)  # in theory this should not be needed, but I don't know why, without, it fails.
 result = getProxyInfo()
 if result['Value']['group'] not in ['dteam_user', 'dirac_user']:
-  print "GET A USER GROUP"
+  print("GET A USER GROUP")
   exit(1)
 
 
@@ -59,7 +63,7 @@ class submitSuccess(GridSubmissionTestCase):
     self.assertTrue(res['OK'])
     jobsSubmittedList.append(res['Value'])
 
-    print "submitted %d jobs: %s" % (len(jobsSubmittedList), ','.join(str(js) for js in jobsSubmittedList))
+    print("submitted %d jobs: %s" % (len(jobsSubmittedList), ','.join(str(js) for js in jobsSubmittedList)))
 
 
 # FIXME: This is also in the extension...? To try!

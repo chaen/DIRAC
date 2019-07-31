@@ -14,6 +14,7 @@
     getAllJobParameters()
     getInputData()
     getJobJDL()
+    getJobStatus()
 
     selectJobs()
     selectJobsWithStatus()
@@ -39,6 +40,10 @@
 
     getCounters()
 """
+
+from __future__ import print_function, absolute_import, unicode_literals, division
+from builtins import str, int
+from six.moves import range
 
 __RCSID__ = "$Id$"
 
@@ -277,7 +282,7 @@ class JobDB(DB):
         If parameterList is empty - all the parameters are returned.
     """
 
-    if isinstance(jobID, (basestring, int, long)):
+    if isinstance(jobID, (str, int)):
       jobID = [jobID]
 
     jobIDList = []
@@ -291,7 +296,7 @@ class JobDB(DB):
 
     resultDict = {}
     if paramList:
-      if isinstance(paramList, basestring):
+      if isinstance(paramList, str):
         paramList = paramList.split(',')
       paramNameList = []
       for pn in paramList:
@@ -417,12 +422,58 @@ class JobDB(DB):
     """ Get the given attribute of a job specified by its jobID
     """
 
+    if attribute in ['Status', 'MinorStatus', 'ApplicationStatus']:
+      res = self.getJobStatus(jobID)
+      if not res['OK']:
+        return res
+      return S_OK(res['Value'][attribute])
+
     result = self.getJobAttributes(jobID, [attribute])
     if result['OK']:
       value = result['Value'][attribute]
       return S_OK(value)
 
     return result
+
+#############################################################################
+  def getJobStatus(self, jobID):
+    """ Get all Job Status values for a given jobID.
+
+    :param self: self reference
+    :param int jobID: Job ID
+
+    :return: dict with all Job Status values/empty dict if matching job not found
+    """
+
+    jobStatusNames = ['Status', 'MinorStatus', 'ApplicationStatus']
+
+    self.log.debug('JobDB.getAllJobStatusValues: Getting Status values for job = %s.' % jobID)
+
+    res = self.getFields('JobsStatus', jobStatusNames, {'JobID': jobID})
+
+    if not res['OK']:
+      return res
+
+    # It will end up here in case the status is not stored in the "new" JobStatus table
+    # (introduced with DIRAC v7r0)
+    if not res['Value']:
+
+      res = self.getFields('Jobs', jobStatusNames, {'JobID': jobID})
+
+      if not res['OK']:
+        return res
+
+      if not res['Value']:
+        return S_OK({})
+
+    values = res['Value'][0]
+
+    statusValues = {}
+
+    for status in enumerate(jobStatusNames):
+      statusValues[status[1]] = str(values[status[0]])   # status[1]: Status Name, status[0]: numeric index
+
+    return S_OK(statusValues)
 
 #############################################################################
   def getJobParameter(self, jobID, parameter):
@@ -543,8 +594,7 @@ class JobDB(DB):
     """
 
     optString = ','.join(optimizerList)
-    result = self.setJobOptParameter(jobID, 'OptimizerChain', optString)
-    return result
+    return self.setJobOptParameter(jobID, 'OptimizerChain', optString)
 
 #############################################################################
   def setNextOptimizer(self, jobID, currentOptimizer):
@@ -611,7 +661,7 @@ class JobDB(DB):
         :param bool update: optional flag to update the job LastUpdateTime stamp
         :param str myDate: optional time stamp for the LastUpdateTime attribute
 
-        :return : S_OK/S_ERROR
+        :return: S_OK/S_ERROR
     """
 
     if attrName not in self.jobAttributeNames:
@@ -652,7 +702,7 @@ class JobDB(DB):
         :param bool update: optional flag to update the job LastUpdateTime stamp
         :param str myDate: optional time stamp for the LastUpdateTime attribute
 
-        :return : S_OK/S_ERROR
+        :return: S_OK/S_ERROR
     """
 
     jobIDList = jobID
@@ -689,39 +739,32 @@ class JobDB(DB):
     if myDate:
       cmd += ' AND LastUpdateTime < %s' % myDate
 
-    result = self._transaction([cmd])
-    return result
+    return self._transaction([cmd])
 
 #############################################################################
-  def setJobStatus(self, jobID, status='', minor='', application='', appCounter=None):
+  def setJobStatus(self, jobID, status='', minor='', application=''):
     """ Set status of the job specified by its jobID
     """
 
-    # Do not update the LastUpdate time stamp if setting the Stalled status
-    update_flag = True
-    if status == "Stalled":
-      update_flag = False
+    ret = self._escapeString(status)
+    if not ret['OK']:
+      return ret
+    status = ret['Value']
 
-    attrNames = []
-    attrValues = []
-    if status:
-      attrNames.append('Status')
-      attrValues.append(status)
-    if minor:
-      attrNames.append('MinorStatus')
-      attrValues.append(minor)
-    if application:
-      attrNames.append('ApplicationStatus')
-      attrValues.append(application[:255])
-    if appCounter:
-      attrNames.append('ApplicationNumStatus')
-      attrValues.append(appCounter)
+    ret = self._escapeString(minor)
+    if not ret['OK']:
+      return ret
+    minor = ret['Value']
 
-    result = self.setJobAttributes(jobID, attrNames, attrValues, update=update_flag)
-    if not result['OK']:
-      return result
+    ret = self._escapeString(application)
+    if not ret['OK']:
+      return ret
+    application = ret['Value']
 
-    return S_OK()
+    cmd = 'REPLACE JobsStatus (JobID,Status,MinorStatus,ApplicationStatus) VALUES (%d,%s,%s,%s)' % (
+        int(jobID), status, minor, application)
+
+    return self._update(cmd)
 
 #############################################################################
   def setEndExecTime(self, jobID, endDate=None):
@@ -741,8 +784,7 @@ class JobDB(DB):
       req = "UPDATE Jobs SET EndExecTime=%s WHERE JobID=%s AND EndExecTime IS NULL" % (endDate, jobID)
     else:
       req = "UPDATE Jobs SET EndExecTime=UTC_TIMESTAMP() WHERE JobID=%s AND EndExecTime IS NULL" % jobID
-    result = self._update(req)
-    return result
+    return self._update(req)
 
 #############################################################################
   def setStartExecTime(self, jobID, startDate=None):
@@ -762,8 +804,7 @@ class JobDB(DB):
       req = "UPDATE Jobs SET StartExecTime=%s WHERE JobID=%s AND StartExecTime IS NULL" % (startDate, jobID)
     else:
       req = "UPDATE Jobs SET StartExecTime=UTC_TIMESTAMP() WHERE JobID=%s AND StartExecTime IS NULL" % jobID
-    result = self._update(req)
-    return result
+    return self._update(req)
 
 #############################################################################
   def setJobParameter(self, jobID, key, value):
@@ -780,11 +821,7 @@ class JobDB(DB):
     e_value = ret['Value']
 
     cmd = 'REPLACE JobParameters (JobID,Name,Value) VALUES (%d,%s,%s)' % (int(jobID), e_key, e_value)
-    result = self._update(cmd)
-    if not result['OK']:
-      result = S_ERROR('JobDB.setJobParameter: operation failed.')
-
-    return result
+    return self._update(cmd)
 
 #############################################################################
   def setJobParameters(self, jobID, parameters):
@@ -807,11 +844,7 @@ class JobDB(DB):
       insertValueList.append('(%s,%s,%s)' % (jobID, e_name, e_value))
 
     cmd = 'REPLACE JobParameters (JobID,Name,Value) VALUES %s' % ', '.join(insertValueList)
-    result = self._update(cmd)
-    if not result['OK']:
-      return S_ERROR('JobDB.setJobParameters: operation failed.')
-
-    return result
+    return self._update(cmd)
 
 #############################################################################
   def setJobOptParameter(self, jobID, name, value):
@@ -828,14 +861,11 @@ class JobDB(DB):
     e_name = ret['Value']
 
     cmd = 'DELETE FROM OptimizerParameters WHERE JobID=%s AND Name=%s' % (e_jobID, e_name)
-    if not self._update(cmd)['OK']:
-      return S_ERROR('JobDB.setJobOptParameter: operation failed.')
+    res = self._update(cmd)
+    if not res['OK']:
+      return res
 
-    result = self.insertFields('OptimizerParameters', ['JobID', 'Name', 'Value'], [jobID, name, value])
-    if not result['OK']:
-      return S_ERROR('JobDB.setJobOptParameter: operation failed.')
-
-    return S_OK()
+    return self.insertFields('OptimizerParameters', ['JobID', 'Name', 'Value'], [jobID, name, value])
 
 #############################################################################
   def removeJobOptParameter(self, jobID, name):
@@ -851,9 +881,7 @@ class JobDB(DB):
     name = ret['Value']
 
     cmd = 'DELETE FROM OptimizerParameters WHERE JobID=%s AND Name=%s' % (jobID, name)
-    if not self._update(cmd)['OK']:
-      return S_ERROR('JobDB.removeJobOptParameter: operation failed.')
-    return S_OK()
+    return self._update(cmd)
 
 #############################################################################
   def setAtticJobParameter(self, jobID, key, value, rescheduleCounter):
@@ -882,11 +910,7 @@ class JobDB(DB):
 
     cmd = 'INSERT INTO AtticJobParameters (JobID,RescheduleCycle,Name,Value) VALUES(%s,%s,%s,%s)' % \
         (jobID, rescheduleCounter, key, value)
-    result = self._update(cmd)
-    if not result['OK']:
-      result = S_ERROR('JobDB.setAtticJobParameter: operation failed.')
-
-    return result
+    return self._update(cmd)
 
 #############################################################################
   def __setInitialJobParameters(self, classadJob, jobID):
@@ -897,12 +921,7 @@ class JobDB(DB):
     parameters = {}
     if classadJob.lookupAttribute("Parameters"):
       parameters = classadJob.getDictionaryFromSubJDL("Parameters")
-    res = self.setJobParameters(jobID, parameters.items())
-
-    if not res['OK']:
-      return res
-
-    return S_OK()
+    return self.setJobParameters(jobID, list(parameters.items()))
 
 #############################################################################
   def setJobJDL(self, jobID, jdl=None, originalJDL=None):
@@ -1018,7 +1037,7 @@ class JobDB(DB):
         :param str diracSetup: setup in which context the job is submitted
         :param str initialStatus: optional initial job status (Received by default)
         :param str initialMinorStatus: optional initial minor job status
-        :return : new job ID
+        :return: new job ID
     """
     jobManifest = JobManifest()
     result = jobManifest.load(jdl)
@@ -1308,6 +1327,7 @@ class JobDB(DB):
                   'OptimizerParameters',
                   'JobCommands',
                   'Jobs',
+                  'JobsStatus',
                   'JobJDLs']:
 
       cmd = 'DELETE FROM %s WHERE JobID in (%s)' % (table, jobIDString)
@@ -1347,12 +1367,17 @@ class JobDB(DB):
         defined parameters in the parameter Attic
     """
     # Check Verified Flag
-    result = self.getJobAttributes(jobID, ['Status', 'MinorStatus', 'VerifiedFlag', 'RescheduleCounter',
+    result = self.getJobAttributes(jobID, ['VerifiedFlag', 'RescheduleCounter',
                                            'Owner', 'OwnerDN', 'OwnerGroup', 'DIRACSetup'])
     if result['OK']:
       resultDict = result['Value']
     else:
       return S_ERROR('JobDB.getJobAttributes: can not retrieve job attributes')
+
+    result = self.getJobStatus(jobID)
+    if not result['OK']:
+      return result
+    resultDict.update(result['Value'])
 
     if 'VerifiedFlag' not in resultDict:
       return S_ERROR('Job ' + str(jobID) + ' not found in the system')
@@ -1371,7 +1396,9 @@ class JobDB(DB):
     # Exit if the limit of the reschedulings is reached
     if rescheduleCounter > self.maxRescheduling:
       self.log.warn('Maximum number of reschedulings is reached', 'Job %s' % jobID)
-      self.setJobStatus(jobID, status='Failed', minor='Maximum of reschedulings reached')
+      res = self.setJobStatus(jobID, status='Failed', minor='Maximum of reschedulings reached')
+      if not res['OK']:
+        return res
       return S_ERROR('Maximum number of reschedulings is reached: %s' % self.maxRescheduling)
 
     jobAttrNames = []
@@ -1445,18 +1472,6 @@ class JobDB(DB):
     jobAttrNames.append('Site')
     jobAttrValues.append(site)
 
-    jobAttrNames.append('Status')
-    jobAttrValues.append('Received')
-
-    jobAttrNames.append('MinorStatus')
-    jobAttrValues.append('Job Rescheduled')
-
-    jobAttrNames.append('ApplicationStatus')
-    jobAttrValues.append('Unknown')
-
-    jobAttrNames.append('ApplicationNumStatus')
-    jobAttrValues.append(0)
-
     jobAttrNames.append('LastUpdateTime')
     jobAttrValues.append(Time.toString())
 
@@ -1481,6 +1496,10 @@ class JobDB(DB):
       return result
 
     result = self.setJobAttributes(jobID, jobAttrNames, jobAttrValues)
+    if not result['OK']:
+      return result
+
+    result = self.setJobStatus(jobID, status='Received', minor='Job Rescheduled', application='Unknown')
     if not result['OK']:
       return result
 
@@ -1540,9 +1559,9 @@ class JobDB(DB):
 #############################################################################
   def getSiteMaskStatus(self, sites=None):
     """ Get the current site mask status
-        :param:sites - A string for a single site to check, or a list
-                       to check multiple sites.
-        :returns:If input was a list, a dictionary of sites, keys are site
+
+        :param sites: A string for a single site to check, or a list to check multiple sites.
+        :returns: If input was a list, a dictionary of sites, keys are site
                  names and values are the site statuses. Unknown sites are
                  not included in the output dictionary.
                  If input was a string, then a single value with that site's
@@ -1671,16 +1690,14 @@ class JobDB(DB):
     """  Forbid the given site in the Site Mask
     """
 
-    result = self.__setSiteStatusInMask(site, 'Banned', authorDN, comment)
-    return result
+    return self.__setSiteStatusInMask(site, 'Banned', authorDN, comment)
 
 #############################################################################
   def allowSiteInMask(self, site, authorDN='Unknown', comment='No comment'):
     """  Forbid the given site in the Site Mask
     """
 
-    result = self.__setSiteStatusInMask(site, 'Active', authorDN, comment)
-    return result
+    return self.__setSiteStatusInMask(site, 'Active', authorDN, comment)
 
 #############################################################################
   def removeSiteFromMask(self, site=None):
@@ -1913,7 +1930,7 @@ class JobDB(DB):
         values = selectDict[item]
         if not isinstance(values, list):
           values = [values]
-        indices = range(len(records))
+        indices = list(range(len(records)))
         indices.reverse()
         for ind in indices:
           if records[ind][selectItem] not in values:
@@ -1962,7 +1979,7 @@ class JobDB(DB):
     ok = True
     # FIXME: It is rather not optimal to use parameters to store the heartbeat info, must find a proper solution
     # Add static data items as job parameters
-    result = self.setJobParameters(jobID, staticDataDict.items())
+    result = self.setJobParameters(jobID, list(staticDataDict.items()))
     if not result['OK']:
       ok = False
       self.log.warn(result['Message'])
@@ -2046,8 +2063,7 @@ class JobDB(DB):
 
     req = "INSERT INTO JobCommands (JobID,Command,Arguments,ReceptionTime) "
     req += "VALUES (%s,%s,%s,UTC_TIMESTAMP())" % (jobID, command, arguments)
-    result = self._update(req)
-    return result
+    return self._update(req)
 
 #####################################################################################
   def getJobCommand(self, jobID, status='Received'):
@@ -2097,8 +2113,7 @@ class JobDB(DB):
     status = ret['Value']
 
     req = "UPDATE JobCommands SET Status=%s WHERE JobID=%s AND Command=%s" % (status, jobID, command)
-    result = self._update(req)
-    return result
+    return self._update(req)
 
 #####################################################################################
   def getSummarySnapshot(self, requestedFields=False):

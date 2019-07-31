@@ -37,6 +37,7 @@ class GGUSTicketsClient:
 
   def getTicketsList( self, siteName = None, startDate = None, endDate = None ):
     """ Return tickets of entity in name
+
        :param name: should be the name of the site
        :param startDate: starting date (optional)
        :param endDate: end date (optional)
@@ -59,9 +60,9 @@ class GGUSTicketsClient:
     # the query must be into a try block. Empty queries, though formally correct, raise an exception
     try:
       ticketList = self.gclient.service.TicketGetList( query )
-    except WebFault, e:
+    except WebFault as e:
       return S_ERROR( e )
-    except urllib2.URLError, e:
+    except urllib2.URLError as e:
       return S_ERROR( e )
     
     return self.globalStatistics( ticketList )

@@ -1,9 +1,11 @@
 import json
-from DIRAC.Core.Base.Client import Client
+
+from DIRAC.Core.Base.Client import Client, createClient
 from DIRAC import S_OK, S_ERROR
 from DIRAC.DataManagementSystem.private.FTS3Utilities import FTS3JSONDecoder
 
 
+@createClient('DataManagement/FTS3Manager')
 class FTS3Client(Client):
   """ Client code to the FTS3 service
   """
@@ -31,6 +33,7 @@ class FTS3Client(Client):
 
   def getOperation(self, operationID, **kwargs):
     """ Get the FTS3Operation from the database
+
         :param operationID: id of the operation
         :return: FTS3Operation object
     """
@@ -48,6 +51,7 @@ class FTS3Client(Client):
 
   def getActiveJobs(self, limit=20, lastMonitor=None, jobAssignmentTag='Assigned', ** kwargs):
     """ Get all the FTSJobs that are not in a final state
+
         :param limit: max number of jobs to retrieve
         :return: list of FTS3Jobs
     """
@@ -65,7 +69,8 @@ class FTS3Client(Client):
 
   def updateFileStatus(self, fileStatusDict, ftsGUID=None, **kwargs):
     """ Update the file ftsStatus and error
-       :param fileStatusDict : { fileID : { status , error, ftsGUID } }
+
+       :param fileStatusDict: { fileID : { status , error, ftsGUID } }
        :param ftsGUID: if specified, only update the files having a matchign ftsGUID
     """
 
@@ -73,7 +78,8 @@ class FTS3Client(Client):
 
   def updateJobStatus(self, jobStatusDict, **kwargs):
     """ Update the job Status and error
-       :param jobStatusDict : { jobID : { status , error } }
+
+       :param jobStatusDict: { jobID : { status , error } }
     """
 
     return self._getRPC(**kwargs).updateJobStatus(jobStatusDict)
@@ -81,8 +87,9 @@ class FTS3Client(Client):
   def getNonFinishedOperations(self, limit=20, operationAssignmentTag="Assigned", **kwargs):
     """ Get all the FTS3Operations that have files in New or Failed state
         (reminder: Failed is NOT terminal for files. Failed is when fts failed, but we
-         can retry)
-         :param limit: max number of jobs to retrieve
+        can retry)
+
+        :param limit: max number of jobs to retrieve
         :return: json list of FTS3Operation
     """
 

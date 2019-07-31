@@ -1,6 +1,5 @@
 .. _resourcesStorageElement:
 
---------------
 StorageElement
 --------------
 
@@ -66,7 +65,6 @@ definition section as shown in the example above. In this section a specific `Pa
 each VO which needs it.
 
 
--------------------
 StorageElementBases
 -------------------
 

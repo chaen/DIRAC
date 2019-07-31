@@ -19,7 +19,6 @@ from DIRAC.ConfigurationSystem.Client.Helpers.Resources import getSites
 from DIRAC.ResourceStatusSystem.Command.Command import Command
 from DIRAC.ResourceStatusSystem.Utilities import CSHelpers
 
-
 class SuccessfullJobsBySiteSplittedCommand(Command):
 
   def __init__(self, args=None, clients=None):
@@ -76,8 +75,7 @@ class SuccessfullJobsBySiteSplittedCommand(Command):
 
     successfulJobs = self.rClient.getReport('Job', 'NumberOfJobs', fromD, toD,
                                             {'FinalStatus': ['Done'],
-                                             'Site': sites
-                                             }, 'Site')
+                                             'Site': sites}, 'Site')
     if not successfulJobs['OK']:
       return successfulJobs
     successfulJobs = successfulJobs['Value']
@@ -89,7 +87,7 @@ class SuccessfullJobsBySiteSplittedCommand(Command):
 
     singlePlots = {}
 
-    for site, value in successfulJobs['data'].items():
+    for site, value in successfulJobs['data'].iteritems():
       if site in sites:
         plot = {}
         plot['data'] = {site: value}
@@ -158,8 +156,8 @@ class FailedJobsBySiteSplittedCommand(Command):
 
     failedJobs = self.rClient.getReport('Job', 'NumberOfJobs', fromD, toD,
                                         {'FinalStatus': ['Failed'],
-                                         'Site': sites
-                                         }, 'Site')
+                                         'Site': sites},
+                                        'Site')
     if not failedJobs['OK']:
       return failedJobs
     failedJobs = failedJobs['Value']
@@ -171,7 +169,7 @@ class FailedJobsBySiteSplittedCommand(Command):
 
     singlePlots = {}
 
-    for site, value in failedJobs['data'].items():
+    for site, value in failedJobs['data'].iteritems():
       if site in sites:
         plot = {}
         plot['data'] = {site: value}
@@ -240,8 +238,8 @@ class SuccessfullPilotsBySiteSplittedCommand(Command):
 
     succesfulPilots = self.rClient.getReport('Pilot', 'NumberOfPilots', fromD, toD,
                                              {'GridStatus': ['Done'],
-                                              'Site': sites
-                                              }, 'Site')
+                                              'Site': sites},
+                                             'Site')
     if not succesfulPilots['OK']:
       return succesfulPilots
     succesfulPilots = succesfulPilots['Value']
@@ -253,7 +251,7 @@ class SuccessfullPilotsBySiteSplittedCommand(Command):
 
     singlePlots = {}
 
-    for site, value in succesfulPilots['data'].items():
+    for site, value in succesfulPilots['data'].iteritems():
       if site in sites:
         plot = {}
         plot['data'] = {site: value}
@@ -322,8 +320,8 @@ class FailedPilotsBySiteSplittedCommand(Command):
 
     failedPilots = self.rClient.getReport('Pilot', 'NumberOfPilots', fromD, toD,
                                           {'GridStatus': ['Aborted'],
-                                           'Site': sites
-                                           }, 'Site')
+                                           'Site': sites},
+                                          'Site')
     if not failedPilots['OK']:
       return failedPilots
     failedPilots = failedPilots['Value']
@@ -335,7 +333,7 @@ class FailedPilotsBySiteSplittedCommand(Command):
 
     singlePlots = {}
 
-    for site, value in failedPilots['data'].items():
+    for site, value in failedPilots['data'].iteritems():
       if site in sites:
         plot = {}
         plot['data'] = {site: value}
@@ -406,8 +404,8 @@ class SuccessfullPilotsByCESplittedCommand(Command):
 
     successfulPilots = self.rClient.getReport('Pilot', 'NumberOfPilots', fromD, toD,
                                               {'GridStatus': ['Done'],
-                                               'GridCE': ces
-                                               }, 'GridCE')
+                                               'GridCE': ces},
+                                              'GridCE')
     if not successfulPilots['OK']:
       return successfulPilots
     successfulPilots = successfulPilots['Value']
@@ -419,7 +417,7 @@ class SuccessfullPilotsByCESplittedCommand(Command):
 
     singlePlots = {}
 
-    for ce, value in successfulPilots['data'].items():
+    for ce, value in successfulPilots['data'].iteritems():
       if ce in ces:
         plot = {}
         plot['data'] = {ce: value}
@@ -490,8 +488,8 @@ class FailedPilotsByCESplittedCommand(Command):
 
     failedPilots = self.rClient.getReport('Pilot', 'NumberOfPilots', fromD, toD,
                                           {'GridStatus': ['Aborted'],
-                                           'GridCE': ces
-                                           }, 'GridCE')
+                                           'GridCE': ces},
+                                          'GridCE')
     if not failedPilots['OK']:
       return failedPilots
     failedPilots = failedPilots['Value']
@@ -503,7 +501,7 @@ class FailedPilotsByCESplittedCommand(Command):
 
     singlePlots = {}
 
-    for ce, value in failedPilots['data'].items():
+    for ce, value in failedPilots['data'].iteritems():
       if ce in ces:
         plot = {}
         plot['data'] = {ce: value}
@@ -583,7 +581,7 @@ class RunningJobsBySiteSplittedCommand(Command):
 
     singlePlots = {}
 
-    for site, value in runJobs['data'].items():
+    for site, value in runJobs['data'].iteritems():
       if site in sites:
         plot = {}
         plot['data'] = {site: value}

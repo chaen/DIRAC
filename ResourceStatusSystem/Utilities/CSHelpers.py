@@ -1,8 +1,10 @@
-""" CSHelpers
-
-  Module containing functions interacting with the CS and useful for the RSS
-  modules.
 """
+Module containing functions interacting with the CS and useful for the RSS
+modules.
+
+"""
+
+from __future__ import absolute_import, unicode_literals
 
 __RCSID__ = '$Id$'
 
@@ -174,48 +176,15 @@ def getStorageElementEndpoint(seName):
   return S_OK(seEndpoints)
 
 
-@deprecated("unused")
-def getStorageElementEndpoints(storageElements=None):
-  """ get the endpoints of the Storage ELements
-  """
-
-  if storageElements is None:
-    storageElements = DMSHelpers().getStorageElements()
-
-  storageElementEndpoints = []
-
-  for se in storageElements:
-
-    seEndpoint = getStorageElementEndpoint(se)
-    if not seEndpoint['OK']:
-      continue
-    storageElementEndpoints.append(seEndpoint['Value'])
-
-  return S_OK(list(set(storageElementEndpoints)))
-
-
 def getFTS():
   """
     Gets all FTS endpoints
   """
 
-  # FIXME: FTS2 will be deprecated (first 2 lines that follow)
-  ftsEndpoints = gConfig.getValue('Resources/FTSEndpoints/Default/FTSEndpoint', [])
-  ftsEndpoints += _getFTSEndpoints('Resources/FTSEndpoints/FTS2')
-  ftsEndpoints += _getFTSEndpoints()
-
-  return S_OK(ftsEndpoints)
-
-
-def _getFTSEndpoints(basePath='Resources/FTSEndpoints/FTS3'):
-  """
-    Gets all FTS endpoints that are in CS
-  """
-
-  result = gConfig.getOptions(basePath)
+  result = gConfig.getOptions('Resources/FTSEndpoints/FTS3')
   if result['OK']:
-    return result['Value']
-  return []
+    return result
+  return S_OK([])
 
 
 def getSpaceTokenEndpoints():
@@ -307,7 +276,7 @@ def getSiteStorageElements(siteName):
   for domainName in domainNames:
     ses = gConfig.getValue('%s/%s/%s/SE' % (_basePath, domainName, siteName), '')
     if ses:
-      return ses.split(', ')
+      return ses.split(',')
 
   return []
 
@@ -371,30 +340,3 @@ def getQueuesRSS():
   queues = list(set(queues))
 
   return S_OK(queues)
-
-
-@deprecated("unused")
-def getRegistryUsers():
-  """
-    Gets all users from /Registry/Users
-  """
-
-  _basePath = 'Registry/Users'
-
-  registryUsers = {}
-
-  userNames = gConfig.getSections(_basePath)
-  if not userNames['OK']:
-    return userNames
-  userNames = userNames['Value']
-
-  for userName in userNames:
-
-    # returns { 'Email' : x, 'DN': y, 'CA' : z }
-    userDetails = gConfig.getOptionsDict('%s/%s' % (_basePath, userName))
-    if not userDetails['OK']:
-      return userDetails
-
-    registryUsers[userName] = userDetails['Value']
-
-  return S_OK(registryUsers)

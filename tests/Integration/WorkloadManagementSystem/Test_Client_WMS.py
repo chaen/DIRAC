@@ -25,6 +25,7 @@
 
 # pylint: disable=protected-access,wrong-import-position,invalid-name
 
+from __future__ import print_function
 import unittest
 import sys
 import datetime
@@ -254,11 +255,13 @@ class JobMonitoring(TestWMSTestCase):
     res = jobMonitor.getJobAttribute(jobID, 'Site')
     self.assertTrue(res['OK'])
     self.assertEqual(res['Value'], 'Site')
-    res = jobMonitor.getJobAttributes(jobID)
+    res = jobMonitor.getJobStatus(jobID)
     self.assertTrue(res['OK'])
     self.assertEqual(res['Value']['ApplicationStatus'], 'app status')
+    res = jobMonitor.getJobAttributes(jobID)
+    self.assertTrue(res['OK'])
     self.assertEqual(res['Value']['JobName'], 'helloWorld')
-    res = jobMonitor.getJobSummary(jobID)
+    res = jobMonitor.getJobStatus(jobID)
     self.assertTrue(res['OK'])
     self.assertEqual(res['Value']['ApplicationStatus'], 'app status')
     self.assertEqual(res['Value']['Status'], 'Running')
@@ -274,7 +277,7 @@ class JobMonitoring(TestWMSTestCase):
     self.assertTrue(res['OK'])
     res = jobStateUpdate.setJobsStatus([jobID], 'Done', 'MinorStatus', 'Unknown')
     self.assertTrue(res['OK'])
-    res = jobMonitor.getJobSummary(jobID)
+    res = jobMonitor.getJobStatus(jobID)
     self.assertTrue(res['OK'])
     self.assertEqual(res['Value']['Status'], 'Done')
     self.assertEqual(res['Value']['MinorStatus'], 'MinorStatus')
@@ -327,7 +330,7 @@ class JobMonitoringMore(TestWMSTestCase):
       jobIDs.append(jobID)
 
     res = jobMonitor.getSites()
-    print res
+    print(res)
     self.assertTrue(res['OK'])
     self.assertTrue(set(res['Value']) <= {'ANY', 'DIRAC.Jenkins.ch'})
     res = jobMonitor.getJobTypes()
@@ -481,7 +484,7 @@ class Matcher (TestWMSTestCase):
     self.assertTrue(res['OK'])
 
     res = MatcherClient().requestJob(resourceDescription)
-    print res
+    print(res)
     self.assertTrue(res['OK'])
     wmsClient.deleteJob(jobID)
 

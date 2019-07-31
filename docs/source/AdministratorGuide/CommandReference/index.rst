@@ -29,33 +29,28 @@ Managing Registry:
     dirac-admin-add-group
     dirac-admin-add-host
     dirac-admin-add-user
-    dirac-admin-delete-user
+    dirac-admin-add-shifter
+    dirac-admin-delete-user        
     dirac-admin-list-hosts
     dirac-admin-list-users
     dirac-admin-modify-user
     dirac-admin-sync-users-from-file
     dirac-admin-user-quota
     dirac-admin-users-with-proxy
-    
+    dirac-admin-voms-sync
+
 Managing Resources:
 
 .. toctree::
     :maxdepth: 2   
     
     dirac-admin-add-site
-
-    dirac-admin-allow-catalog
+    dirac-admin-add-resources
     dirac-admin-allow-se
     dirac-admin-allow-site
-    dirac-admin-ban-catalog
     dirac-admin-ban-se
     dirac-admin-ban-site
-    dirac-admin-bdii-ce-state
-    dirac-admin-bdii-ce-voview
-    dirac-admin-bdii-ce
-    dirac-admin-bdii-cluster
-    dirac-admin-bdii-sa
-    dirac-admin-bdii-site
+    dirac-admin-bdii-info
     dirac-admin-ce-info
     dirac-admin-get-banned-sites
     dirac-admin-get-site-mask
@@ -75,10 +70,9 @@ Workload management commands:
     dirac-admin-get-pilot-output
     dirac-admin-kill-pilot
     dirac-admin-pilot-summary
-    dirac-admin-reoptimize-jobs
+    dirac-admin-pilot-logging-info
     dirac-admin-reset-job
     dirac-admin-show-task-queues
-    dirac-admin-submit-pilot-for-job
     dirac-jobexec
 
 Transformation management commands:
@@ -86,25 +80,26 @@ Transformation management commands:
 .. toctree::
     :maxdepth: 2
 
+    dirac-transformation-add-files
     dirac-transformation-archive
     dirac-transformation-clean
     dirac-transformation-cli
+    dirac-transformation-get-files
     dirac-transformation-remove-output
-    dirac-transformation-resolve-problematics
-    dirac-transformation-verify-outputdata
     dirac-transformation-replication
-    
+    dirac-transformation-verify-outputdata
+
 Managing DIRAC installation:
 
 .. toctree::
     :maxdepth: 2
 
     dirac-framework-ping-service
-    dirac-install-agent
+    dirac-install-component
     dirac-install-db
-    dirac-install-service
     dirac-install-web-portal
     dirac-install
+    dirac-uninstall-component
     dirac-restart-component
     dirac-restart-mysql
     dirac-start-component
@@ -119,17 +114,19 @@ Managing DIRAC installation:
     dirac-admin-get-CAs
     dirac-info
     dirac-version
+    dirac-admin-check-config-options
+    dirac-populate-component-db
 
 Managing DIRAC software:
 
 .. toctree::
     :maxdepth: 2
     
+    dirac-create-distribution-tarball
     dirac-deploy-scripts
     dirac-distribution
     dirac-externals-requirements
     dirac-fix-ld-library-path
-    dirac-install-executor
     dirac-install-mysql
 
 User convenience:
@@ -152,13 +149,10 @@ Other commands:
     
     dirac-admin-get-proxy
     dirac-admin-proxy-upload
-    dirac-admin-upload-proxy
     dirac-proxy-get-uploaded-info
     dirac-proxy-info
     dirac-proxy-init
-
-    dirac-admin-request-summary
-    dirac-admin-select-requests
+    dirac-proxy-destroy
 
     dirac-admin-sysadmin-cli
 
@@ -171,15 +165,19 @@ Other commands:
 
     dirac-repo-monitor
 
-    dirac-rss-reassign-token
-    dirac-rss-renew-token
     dirac-rss-list-status
+    dirac-rss-policy-manager
+    dirac-rss-query-db
+    dirac-rss-query-dtcache
     dirac-rss-set-status
-    dirac-rss-sync
-    dirac-rss-setup
     dirac-rss-set-token
+    dirac-rss-sync
 
+    dirac-stager-monitor-file
+    dirac-stager-monitor-jobs
     dirac-stager-monitor-request
+    dirac-stager-monitor-requests
+    dirac-stager-show-stats
     dirac-stager-stage-files
 
     install_site.sh
@@ -189,3 +187,4 @@ Other commands:
     dirac-compile-externals
     dirac-fix-mysql-script
 
+    dirac-sys-sendmail

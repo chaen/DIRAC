@@ -31,12 +31,13 @@ echo -e '***' $(date -u)  "**** WMS TESTS ****\n"
 python -m pytest $SERVERINSTALLDIR/DIRAC/tests/Integration/WorkloadManagementSystem/Test_JobDB.py >> testOutputs.txt 2>&1
 python -m pytest $SERVERINSTALLDIR/DIRAC/tests/Integration/WorkloadManagementSystem/Test_JobLoggingDB.py >> testOutputs.txt 2>&1
 python -m pytest $SERVERINSTALLDIR/DIRAC/tests/Integration/WorkloadManagementSystem/Test_TaskQueueDB.py >> testOutputs.txt 2>&1
+python -m pytest $SERVERINSTALLDIR/DIRAC/tests/Integration/WorkloadManagementSystem/Test_ElasticJobDB.py >> testOutputs.txt 2>&1
 
 
 #-------------------------------------------------------------------------------#
 echo -e '***' $(date -u)  "**** DMS TESTS ****\n"
 ## DFC
-python -m pytest $SERVERINSTALLDIR/DIRAC/tests/Integration/DataManagementSystem/Test_DataIntegrityDB.py
+python -m pytest $SERVERINSTALLDIR/DIRAC/tests/Integration/DataManagementSystem/Test_DataIntegrityDB.py >> testOutputs.txt 2>&1
 
 echo "Test DFC DB" >> testOutputs.txt 2>&1
 python $SERVERINSTALLDIR/DIRAC/tests/Integration/DataManagementSystem/Test_FileCatalogDB.py >> testOutputs.txt 2>&1

@@ -7,6 +7,8 @@ Manage authentification and authorizations
 Authentication
 **************
 
+For technical details see :ref:`about_proxies`.
+
 DIRAC uses X509 certificates to identify clients and hosts, by conception X509 certificates are a very strong way to identify hosts and client thanks to asymetric cryptography. DIRAC is based on the openSSL library.
 
 To identify users DIRAC use RBAC model (Role Based Access Control)
@@ -20,35 +22,35 @@ Before authorize or not some tasks you have to define these properties, hostname
 
 Bellow a simple example with only one user, one group and one host::
 
-	Registry
-	{
-	  Users
-	  {
-	    userName
-	    {
-	      DN = /C=ch/O=DIRAC/OU=DIRAC CI/CN=ciuser/emailAddress=lhcb-dirac-ci@cern.ch
-	      Email = youremail@yourprovider.com
-	    }
-	  }
+   Registry
+   {
+     Users
+     {
+       userName
+       {
+         DN = /C=ch/O=DIRAC/OU=DIRAC CI/CN=ciuser/emailAddress=lhcb-dirac-ci@cern.ch
+         Email = youremail@yourprovider.com
+       }
+     }
 
-	  Groups
-	  {
-	    groupName
-	    {
-	      Users = userName
-	      Properties = CSAdministrator, JobAdministrator, ServiceAdministrator, ProxyDelegation, FullDelegation
-	    }
-	  }
+     Groups
+     {
+       groupName
+       {
+         Users = userName
+         Properties = CSAdministrator, JobAdministrator, ServiceAdministrator, ProxyDelegation, FullDelegation
+       }
+     }
 
-	  Hosts
-	  {
-	    hostName
-	    {
-	      DN = /C=ch/O=DIRAC/OU=DIRAC CI/CN=dirac.cern.ch/emailAddress=lhcb-dirac-ci@cern.ch
-	      Properties = CSAdministrator, JobAdministrator, ServiceAdministrator, ProxyDelegation, FullDelegation
-	    }
-	  }
-	}
+     Hosts
+     {
+       hostName
+       {
+         DN = /C=ch/O=DIRAC/OU=DIRAC CI/CN=dirac.cern.ch/emailAddress=lhcb-dirac-ci@cern.ch
+         Properties = CSAdministrator, JobAdministrator, ServiceAdministrator, ProxyDelegation, FullDelegation
+       }
+     }
+   }
 
 
 

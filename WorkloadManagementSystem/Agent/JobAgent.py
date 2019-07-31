@@ -5,6 +5,9 @@
   and the current resource status that is used for matching.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+
 __RCSID__ = "$Id$"
 
 import os
@@ -264,7 +267,7 @@ class JobAgent(AgentModule):
       if key not in matcherParams:
         optimizerParams[key] = matcherInfo[key]
 
-    parameters = self.__getJDLParameters(jobJDL)
+    parameters = self._getJDLParameters(jobJDL)
     if not parameters['OK']:
       self.__report(jobID, 'Failed', 'Could Not Extract JDL Parameters')
       self.log.warn('Could Not Extract JDL Parameters', parameters['Message'])
@@ -310,24 +313,24 @@ class JobAgent(AgentModule):
           jobReport.setJobParameter(thisp, gConfig.getValue('/LocalSite/%s' % thisp, 'Unknown'), sendFlag=False)
 
       jobReport.setJobStatus('Matched', 'Job Received by Agent')
-      result = self.__setupProxy(ownerDN, jobGroup)
+      result = self._setupProxy(ownerDN, jobGroup)
       if not result['OK']:
-        return self.__rescheduleFailedJob(jobID, result['Message'], self.stopOnApplicationFailure)
+        return self._rescheduleFailedJob(jobID, result['Message'], self.stopOnApplicationFailure)
       proxyChain = result.get('Value')
 
       # Save the job jdl for external monitoring
       self.__saveJobJDLRequest(jobID, jobJDL)
 
-      software = self.__checkInstallSoftware(jobID, params, ceDict)
+      software = self._checkInstallSoftware(jobID, params, ceDict)
       if not software['OK']:
         self.log.error('Failed to install software for job', '%s' % (jobID))
         errorMsg = software['Message']
         if not errorMsg:
           errorMsg = 'Failed software installation'
-        return self.__rescheduleFailedJob(jobID, errorMsg, self.stopOnApplicationFailure)
+        return self._rescheduleFailedJob(jobID, errorMsg, self.stopOnApplicationFailure)
 
       self.log.debug('Before %sCE submitJob()' % (self.ceName))
-      result = self.__submitJob(jobID, params, ceDict, optimizerParams, proxyChain, processors, wholeNode)
+      result = self._submitJob(jobID, params, ceDict, optimizerParams, proxyChain, processors, wholeNode)
       if not result['OK']:
         self.__report(jobID, 'Failed', result['Message'])
         return self.__finish(result['Message'])
@@ -342,7 +345,7 @@ class JobAgent(AgentModule):
       self.log.debug('After %sCE submitJob()' % (self.ceName))
     except Exception as subExcept:  # pylint: disable=broad-except
       self.log.exception("Exception in submission", "", lException=subExcept, lExcInfo=True)
-      return self.__rescheduleFailedJob(jobID, 'Job processing failed with exception', self.stopOnApplicationFailure)
+      return self._rescheduleFailedJob(jobID, 'Job processing failed with exception', self.stopOnApplicationFailure)
 
     # Sum all times but the last one (elapsed_time) and remove times at init (is this correct?)
     cpuTime = sum(os.times()[:-1]) - sum(self.initTimes[:-1])
@@ -355,7 +358,7 @@ class JobAgent(AgentModule):
         self.timeLeftError = result['Message']
       else:
         # if the batch system is not defined, use the process time and the CPU normalization defined locally
-        self.timeLeft = self.__getCPUTimeLeft()
+        self.timeLeft = self._getCPUTimeLeft()
 
     return S_OK('Job Agent cycle complete')
 
@@ -372,7 +375,7 @@ class JobAgent(AgentModule):
     jdlFile.close()
 
   #############################################################################
-  def __getCPUTimeLeft(self):
+  def _getCPUTimeLeft(self):
     """Return the TimeLeft as estimated by DIRAC using the Normalization Factor in the Local Config.
     """
     cpuTime = sum(os.times()[:-1])
@@ -383,12 +386,12 @@ class JobAgent(AgentModule):
     return timeleft
 
   #############################################################################
-  def __setupProxy(self, ownerDN, ownerGroup):
+  def _setupProxy(self, ownerDN, ownerGroup):
     """
     Retrieve a proxy for the execution of the job
     """
     if gConfig.getValue('/DIRAC/Security/UseServerCertificate', False):
-      proxyResult = self.__requestProxyFromProxyManager(ownerDN, ownerGroup)
+      proxyResult = self._requestProxyFromProxyManager(ownerDN, ownerGroup)
       if not proxyResult['OK']:
         self.log.error('Failed to setup proxy', proxyResult['Message'])
         return S_ERROR('Failed to setup proxy: %s' % proxyResult['Message'])
@@ -401,14 +404,14 @@ class JobAgent(AgentModule):
 
       proxyChain = ret['Value']['chain']
       if 'groupProperties' not in ret['Value']:
-        print ret['Value']
-        print proxyChain.dumpAllToString()
+        print(ret['Value'])
+        print(proxyChain.dumpAllToString())
         self.log.error('Invalid Proxy', 'Group has no properties defined')
         return S_ERROR('Proxy has no group properties defined')
 
       groupProps = ret['Value']['groupProperties']
       if Properties.GENERIC_PILOT in groupProps or Properties.PILOT in groupProps:
-        proxyResult = self.__requestProxyFromProxyManager(ownerDN, ownerGroup)
+        proxyResult = self._requestProxyFromProxyManager(ownerDN, ownerGroup)
         if not proxyResult['OK']:
           self.log.error('Invalid Proxy', proxyResult['Message'])
           return S_ERROR('Failed to setup proxy: %s' % proxyResult['Message'])
@@ -417,7 +420,7 @@ class JobAgent(AgentModule):
     return S_OK(proxyChain)
 
   #############################################################################
-  def __requestProxyFromProxyManager(self, ownerDN, ownerGroup):
+  def _requestProxyFromProxyManager(self, ownerDN, ownerGroup):
     """Retrieves user proxy with correct role for job and sets up environment to
        run job locally.
     """
@@ -439,7 +442,7 @@ class JobAgent(AgentModule):
     return S_OK(chain)
 
   #############################################################################
-  def __checkInstallSoftware(self, jobID, jobParams, resourceParams):
+  def _checkInstallSoftware(self, jobID, jobParams, resourceParams):
     """Checks software requirement of job and whether this is already present
        before installing software locally.
     """
@@ -461,8 +464,8 @@ class JobAgent(AgentModule):
     return module.execute()
 
   #############################################################################
-  def __submitJob(self, jobID, jobParams, resourceParams, optimizerParams,
-                  proxyChain, processors, wholeNode=False):
+  def _submitJob(self, jobID, jobParams, resourceParams, optimizerParams,
+                 proxyChain, processors, wholeNode=False):
     """ Submit job to the Computing Element instance after creating a custom
         Job Wrapper with the available job parameters.
     """
@@ -521,7 +524,7 @@ class JobAgent(AgentModule):
     return ret
 
   #############################################################################
-  def __getJDLParameters(self, jdl):
+  def _getJDLParameters(self, jdl):
     """Returns a dictionary of JDL parameters.
     """
     try:
@@ -587,7 +590,7 @@ class JobAgent(AgentModule):
       return S_OK(message)
 
   #############################################################################
-  def __rescheduleFailedJob(self, jobID, message, stop=True):
+  def _rescheduleFailedJob(self, jobID, message, stop=True):
     """
     Set Job Status to "Rescheduled" and issue a reschedule command to the Job Manager
     """

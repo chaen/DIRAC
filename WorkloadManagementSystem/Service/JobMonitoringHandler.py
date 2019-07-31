@@ -4,6 +4,7 @@
     The following methods are available in the Service interface
 """
 
+from __future__ import print_function
 __RCSID__ = "$Id$"
 
 from DIRAC import S_OK, S_ERROR
@@ -13,12 +14,14 @@ from DIRAC.Core.Utilities.Decorators import deprecated
 from DIRAC.ConfigurationSystem.Client.Helpers.Operations import Operations
 
 from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
+from DIRAC.WorkloadManagementSystem.DB.ElasticJobDB import ElasticJobDB
 from DIRAC.WorkloadManagementSystem.DB.TaskQueueDB import TaskQueueDB
 from DIRAC.WorkloadManagementSystem.DB.JobLoggingDB import JobLoggingDB
 from DIRAC.WorkloadManagementSystem.Service.JobPolicy import JobPolicy, RIGHT_GET_INFO
 
 # These are global instances of the DB classes
 gJobDB = False
+gElasticJobDB = False
 gJobLoggingDB = False
 gTaskQueueDB = False
 
@@ -32,15 +35,32 @@ FINAL_STATES = ['Done', 'Completed', 'Stalled', 'Failed', 'Killed']
 def initializeJobMonitoringHandler(serviceInfo):
 
   global gJobDB, gJobLoggingDB, gTaskQueueDB
+
   gJobDB = JobDB()
   gJobLoggingDB = JobLoggingDB()
   gTaskQueueDB = TaskQueueDB()
+
   return S_OK()
 
 
 class JobMonitoringHandler(RequestHandler):
 
   def initialize(self):
+    """
+    Flags gESFlag and gMySQLFlag have bool values (True/False)
+    derived from dirac.cfg configuration file
+
+    Determines the switching of ElasticSearch and MySQL backends
+    """
+    global gElasticJobDB, gJobDB
+
+    gESFlag = self.srv_getCSOption('useES', False)
+    if gESFlag:
+      gElasticJobDB = ElasticJobDB()
+
+    gMySQLFlag = self.srv_getCSOption('useMySQL', True)
+    if not gMySQLFlag:
+      gJobDB = False
 
     credDict = self.getRemoteCredentials()
     self.ownerDN = credDict['DN']
@@ -149,7 +169,7 @@ class JobMonitoringHandler(RequestHandler):
     #    if attrDict.has_key(attribute):
     #      queryDict[attribute] = attrDict[attribute]
 
-    print attrDict
+    print(attrDict)
 
     return gJobDB.selectJobs(attrDict, newer=cutDate)
 
@@ -226,7 +246,12 @@ class JobMonitoringHandler(RequestHandler):
   @staticmethod
   def export_getJobStatus(jobID):
 
-    return gJobDB.getJobAttribute(jobID, 'Status')
+    result = gJobDB.getJobStatus(jobID)
+
+    if not result['OK']:
+      return result
+
+    return S_OK(result['Value']['Status'])
 
 ##############################################################################
   types_getJobOwner = [int]
@@ -234,7 +259,11 @@ class JobMonitoringHandler(RequestHandler):
   @staticmethod
   def export_getJobOwner(jobID):
 
-    return gJobDB.getJobAttribute(jobID, 'Owner')
+    if gElasticJobDB:
+      return gElasticJobDB.getJobParametersAndAttributes(jobID, 'Owner')
+
+    else:
+      return gJobDB.getJobAttribute(jobID, 'Owner')
 
 ##############################################################################
   types_getJobSite = [int]
@@ -412,10 +441,8 @@ class JobMonitoringHandler(RequestHandler):
           hbTime = Time.fromString(jobDict['HeartBeatTime'])
           # There is no way to express a timedelta of 0 ;-)
           # Not only Stalled jobs but also Failed jobs because Stalled
-          if ((hbTime - lastTime) > (lastTime - lastTime) or
-              jobDict['Status'] == "Stalled" or
-              jobDict['MinorStatus'].startswith('Job stalled') or
-              jobDict['MinorStatus'].startswith('Stalling')):
+          if ((hbTime - lastTime) > 0 or jobDict['Status'] == "Stalled" or jobDict['MinorStatus'].startswith(
+                  'Job stalled') or jobDict['MinorStatus'].startswith('Stalling')):
             jobDict['LastSignOfLife'] = jobDict['HeartBeatTime']
           else:
             jobDict['LastSignOfLife'] = jobDict['LastUpdateTime']
@@ -492,20 +519,32 @@ class JobMonitoringHandler(RequestHandler):
     :param str/int/long jobID: one single Job ID
     :param str parName: one single parameter name
     """
+    if gElasticJobDB:
+      return gElasticJobDB.getJobParameters(jobID, [parName])
+
     res = gJobDB.getJobParameters(jobID, [parName])
     if not res['OK']:
       return res
     return S_OK(res['Value'].get(int(jobID), {}))
 
 ##############################################################################
-  types_getJobParameters = [[basestring, int, long, list]]
+  types_getJobOptParameters = [int]
 
   @staticmethod
+  def export_getJobOptParameters(jobID):
+    return gJobDB.getJobOptParameters(jobID)
+
+##############################################################################
+  types_getJobParameters = [[basestring, int, long, list]]
+
+  @staticmethod  
   def export_getJobParameters(jobIDs, parName=None):
     """
     :param str/int/long/list jobIDs: one single job ID or a list of them
     :param str parName: one single parameter name, or None (meaning all of them)
     """
+    if gElasticJobDB:
+      return gElasticJobDB.getJobParameters(jobIDs)
     return gJobDB.getJobParameters(jobIDs, parName)
 
 ##############################################################################
@@ -547,7 +586,12 @@ class JobMonitoringHandler(RequestHandler):
 
   @staticmethod
   def export_getJobAttribute(jobID, attribute):
-    return gJobDB.getJobAttribute(jobID, attribute)
+
+    if gElasticJobDB:
+      return gElasticJobDB.getJobParametersAndAttributes(jobID, attribute)
+
+    else:
+      return gJobDB.getJobAttribute(jobID, attribute)
 
 ##############################################################################
   types_getSiteSummary = []
