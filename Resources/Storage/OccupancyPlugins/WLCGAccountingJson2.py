@@ -30,7 +30,6 @@ class WLCGAccountingJson2(object):
 
         :returns: S_OK with dict (keys: Total, Free)
     """
-    print 'Use Plugin test'
     occupancyLFN = kwargs['occupancyLFN']
     print occupancyLFN
     if not occupancyLFN:

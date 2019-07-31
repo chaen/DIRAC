@@ -35,14 +35,10 @@ class WLCGAccountingJson(object):
 
         :returns: S_OK with dict (keys: Total, Free)
     """
-    print 'Use Plugin'
-
     if 'StorageName' not in self.storageParameters:
       return S_ERROR('No storage name cannot be retrieve.')
     sename = self.storageParameters['StorageName']
 
-    if 'Host' not in self.storageParameters:
-      return S_ERROR('Could not find Host key in StorageParameters of %s' % sename)
     if 'SpaceToken' not in self.storageParameters:
       return S_ERROR('Could not find SpaceToken key in StorageParameters of %s' % sename)
     spacetoken = self.storageParameters['SpaceToken']
