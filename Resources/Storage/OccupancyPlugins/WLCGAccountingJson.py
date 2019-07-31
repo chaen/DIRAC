@@ -8,10 +8,10 @@ import shutil
 from DIRAC import gLogger, gConfig
 from DIRAC import S_OK, S_ERROR
 
-class WLCGjsonOccupancy(object):
+class WLCGAccountingJson(object):
   def __init__(self, se):
     self.se = se
-    self.log = se.log.getSubLogger('jsonOccupancy')
+    self.log = se.log.getSubLogger('WLCGAccountingJson')
 
     # assume given SE speaks SRM
     ret = se.getStorageParameters(protocol='srm')
@@ -37,7 +37,7 @@ class WLCGjsonOccupancy(object):
     """ Returns the space information given by json file
         :returns: S_OK with dict (keys: Total, Free)
     """
-
+    print 'Use Plugin'
     occupancyLFN = kwargs['occupancyLFN']
 
     if not occupancyLFN:
@@ -47,6 +47,14 @@ class WLCGjsonOccupancy(object):
       #get a json file
       tmpDirName = tempfile.mkdtemp()
       res = self.se.getFile(occupancyLFN, localPath=tmpDirName)
+      """
+      ctx = gfal2.creat_context()
+      params = ctx.transfer_parameters()
+      params.overwrite = True
+      filePath = os.path.join(tmpDirName, os.path.basename(occupancyLFN))
+      ctx.filecopy(params, occupancyLFN, 'file://')
+      return
+      """
       if not res['OK']:
         return res
 
@@ -61,10 +69,10 @@ class WLCGjsonOccupancy(object):
       if 'storageshares' not in storageservice:
         return S_ERROR('Could not find storageshares component in %s at %s'% (occupancyLFN, self.name))
       storageshares = occupancyDict['storageservice']['storageshares']
-          
+      
     except Exception as e:
       return S_ERROR(repr(e))
-
+    
     finally:
       #delete temp dir
       shutil.rmtree(tmpDirName)
