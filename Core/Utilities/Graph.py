@@ -24,6 +24,7 @@ __RCSID__ = "$Id$"
 
 class DynamicProps( type ):
   """
+  .. class:: DynamicProps
 
   metaclass allowing to create properties on the fly
   """
@@ -67,6 +68,8 @@ class DynamicProps( type ):
 
 class Node( object ):
   """
+  .. class:: Node
+
   graph node
   """
   __metaclass__ = DynamicProps
@@ -132,6 +135,8 @@ class Node( object ):
 
 class Edge( object ):
   """
+  .. class:: Edge
+
   Directed link between two nodes
   """
   __metaclass__ = DynamicProps
@@ -177,6 +182,8 @@ class Edge( object ):
 ########################################################################
 class Graph( object ):
   """
+  .. class:: Graph
+
   A generic directed graph with attributes attached to its nodes and edges
   """
   # # metaclass

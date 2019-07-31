@@ -37,5 +37,6 @@ def main():
 
   print r1 + r2 + r3 + r4
 
+
 if __name__ == '__main__':
   main()

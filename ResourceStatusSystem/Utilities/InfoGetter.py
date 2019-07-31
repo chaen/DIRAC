@@ -90,7 +90,8 @@ def getPoliciesThatApply(decisionParams):
     # and future usage.
     policyDict = {'name': policyName,
                   'type': policyType,
-                  'args': {}}
+                  'args': {}
+                  }
 
     # args is one of the parameters we are going to use on the policies. We copy
     # the defaults and then we update if with whatever comes from the CS.
@@ -128,7 +129,7 @@ def getPolicyActionsThatApply(decisionParams, singlePolicyResults, policyCombine
       continue
 
   # Get policies that match the given decissionParameters
-  for policyActionName, policyActionConfig in policyActionsConfig.iteritems():
+  for policyActionName, policyActionConfig in policyActionsConfig.items():
 
     # The parameter policyType is mandatory. If not present, we pick policyActionName
     try:

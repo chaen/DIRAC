@@ -7,7 +7,6 @@ import re
 import imp
 import pkgutil
 import collections
-
 from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.Utilities import DErrno
 from DIRAC.Core.Utilities import List, DIRACSingleton

@@ -7,7 +7,6 @@
 """
   Retrieve info about pilots that have matched a given Job
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 # pylint: disable=wrong-import-position
@@ -46,6 +45,6 @@ for job in args:
     exitCode = 2
 
 for error in errorList:
-  print("ERROR %s: %s" % error)
+  print "ERROR %s: %s" % error
 
 DIRACExit(exitCode)

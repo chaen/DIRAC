@@ -12,5 +12,8 @@ Tutorials
    ClientInstallation/index
    ManagingUserCredentials/index
    JDLsAndJobManagementBasic/index
+   DataManagementBasic/index
    FileCatalogBasic/index
    JobManagementAdvanced/index
+   DataManagementAdvanced/index
+   

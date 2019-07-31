@@ -2,7 +2,6 @@
 ########################################################################
 # $HeadURL: $
 ########################################################################
-from __future__ import print_function
 __RCSID__ = "$Id:  $"
 
 from DIRAC           import exit as DIRACExit, gLogger
@@ -35,9 +34,9 @@ else:
 from DIRAC.DataManagementSystem.Client.DataManager import DataManager
 dm = DataManager()
 for lfn in [lfn for lfn in lfns if lfn]:
-  print("Cleaning directory %s ... " % lfn)
+  print "Cleaning directory %s ... " % lfn
   result = dm.cleanLogicalDirectory( lfn )
   if result['OK']:
-    print('OK')
+    print 'OK'
   else:
-    print("ERROR: %s" % result['Message'])
+    print "ERROR: %s" % result['Message']

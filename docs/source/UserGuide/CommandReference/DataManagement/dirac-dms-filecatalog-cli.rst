@@ -1,8 +1,6 @@
-.. _dirac-dms-filecatalog-cli:
-
-=========================
+================================
 dirac-dms-filecatalog-cli
-=========================
+================================
 
 Launch the File Catalog shell
 
@@ -10,9 +8,13 @@ Usage::
 
    dirac-dms-filecatalog-cli [option]
 
+ 
+
+ 
+
 Options::
 
-  -f  --file-catalog <value>   :    Catalog client type to use (default FileCatalog)
+  -f:  --file-catalog=   :    Catalog client type to use (default FileCatalog) 
 
 Example::
 
@@ -32,3 +34,5 @@ Example::
   help
 
   FC:/>
+
+

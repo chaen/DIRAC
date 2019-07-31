@@ -29,6 +29,8 @@ class FTS3ManagerHandler(RequestHandler):
   """
 
   fts3db = None
+  ftsValidator = None
+  ftsPlacement = None
 
   @classmethod
   def initializeHandler(cls, serviceInfoDict):
@@ -48,7 +50,6 @@ class FTS3ManagerHandler(RequestHandler):
   @classmethod
   def export_persistOperation(cls, opJSON):
     """ update or insert request into db
-
         :param opJSON: json string representing the operation
 
         :return: OperationID
@@ -81,7 +82,6 @@ class FTS3ManagerHandler(RequestHandler):
   @classmethod
   def export_getActiveJobs(cls, limit, lastMonitor, jobAssignmentTag):
     """ Get all the FTSJobs that are not in a final state
-
         :param limit: max number of jobs to retrieve
         :param jobAssignmentTag: tag to put in the DB
         :param lastMonitor: jobs monitored earlier than the given date
@@ -105,8 +105,7 @@ class FTS3ManagerHandler(RequestHandler):
   @classmethod
   def export_updateFileStatus(cls, fileStatusDict, ftsGUID):
     """ Update the file ftsStatus and error
-
-       :param fileStatusDict: { fileID : { status , error } }
+       :param fileStatusDict : { fileID : { status , error } }
        :param ftsGUID: (not mandatory) If specified, only update the rows where the ftsGUID matches this value.
     """
 
@@ -117,8 +116,7 @@ class FTS3ManagerHandler(RequestHandler):
   @classmethod
   def export_updateJobStatus(cls, jobStatusDict):
     """ Update the job Status and error
-
-       :param jobStatusDict: { jobID : { status , error } }
+       :param jobStatusDict : { jobID : { status , error } }
     """
 
     return cls.fts3db.updateJobStatus(jobStatusDict)
@@ -129,7 +127,6 @@ class FTS3ManagerHandler(RequestHandler):
   def export_getNonFinishedOperations(cls, limit, operationAssignmentTag):
     """ Get all the FTS3Operations that are missing a callback, i.e.
         in 'Processed' state
-
         :param limit: max number of operations to retrieve
         :return: json list of FTS3Operation
     """

@@ -9,7 +9,10 @@ from DIRAC.ConfigurationSystem.Client.Utilities import getElasticDBParameters
 
 
 class ElasticDB(ElasticSearchDB):
+
   """
+  .. class:: ElasticDB
+
   :param str __dbHost: the host name of the Elasticsearch database
   :param str __dbPort: The port where the Elasticsearch database is listening
   :param str clusterName: The name of the cluster.
@@ -22,7 +25,7 @@ class ElasticDB(ElasticSearchDB):
     :param self: self reference
     :param str dbName: name of the database for example: MonitoringDB
     :param str fullName: The full name of the database for example: 'Monitoring/MonitoringDB'
-    :param str indexPrefix: it is the indexPrefix used to get all indexes
+    :param str indexPrefix it is the indexPrefix used to get all indexes
     """
 
     database_name = dbname

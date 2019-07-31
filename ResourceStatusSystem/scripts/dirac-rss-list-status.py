@@ -1,13 +1,22 @@
 #!/usr/bin/env python
 """
-Script that dumps the DB information for the elements into the standard output.
-If returns information concerning the StatusType and Status attributes.
+  dirac-rss-list-status
 
-Usage:
-  dirac-rss-list-status [options]
+    Script that dumps the DB information for the elements into the standard output.
+    If returns information concerning the StatusType and Status attributes.
 
-Verbosity:
-    -o LogLevel=LEVEL     NOTICE by default, levels available: INFO, DEBUG, VERBOSE..
+    Usage:
+      dirac-rss-list-status
+        --element=            Element family to be Synchronized ( Site, Resource or Node )
+        --elementType=        ElementType narrows the search; None if default
+        --name=        ElementName; None if default
+        --tokenOwner=         Owner of the token; None if default
+        --statusType=         StatusType; None if default
+        --status=             Status; None if default
+
+
+    Verbosity:
+        -o LogLevel=LEVEL     NOTICE by default, levels available: INFO, DEBUG, VERBOSE..
 """
 
 from DIRAC                                     import gLogger, exit as DIRACExit, version
@@ -42,8 +51,13 @@ def registerUsageMessage():
   '''
     Takes the script __doc__ and adds the DIRAC version to it
   '''
-  usageMessage = '  DIRAC %s\n' % version
+
+  hLine = '  ' + '='*78 + '\n'
+
+  usageMessage = hLine
+  usageMessage += '  DIRAC %s\n' % version
   usageMessage += __doc__
+  usageMessage += '\n' + hLine
 
   Script.setUsageMessage( usageMessage )
 

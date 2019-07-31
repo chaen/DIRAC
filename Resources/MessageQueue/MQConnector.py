@@ -93,7 +93,6 @@ class MQConnector( object ):
   def disconnect( self, parameters = None ):
     """
     Disconnects from the message queue server
-
     :param dict parameters: dictionary with additional parameters if any
     :return: S_OK/S_ERROR
     """
@@ -102,7 +101,6 @@ class MQConnector( object ):
   def subscribe( self, parameters = None ):
     """
     Subscribes to the message queue server
-
     :param dict parameters: dictionary with additional parameters if any
     :return: S_OK/S_ERROR
     """
@@ -112,7 +110,6 @@ class MQConnector( object ):
   def unsubscribe( self, parameters = None ):
     """
     Subscribes to the message queue server
-
     :param dict parameters: dictionary with additional parameters if any
     :return: S_OK/S_ERROR
     """

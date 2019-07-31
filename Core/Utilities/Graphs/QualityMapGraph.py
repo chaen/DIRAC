@@ -55,7 +55,7 @@ class QualityMapGraph( PlotBase ):
       self.gdata = GraphData( data )
     elif isinstance( data, type ) and data.__class__ == GraphData:
       self.gdata = data
-    if 'span' in self.prefs:
+    if self.prefs.has_key( 'span' ):
       self.width = self.prefs['span']
     else:
       self.width = 1.0

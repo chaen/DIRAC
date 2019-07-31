@@ -29,9 +29,9 @@ More links
 Basic requirements
 ==================
 
-We assume that you have at your disposition a fresh CC7 64bit installation. If you don't, we recommend installing a virtual machine. Instructions for installing CC7 can be found `here <http://linux.web.cern.ch/linux/centos7/docs/install.shtml>`_
+We assume that you have at your disposition a fresh SLC6 64bit installation. If you don't, we recommend installing a virtual machine. Instructions for installing SLC6 can be found `here <http://linux.web.cern.ch/linux/scientific6/docs/install.shtml>`_
 
-In this tutorial, we will use a freshly installed CC7 x86_64 virtual machine, with all the default options, except the hostname being ``dirac-tuto``.
+In this tutorial, we will use a freshly installed SLC6 x86_64 virtual machine, with all the default options, except the hostname being ``dirac-tuto``.
 
 Machine setup
 =============
@@ -62,15 +62,22 @@ Install runit
 
 The next step is to install ``runit``, which is responsible for supervising DIRAC processes
 
-First, install the `RPM <http://diracproject.web.cern.ch/diracproject/rpm/runit-2.1.2-1.el7.cern.x86_64.rpm>`_:
+First, install the `RPM <http://diracproject.web.cern.ch/diracproject/rpm/runit-2.1.2-1.el6.x86_64.rpm>`_:
 
 .. literalinclude:: basicTutoSetup.sh
    :language: bash
    :start-after: # START runit
    :end-before: # END runit
 
+Next, edit the ``/etc/init/runsvdir.conf`` file to point to the future DIRAC installation as such:
 
-Create the file ``/opt/dirac/sbin/runsvdir-start``, which is responsible for starting runit, with the following content:
+.. literalinclude:: basicTutoSetup.sh
+   :start-after: # START runsvdir.conf
+   :end-before: # END runsvdir.conf
+   :caption: /etc/init/runsvdir.conf
+
+
+and the file ``/opt/dirac/sbin/runsvdir-start`` with the following content:
 
 .. literalinclude:: basicTutoSetup.sh
    :language: bash
@@ -78,15 +85,7 @@ Create the file ``/opt/dirac/sbin/runsvdir-start``, which is responsible for sta
    :end-before: # END runsvdir-start
    :caption: /opt/dirac/sbin/runsvdir-start
 
-Then, edit the systemd ``runsvdir-start`` service to match the following:
-
-.. literalinclude:: basicTutoSetup.sh
-   :language: bash
-   :start-after: # START systemd-runsvdir
-   :end-before: # END systemd-runsvdir
-   :caption: /usr/lib/systemd/systemd/runsvdir-start.service
-
-make ``runsvdir-start`` executable and (re)start ``runsvdir``:
+make it executable and (re)start ``runsvdir``:
 
 .. literalinclude:: basicTutoSetup.sh
    :language: bash
@@ -186,7 +185,6 @@ First we create the ``install.cfg`` file, which is used to tell the installation
 install and how to configure the server with the following content:
 
 .. literalinclude:: basicTutoSetup.sh
-   :language: bash
    :start-after: # START install.cfg
    :end-before: # END install.cfg
    :caption: install.cfg
@@ -195,7 +193,6 @@ Then we download the installer, make it executable, and run it with the ``instal
 the user's home folder):
 
 .. literalinclude:: basicTutoSetup.sh
-   :language: bash
    :start-after: # START installDirac
    :end-before: # END installDirac
 
@@ -444,7 +441,6 @@ Create an account ``diracuser`` with password ``password``, and add in its ``~/.
 certificate you created earlier:
 
 .. literalinclude:: basicTutoSetup.sh
-   :language: bash
    :start-after: # START user_diracuser
    :end-before: # END user_diracuser
 
@@ -463,7 +459,6 @@ so we will just install the code and its dependencies.  Create the structure, do
 the same version as for the server:
 
 .. literalinclude:: basicTutoSetup.sh
-   :language: bash
    :start-after: # START installClient1
    :end-before: # END installClient1
 
@@ -501,7 +496,6 @@ In principle, your system administrator will have managed the CA for you. In thi
 The last step is to configure the client to talk to the proper configuration service. This is easily done by creating a ``~/DiracInstallation/etc/dirac.cfg`` file with the following content:
 
 .. literalinclude:: basicTutoSetup.sh
-   :language: bash
    :caption: ~/DiracInstallation/etc/dirac.cfg
    :start-after: # START dirac.cfg
    :end-before: # END dirac.cfg

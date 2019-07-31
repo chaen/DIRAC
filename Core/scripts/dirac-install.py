@@ -1093,7 +1093,7 @@ class ReleaseConfig(object):
       return S_OK((False, modTpl[0]))
     return S_OK((modTpl[0], modTpl[1]))
 
-  def getExternalsVersion(self, release=None):
+  def getExtenalsVersion(self, release=None):
     """
     It returns the version of DIRAC Externals. If it is not provided,
     uses the default cfg
@@ -1668,7 +1668,7 @@ def usage():
   print ("\nOptions:")
   for cmdOpt in cmdOpts:
     print ("\n  %s %s : %s" % (cmdOpt[0].ljust(3), cmdOpt[1].ljust(20), cmdOpt[2]))
-  print()
+  print
   print ("Known options and default values from /defaults section of releases file")
   for options in [('Release', cliParams.release),
                   ('Project', cliParams.project),
@@ -1894,7 +1894,7 @@ def installExternals(releaseConfig):
   if not releaseConfig:
     externalsVersion = cliParams.externalVersion
   else:
-    externalsVersion = releaseConfig.getExternalsVersion()
+    externalsVersion = releaseConfig.getExtenalsVersion()
   if not externalsVersion:
     logERROR("No externals defined")
     return False
@@ -2560,8 +2560,7 @@ if __name__ == "__main__":
   else:
     logNOTICE("Skipping installing DIRAC")
 
-  # we install with DIRACOS from v7rX DIRAC release
-  if cliParams.diracOS or int(releaseConfig.prjRelCFG['DIRAC'].keys()[0][1]) > 6:
+  if cliParams.diracOS:
     logNOTICE("Installing DIRAC OS %s..." % cliParams.diracOSVersion)
     if not installDiracOS(releaseConfig):
       sys.exit(1)

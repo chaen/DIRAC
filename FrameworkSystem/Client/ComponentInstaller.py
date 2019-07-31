@@ -1,6 +1,6 @@
 """
 Module for managing the installation of DIRAC components:
-MySQL, DB's, NoSQL DBs, Services, Agents, Executors
+MySQL, DB's, NoSQL DBs, Services, Agents, Executors and Consumers
 
 It only makes use of defaults in LocalInstallation Section in dirac.cfg
 
@@ -60,8 +60,6 @@ If a Master Configuration Server is being installed the following Options can be
 
 """
 
-from __future__ import print_function, absolute_import, unicode_literals
-
 import os
 import re
 import glob
@@ -69,7 +67,6 @@ import stat
 import time
 import shutil
 import socket
-from io import open
 
 import DIRAC
 from DIRAC import rootPath
@@ -341,9 +338,6 @@ class ComponentInstaller(object):
     Merge cfg into central CS
     """
 
-    gLogger.debug("Adding CFG to CS:")
-    gLogger.debug(cfg)
-
     cfgClient = CSAPI()
     result = cfgClient.downloadCSData()
     if not result['OK']:
@@ -614,8 +608,7 @@ class ComponentInstaller(object):
         isRenamed = True
 
       result = self.monitoringClient.getInstallations({'UnInstallationTime': None},
-                                                      {'System': system,
-                                                       'Module': installation['Component']['Module']},
+                                                      {'System': system, 'Module': installation['Component']['Module']},
                                                       {}, True)
       if not result['OK']:
         return result
@@ -736,8 +729,6 @@ class ComponentInstaller(object):
       for element in execList:
         result = self.addDefaultOptionsToCS(gConfig_o, componentType, systemName, element, extensions, self.setup,
                                             {}, overwrite)
-        if not result['OK']:
-          gLogger.warn("Can't add to default CS", result['Message'])
         resultAddToCFG.setdefault('Modules', {})
         resultAddToCFG['Modules'][element] = result['OK']
     return resultAddToCFG
@@ -961,7 +952,7 @@ class ComponentInstaller(object):
                         str(rDict[comp]['PID'])])
       printTable(fields, records)
     except Exception as x:
-      print("Exception while gathering data for printing: %s" % str(x))
+      print "Exception while gathering data for printing: %s" % str(x)
     return S_OK()
 
   def printOverallStatus(self, rDict):
@@ -989,7 +980,7 @@ class ComponentInstaller(object):
             records.append(record)
       printTable(fields, records)
     except Exception as x:
-      print("Exception while gathering data for printing: %s" % str(x))
+      print "Exception while gathering data for printing: %s" % str(x)
 
     return S_OK()
 
@@ -1716,27 +1707,15 @@ class ComponentInstaller(object):
       for system, service in setupServices:
         if not self.addDefaultOptionsToCS(None, 'service', system, service, extensions, overwrite=True)['OK']:
           # If we are not allowed to write to the central CS, add the configuration to the local file
-          gLogger.warn("Can't write to central CS, so adding to the specific component CFG",
-                       "for %s : %s" % (system, service))
-          res = self.addDefaultOptionsToComponentCfg('service', system, service, extensions)
-          if not res['OK']:
-            gLogger.warn("Can't write to the specific component CFG")
+          self.addDefaultOptionsToComponentCfg('service', system, service, extensions)
       for system, agent in setupAgents:
         if not self.addDefaultOptionsToCS(None, 'agent', system, agent, extensions, overwrite=True)['OK']:
           # If we are not allowed to write to the central CS, add the configuration to the local file
-          gLogger.warn("Can't write to central CS, so adding to the specific component CFG")
-          res = self.addDefaultOptionsToComponentCfg('agent', system, agent, extensions)
-          if not res['OK']:
-            gLogger.warn("Can't write to the specific component CFG",
-                         "for %s : %s" % (system, agent))
+          self.addDefaultOptionsToComponentCfg('agent', system, agent, extensions)
       for system, executor in setupExecutors:
         if not self.addDefaultOptionsToCS(None, 'executor', system, executor, extensions, overwrite=True)['OK']:
           # If we are not allowed to write to the central CS, add the configuration to the local file
-          gLogger.warn("Can't write to central CS, so adding to the specific component CFG")
-          res = self.addDefaultOptionsToComponentCfg('executor', system, executor, extensions)
-          if not res['OK']:
-            gLogger.warn("Can't write to the specific component CFG",
-                         "for %s : %s" % (system, executor))
+          self.addDefaultOptionsToComponentCfg('executor', system, executor, extensions)
     else:
       gLogger.warn('Configuration parameters definition is not requested')
 
@@ -1962,7 +1941,7 @@ class ComponentInstaller(object):
       os.chmod(runFile, self.gDefaultPerms)
 
       cTypeLower = componentType.lower()
-      if cTypeLower == 'agent':
+      if cTypeLower == 'agent' or cTypeLower == 'consumer':
         # This is, e.g., /opt/dirac/runit/WorkfloadManagementSystem/Matcher/control/t
         stopFile = os.path.join(runitCompDir, 'control', 't')
         # This is, e.g., /opt/dirac/control/WorkfloadManagementSystem/Matcher/

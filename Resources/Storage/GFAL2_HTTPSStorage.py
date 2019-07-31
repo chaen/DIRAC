@@ -1,4 +1,9 @@
-"""HTTPS module based on the GFAL2_StorageBase class."""
+""" :mod: GFAL2_HTTPSStorage
+    =================
+
+    .. module: python
+    :synopsis: HTTPS module based on the GFAL2_StorageBase class.
+"""
 
 # from DIRAC
 from DIRAC.Resources.Storage.GFAL2_StorageBase import GFAL2_StorageBase

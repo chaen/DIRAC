@@ -7,7 +7,6 @@
   Report info about local DIRAC installation
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import os
@@ -77,6 +76,6 @@ records.append(('DIRAC version', DIRAC.version))
 
 fields = ['Option', 'Value']
 
-print()
+print
 printTable(fields, records, numbering=False)
-print()
+print

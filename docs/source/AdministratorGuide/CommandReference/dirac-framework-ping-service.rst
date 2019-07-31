@@ -1,10 +1,8 @@
-.. _admin_dirac-framework-ping-service:
-
-============================
+===================================
 dirac-framework-ping-service
-============================
+===================================
 
-Ping the given DIRAC Service
+  Ping the given DIRAC Service
 
 Usage::
 
@@ -13,8 +11,8 @@ Usage::
 Arguments::
 
   System:   Name of the DIRAC system (ie: WorkloadManagement)
-  Service:  Name of the DIRAC service (ie: Matcher)
-  url: URL of the service to ping (instead of System and Service)
+
+  Service:  Name of the DIRAC service (ie: Matcher) 
 
 Example::
 
@@ -40,3 +38,4 @@ Example::
                  'timeout': 120}),
                'ping',
                ())}
+

@@ -2,7 +2,6 @@
    users database. It uses rabbitmqctl command. Only the user with the right
    permissions can execute those commands.
 """
-from __future__ import print_function
 import re
 from DIRAC import S_OK , S_ERROR
 import errno
@@ -102,7 +101,7 @@ def setUsersPermissions(users):
     if ret['OK']:
       successful[u] = ret['Value']
     else:
-      print("Problem with permissions:%s" % ret['Message'])
+      print "Problem with permissions:%s" % ret['Message']
       failed[u] = "Permission not set because of:%s"% ret['Message']
   return S_OK({'Successful': successful, 'Failed': failed})
 
@@ -114,7 +113,7 @@ def addUsersWithoutPasswords(users):
     if ret['OK']:
       successful[u] = ret['Value']
     else:
-      print("Problem with adding user:%s" % ret['Message'])
+      print "Problem with adding user:%s" % ret['Message']
       failed[u] = "User not added"
   return S_OK({'Successful': successful, 'Failed': failed})
 
@@ -128,7 +127,7 @@ def addUsers(users):
     if ret['OK']:
       successful[u] = ret['Value']
     else:
-      print("Problem with adding user:%s" % ret['Message'])
+      print "Problem with adding user:%s" % ret['Message']
       failed[u] = "User not added"
   return S_OK({'Successful': successful, 'Failed': failed})
 
@@ -142,7 +141,7 @@ def deleteUsers(users):
     if ret['OK']:
       successful[u] = ret['Value']
     else:
-      print("Problem with adding user:%s" % ret['Message'])
+      print "Problem with adding user:%s" % ret['Message']
       failed[u] = "User not added"
   return S_OK({'Successful': successful, 'Failed': failed})
 

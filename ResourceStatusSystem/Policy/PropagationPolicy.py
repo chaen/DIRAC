@@ -1,15 +1,17 @@
 ''' DIRAC.ResourceStatusSystem.Policy.PropagationPolicy
 
-    The following lines are needed in the CS::
+   PropagationPolicy.__bases__:
+     DIRAC.ResourceStatusSystem.PolicySystem.PolicyBase.PolicyBase
 
-      PropagationPolicy
+    The following lines are needed in the CS:
+    PropagationPolicy
+    {
+      matchParams
       {
-        matchParams
-        {
-          element = Site
-        }
-        policyType = PropagationPolicy
+        element = Site
       }
+      policyType = PropagationPolicy
+    }
 
 '''
 

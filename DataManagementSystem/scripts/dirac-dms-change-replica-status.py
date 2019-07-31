@@ -2,7 +2,6 @@
 ########################################################################
 # $HeadURL$
 ########################################################################
-from __future__ import print_function
 __RCSID__   = "$Id$"
 
 from DIRAC           import exit as DIRACExit
@@ -39,7 +38,7 @@ else:
 
 res = catalog.getReplicas( lfns, True )
 if not res['OK']:
-  print(res['Message'])
+  print res['Message']
   DIRACExit( -1 )
 replicas = res['Value']['Successful']
 
@@ -52,8 +51,8 @@ for lfn in lfns:
 
 res = catalog.setReplicaStatus( lfnDict )
 if not res['OK']:
-  print("ERROR:", res['Message'])
+  print "ERROR:",res['Message']
 if res['Value']['Failed']:
-  print("Failed to update %d replica status" % len(res['Value']['Failed']))
+  print "Failed to update %d replica status" % len(res['Value']['Failed'])
 if res['Value']['Successful']:
-  print("Successfully updated %d replica status" % len(res['Value']['Successful']))
+  print "Successfully updated %d replica status" % len(res['Value']['Successful'])

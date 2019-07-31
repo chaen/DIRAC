@@ -1,7 +1,6 @@
 """ Test class for plugins
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 # imports
@@ -17,7 +16,7 @@ class logClass(object):
 
 @timeThis
 def myMethod():
-  print('boh')
+  print 'boh'
 
 class myClass(object):
   def __init__( self ):
@@ -25,7 +24,7 @@ class myClass(object):
 
   @timeThis
   def myMethodInAClass( self ):
-    print('boh')
+    print 'boh'
 
 class myBetterClass( object ):
   def __init__( self ):
@@ -34,7 +33,7 @@ class myBetterClass( object ):
 
   @timeThis
   def myMethodInAClass( self ):
-    print('boh')
+    print 'boh'
 
 class myEvenBetterClass( object ):
   def __init__( self ):
@@ -43,7 +42,7 @@ class myEvenBetterClass( object ):
 
   @timeThis
   def myMethodInAClass( self, a, b = None ):
-    print('boh')
+    print 'boh'
 
 
 class TimeTestCase( unittest.TestCase ):

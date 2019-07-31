@@ -4,7 +4,6 @@
     CMS/Phedex Project by ... <to be added>
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import time
@@ -84,7 +83,7 @@ class GraphData:
 
     keys = self.data.keys()
     if not keys:
-      print("GraphData Error: empty data")
+      print "GraphData Error: empty data"
     start = time.time()
 
     if isinstance( self.data[keys[0]], dict ):
@@ -94,7 +93,7 @@ class GraphData:
       self.plotdata = PlotData( self.data, key_type = key_type )
 
     if DEBUG:
-      print("Time: plot data", time.time() - start, len(self.subplots))
+      print "Time: plot data", time.time() - start, len( self.subplots )
 
     if self.plotdata:
       self.all_keys = self.plotdata.getKeys()
@@ -314,7 +313,7 @@ class GraphData:
     for label in self.labels:
       if label not in new_labels:
         for key in self.all_keys:
-          if key in self.subplots[label].parsed_data:
+          if self.subplots[label].parsed_data.has_key( key ):
             other_data[key] += self.subplots[label].parsed_data[key]
     self.otherPlot = PlotData( other_data )
 
@@ -323,7 +322,7 @@ class GraphData:
     """
 
     numData = self.getPlotNumData( zipFlag = False )
-    if not numData:
+    if not len( numData ):
       return 0, 0, 0, 0
 
     numData = numpy.array( numData )
@@ -379,7 +378,7 @@ class PlotData:
     self.key_type = "unknown"
     keys = data.keys()
     if not keys:
-      print("PlotData Error: empty data")
+      print "PlotData Error: empty data"
       return
 
     # Original data
@@ -439,7 +438,7 @@ class PlotData:
     self.max_key = self.keys[-1]
     self.sum_value = float( sum( self.real_values ) )
     self.last_value = float( self.real_values[-1] )
-
+    
     count = len( filter(lambda a: a != 0, self.real_values) )
     if count != 0:
       self.avg_nozeros = self.sum_value / float( count )
@@ -447,11 +446,11 @@ class PlotData:
       self.avg_nozeros = 0
 
   def expandKeys( self, all_keys ):
-    """ Fill zero values into the missing keys
+    """ Fill zero values into the missing keys 
     """
 
     for k in all_keys:
-      if k not in self.parsed_data:
+      if not self.parsed_data.has_key( k ):
         self.parsed_data[k] = 0.
 
     self.sorted_keys = []
@@ -474,7 +473,7 @@ class PlotData:
       self.sorted_keys = self.keys
       self.sorted_keys.sort()
     else:
-      print("Unknown sorting type:", sort_type)
+      print "Unknown sorting type:", sort_type
 
     return self.sorted_keys
 
@@ -491,7 +490,7 @@ class PlotData:
       return abs( item[0] )
     try:
       return abs( item )
-    except TypeError as te:
+    except TypeError, te:
       return - 1
 
   def parseKey( self, key ):
@@ -574,7 +573,7 @@ class PlotData:
   def getPlotData( self ):
 
     return self.parsed_data
-
+  
   def getPlotErrors( self ):
 
     return self.parsed_errors
@@ -587,7 +586,7 @@ class PlotData:
 
     result_pairs = []
     for key in keys:
-      if key in self.parsed_data:
+      if self.parsed_data.has_key( key ):
         result_pairs.append( key, self.parsed_data[key], self.parsed_errors[key] )
       else:
         result_pairs.append( key, None, 0. )

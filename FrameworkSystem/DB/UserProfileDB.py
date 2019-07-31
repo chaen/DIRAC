@@ -1,7 +1,6 @@
 """ UserProfileDB class is a front-end to the User Profile Database
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import types
@@ -726,11 +725,11 @@ def testUserProfileDB():
 
 
   except AssertionError:
-    print('ERROR ', end=' ')
+    print 'ERROR ',
     if not result['OK']:
-      print(result['Message'])
+      print result['Message']
     else:
-      print(result)
+      print result
 
 
     sys.exit( 1 )

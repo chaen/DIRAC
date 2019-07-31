@@ -1,23 +1,30 @@
-.. _dirac-proxy-info:
-
-================
+=======================
 dirac-proxy-info
-================
+=======================
 
 Usage::
 
-  dirac-proxy-info.py (<options>|<cfgFile>)*
+  dirac-proxy-info.py (<options>|<cfgFile>)* 
+
+ 
 
 Options::
 
-  -f  --file <value>           : File to use as user key
-  -i  --version                : Print version
-  -n  --novoms                 : Disable VOMS
-  -v  --checkvalid             : Return error if the proxy is invalid
-  -x  --nocs                   : Disable CS
-  -e  --steps                  : Show steps info
-  -j  --noclockcheck           : Disable checking if time is ok
-  -m  --uploadedinfo           : Show uploaded proxies info
+  -f:  --file=           : File to use as user key 
+
+  -i   --version         : Print version 
+
+  -n   --novoms          : Disable VOMS 
+
+  -v   --checkvalid      : Return error if the proxy is invalid 
+
+  -x   --nocs            : Disable CS 
+
+  -e   --steps           : Show steps info 
+
+  -j   --noclockcheck    : Disable checking if time is ok 
+
+  -m   --uploadedinto    : Show uploaded proxies info 
 
 Example::
 
@@ -31,3 +38,4 @@ Example::
   username     : vhamar
   VOMS         : True
   VOMS fqan    : ['/formation']
+

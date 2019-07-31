@@ -18,7 +18,6 @@ class WMSHistory( BaseType ):
     super( WMSHistory, self ).__init__()
 
     """ c'tor
-
     :param self: self reference
     """
 

@@ -1,19 +1,10 @@
-.. _admin_dirac-admin-show-task-queues:
-
-============================
+===================================
 dirac-admin-show-task-queues
-============================
-
-Show details of currently active Task Queues
+===================================
 
 Usage::
 
-  dirac-admin-show-task-queues [option|cfgfile]
-
-Options::
-
-  -v  --verbose                : give max details about task queues
-  -t  --taskQueue <value>      : show this task queue only
+  dirac-admin-show-task-queues.py (<options>|<cfgFile>)* 
 
 Example::
 
@@ -26,3 +17,4 @@ Example::
        OwnerGroup: dirac_user
          Priority: 1.0
             Setup: Dirac-Production
+

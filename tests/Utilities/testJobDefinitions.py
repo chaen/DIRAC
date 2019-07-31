@@ -3,7 +3,6 @@
 
 # pylint: disable=invalid-name
 
-from __future__ import print_function
 import os
 
 from DIRAC import rootPath
@@ -32,8 +31,8 @@ def getDIRAC(diracClass=None):
 
 
 def baseToAllJobs(jName, jobClass=None):
-  print("**********************************************************************************************************")
-  print("\n Submitting job ", jName)
+  print "**********************************************************************************************************"
+  print "\n Submitting job ", jName
 
   J = getJob(jobClass)
   J.setName(jName)
@@ -43,9 +42,9 @@ def baseToAllJobs(jName, jobClass=None):
 
 def endOfAllJobs(J):
   result = getDIRAC().submitJob(J)
-  print("Job submission result:", result)
+  print "Job submission result:", result
   if result['OK']:
-    print("Submitted with job ID:", result['Value'])
+    print "Submitted with job ID:", result['Value']
 
   return result
 

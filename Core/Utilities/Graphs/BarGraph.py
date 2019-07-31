@@ -1,3 +1,7 @@
+########################################################################
+# $HeadURL$
+########################################################################
+
 """ BarGraph represents bar graphs with vertical bars both simple
     and stacked.
 
@@ -31,7 +35,7 @@ class BarGraph( PlotBase ):
   def __init__(self,data,ax,prefs,*args,**kw):
 
     PlotBase.__init__(self,data,ax,prefs,*args,**kw)
-    if 'span' in self.prefs:
+    if self.prefs.has_key('span'):
       self.width = self.prefs['span']
     else:
       self.width = 1.0
@@ -48,8 +52,7 @@ class BarGraph( PlotBase ):
     if self.gdata.isEmpty():
       return None
 
-    tmp_x = []
-    tmp_y = []
+    tmp_x = []; tmp_y = []
 
     # Evaluate the bar width
     width = float(self.width)
@@ -72,7 +75,7 @@ class BarGraph( PlotBase ):
 
     nKeys = self.gdata.getNumberOfKeys()
     tmp_b = []
-    if 'log_yaxis' in self.prefs:
+    if self.prefs.has_key('log_yaxis'):
       tmp_b = [0.001]*nKeys
       ymin = 0.001
     else:
@@ -141,7 +144,7 @@ class BarGraph( PlotBase ):
     ymax = max(tmp_b)
     ymax *= 1.1
 
-    if 'log_yaxis' in self.prefs:
+    if self.prefs.has_key('log_yaxis'):
       ymin = 0.001
     else:
       ymin = min( tmp_b, 0. )

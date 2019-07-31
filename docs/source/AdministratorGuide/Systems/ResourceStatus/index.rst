@@ -14,3 +14,5 @@ Resource Status System
    monitoring
    advanced_configuration
    advanced_usage
+..   baptism
+..   design

@@ -4,7 +4,6 @@
 Find files in the FileCatalog using file metadata
 """
 
-from __future__ import print_function
 import DIRAC
 
 if __name__ == "__main__":
@@ -52,7 +51,7 @@ if __name__ == "__main__":
   typeDict.update( FILE_STANDARD_METAKEYS )
 
   if len( args ) < 1:
-    print("Error: No argument provided\n%s:" % Script.scriptName)
+    print "Error: No argument provided\n%s:" % Script.scriptName
     Script.showHelp()
     gLogger.notice( "MetaDataDictionary: \n%s" % str( typeDict ) )
     DIRAC.exit( -1 )

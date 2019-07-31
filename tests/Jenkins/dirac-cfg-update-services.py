@@ -2,7 +2,6 @@
 """ update local cfg
 """
 
-from __future__ import print_function
 from DIRAC.Core.Base import Script
 
 Script.setUsageMessage('\n'.join([__doc__.split('\n')[1],
@@ -47,7 +46,7 @@ for sct in ['Systems/DataManagement/Production/Services',
             'Systems/DataManagement/Production/Services/FileCatalog']:
   res = csAPI.createSection(sct)
   if not res['OK']:
-    print(res['Message'])
+    print res['Message']
     exit(1)
 
 csAPI.setOption('Systems/DataManagement/Production/Services/FileCatalog/DirectoryManager', 'DirectoryClosure')

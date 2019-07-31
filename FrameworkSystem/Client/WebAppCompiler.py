@@ -2,7 +2,6 @@
 It is used to compile the web framework
 """
 
-from __future__ import print_function
 import os
 import tempfile
 import shutil
@@ -208,7 +207,7 @@ class WebAppCompiler(object):
       if os.path.isfile(zipPath):
         if os.stat(zipPath).st_mtime > os.stat(ePath).st_mtime:
           continue
-      print("%s%s\r" % (n, " " * (20 - len(n))), end=' ')
+      print "%s%s\r" % (n, " " * (20 - len(n))),
       c += 1
       inf = gzip.open(zipPath, "wb", 9)
       with open(ePath, "rb") as outf:

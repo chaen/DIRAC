@@ -1,5 +1,4 @@
 # $HeadURL$
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import threading
@@ -19,12 +18,12 @@ class Synchronizer:
     def lockedFunc( *args, **kwargs ):
       try:
         if self.__lockName:
-          print("LOCKING", self.__lockName)
+          print "LOCKING", self.__lockName
         self.__lock.acquire()
         return funcToCall(*args, **kwargs)
       finally:
         if self.__lockName:
-          print("UNLOCKING", self.__lockName)
+          print "UNLOCKING", self.__lockName
         self.__lock.release()
     return lockedFunc
 

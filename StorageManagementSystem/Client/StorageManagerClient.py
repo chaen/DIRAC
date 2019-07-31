@@ -7,7 +7,7 @@ import errno
 
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getVOForGroup
-from DIRAC.Core.Base.Client import Client, createClient
+from DIRAC.Core.Base.Client                         import Client
 from DIRAC.Core.Utilities.DErrno                    import cmpError
 from DIRAC.Core.Utilities.Proxy import UserProxy
 from DIRAC.DataManagementSystem.Client.DataManager  import DataManager
@@ -213,11 +213,10 @@ def _checkFilesToStage( seToLFNs, onlineLFNs, offlineLFNs, absentLFNs,
   return S_OK()
 
 
-@createClient('StorageManagement/StorageManager')
-class StorageManagerClient(Client):
+class StorageManagerClient( Client ):
   """ This is the client to the StorageManager service, so even if it is not seen, it exposes all its RPC calls
   """
 
-  def __init__(self, **kwargs):
-    Client.__init__(self, **kwargs)
-    self.setServer('StorageManagement/StorageManager')
+  def __init__( self, **kwargs ):
+    Client.__init__( self, **kwargs )
+    self.setServer( 'StorageManagement/StorageManager' )

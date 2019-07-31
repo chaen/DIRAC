@@ -3,7 +3,6 @@
 # Author : Adria Casajus
 ########################################################################
 
-from __future__ import print_function
 import sys
 import types
 import atexit
@@ -23,15 +22,15 @@ __RCSID__ = "$Id$"
 def _showTraceback():
   import traceback
   excepType, execpValue = sys.exc_info()[:2]
-  print("________________________\n")
-  print("Exception", excepType, ":", execpValue)
+  print "________________________\n"
+  print "Exception", excepType, ":", execpValue
   traceback.print_tb( sys.exc_info()[2] )
-  print("________________________\n")
+  print "________________________\n"
 
 def _printComment( comment ):
   commentList = comment.split( "\n" )
   for commentLine in commentList[ :-1 ]:
-    print("# %s" % commentLine.strip())
+    print "# %s" % commentLine.strip()
 
 def _appendExtensionIfMissing( filename ):
   dotPosition = filename.rfind( "." )
@@ -71,8 +70,8 @@ class CSCLI( CLI ):
       self.modificator.loadFromRemote()
       retVal = self.modificator.loadCredentials()
       if not retVal[ 'OK' ]:
-        print("There was an error gathering your credentials")
-        print(retVal['Message'])
+        print "There was an error gathering your credentials"
+        print retVal[ 'Message' ]
         self._setStatus( False )
     try:
       self.cmdloop()
@@ -98,11 +97,11 @@ class CSCLI( CLI ):
 
     Usage: quit
     """
-    print()
+    print
     if self.modifiedData:
-      print("Changes are about to be written to file for later use.")
+      print "Changes are about to be written to file for later use."
       self.do_writeToFile( self.backupFilename )
-      print("Changes written to %s.cfg" % self.backupFilename)
+      print "Changes written to %s.cfg" % self.backupFilename
     sys.exit( 0 )
 
 
@@ -130,11 +129,11 @@ class CSCLI( CLI ):
         else:
           self._setConnected( True, False )
       else:
-        print("Server returned an error: %s" % retVal['Message'])
+        print "Server returned an error: %s" % retVal[ 'Message' ]
         self._setConnected( True, False )
 
   def _tryConnection( self ):
-    print("Trying connection to %s" % self.masterURL)
+    print "Trying connection to %s" % self.masterURL
     try:
       self.rpcClient = RPCClient( self.masterURL )
       self._setStatus()
@@ -157,7 +156,7 @@ class CSCLI( CLI ):
     else:
       splitted = args.split()
       if len( splitted ) == 0:
-        print("Must specify witch url to connect")
+        print "Must specify witch url to connect"
         self._setStatus( False )
       else:
         self.masterURL = splitted[0].strip()
@@ -177,11 +176,11 @@ class CSCLI( CLI ):
       else:
         baseSection = "/"
       if not self.modificator.existsSection( baseSection ):
-        print("Section %s does not exist" % baseSection)
+        print "Section %s does not exist" % baseSection
         return
       sectionList = self.modificator.getSections( baseSection )
       if not sectionList:
-        print("Section %s is empty" % baseSection)
+        print "Section %s is empty" % baseSection
         return
       for section in sectionList:
         section = "%s/%s" % ( baseSection, section )
@@ -200,14 +199,14 @@ class CSCLI( CLI ):
       if argList:
         section = argList[0].strip()
       else:
-        print("Which section?")
+        print "Which section?"
         return
       if not self.modificator.existsSection( section ):
-        print("Section %s does not exist" % section)
+        print "Section %s does not exist" % section
         return
       optionsList = self.modificator.getOptions( section )
       if not optionsList:
-        print("Section %s has no options" % section)
+        print "Section %s has no options" % section
         return
       for option in optionsList:
         _printComment( self.modificator.getComment( "%s/%s" % ( section, option ) ) )
@@ -226,14 +225,14 @@ class CSCLI( CLI ):
       if argList:
         optionPath = argList[0].strip()
       else:
-        print("Which option?")
+        print "Which option?"
         return
       if self.modificator.existsOption( optionPath ):
         option = optionPath.split( "/" )[-1]
         _printComment( self.modificator.getComment( optionPath ) )
         self.printPair( option, self.modificator.getValue( optionPath ), "=" )
       else:
-        print("Option %s does not exist" % optionPath)
+        print "Option %s does not exist" % optionPath
     except:
       _showTraceback()
 
@@ -244,11 +243,11 @@ class CSCLI( CLI ):
     Usage: writeToServer
     """
     if not self.connected:
-      print("You are not connected!")
+      print "You are not connected!"
       return
     try:
       if not self.writeEnabled:
-        print("This server can't receive data modifications")
+        print "This server can't receive data modifications"
         return
       if not self.modifiedData:
         while True:
@@ -257,26 +256,26 @@ class CSCLI( CLI ):
           if choice in ( "yes", "y" ):
             break
           else:
-            print("Commit aborted")
+            print "Commit aborted"
             return
 
       choice = raw_input( "Do you really want to send changes to server? yes/no [no]: " )
       choice = choice.lower()
       if choice in ( "yes", "y" ):
-        print("Uploading changes to %s (It may take some seconds)..." % self.masterURL)
+        print "Uploading changes to %s (It may take some seconds)..." % self.masterURL
         response = self.modificator.commit()
         if response[ 'OK' ]:
           self.modifiedData = False
-          print("Data sent to server.")
+          print "Data sent to server."
           self.modificator.loadFromRemote()
         else:
-          print("Error sending data, server said: %s" % response['Message'])
+          print "Error sending data, server said: %s" % response['Message']
         return
       else:
-        print("Commit aborted")
+        print "Commit aborted"
     except Exception as x:
       _showTraceback()
-      print("Could not upload changes. ", str(x))
+      print "Could not upload changes. ", str( x )
 
   def do_set( self, args ):
     """
@@ -291,14 +290,14 @@ class CSCLI( CLI ):
     try:
       argsList = args.split()
       if len( argsList ) < 2:
-        print("Must specify option and value to use")
+        print "Must specify option and value to use"
         return
       optionPath = argsList[0].strip()
       value = " ".join( argsList[1:] ).strip()
       self.modificator.setOptionValue( optionPath, value )
       self.modifiedData = True
     except Exception as x:
-      print("Cannot insert value: ", str(x))
+      print "Cannot insert value: ", str( x )
 
   def do_removeOption( self, args ):
     """
@@ -311,7 +310,7 @@ class CSCLI( CLI ):
     try:
       argsList = args.split()
       if len( argsList ) < 1:
-        print("Must specify option to delete")
+        print "Must specify option to delete"
         return
       optionPath = argsList[0].strip()
       choice = raw_input( "Are you sure you want to delete %s? yes/no [no]: " % optionPath )
@@ -320,11 +319,11 @@ class CSCLI( CLI ):
         if self.modificator.removeOption( optionPath ):
           self.modifiedData = True
         else:
-          print("Can't be deleted")
+          print "Can't be deleted"
       else:
-        print("Aborting removal.")
+        print "Aborting removal."
     except Exception as x:
-      print("Error removing option, %s" % str(x))
+      print "Error removing option, %s" % str( x )
 
   def do_removeSection( self, args ):
     """
@@ -335,7 +334,7 @@ class CSCLI( CLI ):
     try:
       argsList = args.split()
       if len( argsList ) < 1:
-        print("Must specify section to delete")
+        print "Must specify section to delete"
         return
       section = argsList[0].strip()
       choice = raw_input( "Are you sure you want to delete %s? yes/no [no]: " % section )
@@ -344,11 +343,11 @@ class CSCLI( CLI ):
         if self.modificator.removeSection( section ):
           self.modifiedData = True
         else:
-          print("Can't be deleted")
+          print "Can't be deleted"
       else:
-        print("Aborting removal.")
+        print "Aborting removal."
     except Exception as x:
-      print("Error removing section, %s" % str(x))
+      print "Error removing section, %s" % str( x )
 
   def do_setComment( self, args ):
     """
@@ -361,14 +360,14 @@ class CSCLI( CLI ):
     try:
       argsList = args.split()
       if len( argsList ) < 2:
-        print("Must specify option and value to use")
+        print "Must specify option and value to use"
         return
       entryPath = argsList[0].strip()
       value = " ".join( argsList[1:] ).strip()
       self.modificator.setComment( entryPath, value )
       self.modifiedData = True
     except Exception as x:
-      print("Cannot insert comment: ", str(x))
+      print "Cannot insert comment: ", str( x )
 
   def do_writeToFile( self, args ):
     """
@@ -381,13 +380,13 @@ class CSCLI( CLI ):
     """
     try:
       if len( args ) == 0:
-        print("Filename to write must be specified!")
+        print "Filename to write must be specified!"
         return
       filename = args.split()[0].strip()
       filename = _appendExtensionIfMissing( filename )
       self.modificator.dumpToFile( filename )
     except Exception as x:
-      print("Couldn't write to file %s: %s" % (filename, str(x)))
+      print "Couldn't write to file %s: %s" % ( filename, str( x ) )
 
   def do_readFromFile( self, args ):
     """
@@ -400,14 +399,14 @@ class CSCLI( CLI ):
     """
     try:
       if len( args ) == 0:
-        print("Filename to read must be specified!")
+        print "Filename to read must be specified!"
         return
       filename = args.split()[0].strip()
       filename = _appendExtensionIfMissing( filename )
       self.modificator.loadFromFile( filename )
       self.modifiedData = True
     except Exception as x:
-      print("Couldn't read from file %s: %s" % (filename, str(x)))
+      print "Couldn't read from file %s: %s" % ( filename, str( x ) )
 
   def do_mergeFromFile( self, args ):
     """
@@ -421,7 +420,7 @@ class CSCLI( CLI ):
     """
     try:
       if len( args ) == 0:
-        print("Filename to read must be specified!")
+        print "Filename to read must be specified!"
         return
       filename = args.split()[0].strip()
       filename = _appendExtensionIfMissing( filename )
@@ -429,14 +428,14 @@ class CSCLI( CLI ):
       self.modifiedData = True
     except Exception as x:
       _showTraceback()
-      print("Couldn't read from file %s: %s" % (filename, str(x)))
+      print "Couldn't read from file %s: %s" % ( filename, str( x ) )
 
   def do_showData( self, dummy ):
     """
     Shows the current modified configuration
     Usage: showData
     """
-    print(self.modificator)
+    print self.modificator
 
   def do_showHistory( self, args ):
     """
@@ -449,7 +448,7 @@ class CSCLI( CLI ):
       if len( argsList ) > 0:
         limit = int( argsList[0] )
       history = self.modificator.getHistory( limit )
-      print("%s recent commits:" % limit)
+      print "%s recent commits:" % limit
       for entry in history:
         self.printPair( entry[0], entry[1], "@" )
     except:
@@ -462,14 +461,14 @@ class CSCLI( CLI ):
     """
     try:
       diffData = self.modificator.showCurrentDiff()
-      print("Diff with latest from server ( + local - remote )")
+      print "Diff with latest from server ( + local - remote )"
       for line in diffData:
         if line[0] in ( '-' ):
-          print(colorize(line, "red"))
+          print colorize( line, "red" )
         elif line[0] in ( '+' ):
-          print(colorize(line, "green"))
+          print colorize( line, "green" )
         elif line[0] in ( '?' ):
-          print(colorize(line, "yellow"), end=' ')
+          print colorize( line, "yellow" ),
     except:
       _showTraceback()
 
@@ -481,22 +480,22 @@ class CSCLI( CLI ):
     try:
       argsList = args.split()
       if len( argsList ) < 4:
-        print("What are the two versions to compare?")
+        print "What are the two versions to compare?"
         return
       v1 = " ".join ( argsList[0:2] )
       v2 = " ".join ( argsList[2:4] )
-      print("Comparing '%s' with '%s' " % (v1, v2))
+      print "Comparing '%s' with '%s' " % ( v1, v2 )
       diffData = self.modificator.getVersionDiff( v1, v2 )
-      print("Diff with latest from server ( + %s - %s )" % (v2, v1))
+      print "Diff with latest from server ( + %s - %s )" % ( v2, v1 )
       for line in diffData:
         if line[0] in ( '-' ):
-          print(colorize(line, "red"))
+          print colorize( line, "red" )
         elif line[0] in ( '+' ):
-          print(colorize(line, "green"))
+          print colorize( line, "green" )
         elif line[0] in ( '?' ):
-          print(colorize(line, "yellow"), end=' ')
+          print colorize( line, "yellow" ),
         else:
-          print(line)
+          print line
     except:
       _showTraceback()
 
@@ -508,7 +507,7 @@ class CSCLI( CLI ):
     try:
       argsList = args.split()
       if len( argsList ) < 2:
-        print("What version to rollback?")
+        print "What version to rollback?"
         return
       version = " ".join ( argsList[0:2] )
       choice = raw_input( "Do you really want to rollback to version %s? yes/no [no]: " % version )
@@ -517,10 +516,10 @@ class CSCLI( CLI ):
         response = self.modificator.rollbackToVersion( version )
         if response[ 'OK' ]:
           self.modifiedData = False
-          print("Rolled back.")
+          print "Rolled back."
           self.modificator.loadFromRemote()
         else:
-          print("Error sending data, server said: %s" % response['Message'])
+          print "Error sending data, server said: %s" % response['Message']
     except:
       _showTraceback()
 
@@ -535,10 +534,10 @@ class CSCLI( CLI ):
       if choice in ( "yes", "y" ):
         retVal = self.modificator.mergeWithServer()
         if retVal[ 'OK' ]:
-          print("Merged")
+          print "Merged"
         else:
-          print("There was an error: ", retVal['Message'])
+          print "There was an error: ", retVal[ 'Message' ]
       else:
-        print("Merge aborted")
+        print "Merge aborted"
     except:
       _showTraceback()

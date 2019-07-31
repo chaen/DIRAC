@@ -4,7 +4,6 @@
 # Author :  Stuart Paterson
 ########################################################################
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 # pylint: disable=wrong-import-position
@@ -22,5 +21,5 @@ result = diracAdmin.getPilotSummary()
 if result['OK']:
   DIRAC.exit(0)
 else:
-  print(result['Message'])
+  print result['Message']
   DIRAC.exit(2)

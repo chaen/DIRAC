@@ -17,12 +17,11 @@ from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.DISET.RPCClient import RPCClient
 from DIRAC.Core.Utilities.List import randomize, fromChar
 from DIRAC.ConfigurationSystem.Client import PathFinder
-from DIRAC.Core.Base.Client import Client, createClient
+from DIRAC.Core.Base.Client import Client
 from DIRAC.RequestManagementSystem.Client.Request import Request
 from DIRAC.RequestManagementSystem.private.RequestValidator import RequestValidator
 
 
-@createClient('RequestManagement/ReqManager')
 class ReqClient(Client):
   """ReqClient is a class manipulating and operation on Requests.
 
@@ -30,6 +29,7 @@ class ReqClient(Client):
   :param dict requestProxiesDict: RPC client to ReqestProxy
   :param ~DIRAC.RequestManagementSystem.private.RequestValidator.RequestValidator requestValidator: RequestValidator instance
   """
+
   __requestProxiesDict = {}
   __requestValidator = None
 
@@ -480,10 +480,27 @@ def printFTSJobs(request):
                    job.status) for job in associatedFTS3Jobs))
         return
 
+      # If we are here, the attempt with the new FTS3 system did not work, let's try the old FTS system
+      gLogger.debug("Could not instantiate FTS3Client", res)
+      from DIRAC.DataManagementSystem.Client.FTSClient import FTSClient
+      ftsClient = FTSClient()
+      res = ftsClient.ping()
+      if not res['OK']:
+        gLogger.debug("Could not instantiate FtsClient", res)
+        return
+
+      res = ftsClient.getFTSJobsForRequest(request.RequestID)
+      if res['OK']:
+        ftsJobs = res['Value']
+        if ftsJobs:
+          gLogger.always('         FTS jobs associated: %s' % ','.join('%s (%s)' % (job.FTSGUID, job.Status)
+                                                                       for job in ftsJobs))
+
+  # ImportError can be thrown for the old client
   # AttributeError can be thrown because the deserialization will not have
   # happened correctly on the new fts3 (CC7 typically), and the error is not
   # properly propagated
-  except AttributeError as err:
+  except (ImportError, AttributeError) as err:
     gLogger.debug("Could not instantiate FtsClient because of Exception", repr(err))
 
 

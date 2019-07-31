@@ -20,8 +20,12 @@ import Queue
 from DIRAC import S_OK
 from DIRAC.Core.Base.AgentModule import AgentModule
 from DIRAC.Core.Utilities.ThreadPool import ThreadPool
-from DIRAC.Core.Utilities.ObjectLoader import ObjectLoader
+from DIRAC.ResourceStatusSystem.Client.SiteStatus import SiteStatus
 from DIRAC.ResourceStatusSystem.PolicySystem.PEP import PEP
+from DIRAC.ResourceStatusSystem.Utilities import Utils
+ResourceManagementClient = getattr(
+    Utils.voimport('DIRAC.ResourceStatusSystem.Client.ResourceManagementClient'),
+    'ResourceManagementClient')
 
 AGENT_NAME = 'ResourceStatus/SiteInspectorAgent'
 
@@ -64,23 +68,10 @@ class SiteInspectorAgent(AgentModule):
     maxNumberOfThreads = self.am_getOption('maxNumberOfThreads', self.__maxNumberOfThreads)
     self.threadPool = ThreadPool(maxNumberOfThreads, maxNumberOfThreads)
 
-    res = ObjectLoader().loadObject('DIRAC.ResourceStatusSystem.Client.SiteStatus',
-                                    'SiteStatus')
-    if not res['OK']:
-      self.log.error('Failed to load SiteStatus class: %s' % res['Message'])
-      return res
-    siteStatusClass = res['Value']
+    self.siteClient = SiteStatus()
 
-    res = ObjectLoader().loadObject('DIRAC.ResourceStatusSystem.Client.ResourceManagementClient',
-                                    'ResourceManagementClient')
-    if not res['OK']:
-      self.log.error('Failed to load ResourceManagementClient class: %s' % res['Message'])
-      return res
-    rmClass = res['Value']
-
-    self.siteClient = siteStatusClass()
-    self.clients['SiteStatus'] = siteStatusClass()
-    self.clients['ResourceManagementClient'] = rmClass()
+    self.clients['SiteStatus'] = self.siteClient
+    self.clients['ResourceManagementClient'] = ResourceManagementClient()
 
     return S_OK()
 

@@ -3,6 +3,7 @@
 
 __RCSID__ = "$Id$"
 
+import re
 from distutils.version import LooseVersion  # pylint: disable=no-name-in-module,import-error
 
 from DIRAC import S_OK, S_ERROR, gConfig
@@ -29,6 +30,48 @@ def getSites():
     sites += result['Value']
 
   return S_OK(sites)
+
+
+@deprecated("Only for FTS2")
+def getStorageElementSiteMapping(siteList=None):
+  """ Get Storage Element belonging to the given sites
+  """
+  if not siteList:
+    result = getSites()
+    if not result['OK']:
+      return result
+    siteList = result['Value']
+  siteDict = {}
+  for site in siteList:
+    grid = site.split('.')[0]
+    ses = gConfig.getValue(cfgPath(gBaseResourcesSection, 'Sites', grid, site, 'SE'), [])
+    if ses:
+      siteDict[site] = ses
+
+  return S_OK(siteDict)
+
+
+@deprecated("Only for FTS2")
+def getFTS2ServersForSites(siteList=None):
+  """ get FTSServers for sites
+
+  :param siteList: list of sites
+  :type siteList: python:list
+
+  """
+  siteList = siteList if siteList else None
+  if not siteList:
+    siteList = getSites()
+    if not siteList["OK"]:
+      return siteList
+    siteList = siteList["Value"]
+  ftsServers = dict()
+  defaultServ = gConfig.getValue(cfgPath(gBaseResourcesSection, 'FTSEndpoints/Default', 'FTSEndpoint'), '')
+  for site in siteList:
+    serv = gConfig.getValue(cfgPath(gBaseResourcesSection, "FTSEndpoints/FTS2", site), defaultServ)
+    if serv:
+      ftsServers[site] = serv
+  return S_OK(ftsServers)
 
 
 def getFTS3Servers():
@@ -82,6 +125,38 @@ def getSiteGrid(site):
   if len(sitetuple) != 3:
     return S_ERROR('Wrong Site Name format')
   return S_OK(sitetuple[0])
+
+
+@deprecated("Unused and dangerous, use StorageElement('seName').options ")
+def getStorageElementOptions(seName):
+  """ Get the CS StorageElementOptions
+  """
+  storageConfigPath = '/Resources/StorageElements/%s' % seName
+  result = gConfig.getOptionsDict(storageConfigPath)
+  if not result['OK']:
+    return result
+  options = result['Value']
+  # If the SE is an baseSE or an alias, derefence it
+  if 'BaseSE' in options or 'Alias' in options:
+    storageConfigPath = '/Resources/StorageElements/%s' % options.get('BaseSE', options.get('Alias'))
+    result = gConfig.getOptionsDict(storageConfigPath)
+    if not result['OK']:
+      return result
+    result['Value'].update(options)
+    options = result['Value']
+
+  # Help distinguishing storage type
+  diskSE = True
+  tapeSE = False
+  if 'SEType' in options:
+    # Type should follow the convention TXDY
+    seType = options['SEType']
+    diskSE = re.search('D[1-9]', seType) is not None
+    tapeSE = re.search('T[1-9]', seType) is not None
+  options['DiskSE'] = diskSE
+  options['TapeSE'] = tapeSE
+
+  return S_OK(options)
 
 
 def getQueue(site, ce, queue):
@@ -227,7 +302,7 @@ def getDIRACPlatform(OSList):
       In practice the "highest" version (which should be the most "desirable" one is returned first)
 
       :param list OSList: list of platforms defined by resource providers
-      :return: a list of DIRAC platforms that can be specified in job descriptions
+      :return : a list of DIRAC platforms that can be specified in job descriptions
   """
 
   # For backward compatibility allow a single string argument

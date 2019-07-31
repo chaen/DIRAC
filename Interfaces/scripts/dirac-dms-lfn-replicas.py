@@ -7,7 +7,6 @@
 """
   Obtain replica information from file catalogue client.
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 import DIRAC
 from DIRAC.Core.Base import Script
@@ -44,7 +43,7 @@ if len( lfns ) == 1:
 
 result = dirac.getReplicas( lfns, active = active, printOutput = True )
 if not result['OK']:
-  print('ERROR: ', result['Message'])
+  print 'ERROR: ', result['Message']
   exitCode = 2
 
 DIRAC.exit( exitCode )

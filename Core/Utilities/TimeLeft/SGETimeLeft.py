@@ -2,7 +2,6 @@
     current CPU consumed, as well as its limit.
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import os
@@ -164,7 +163,7 @@ report_variables      NONE
 if __name__ == '__main__':
   from DIRAC.Core.Base.Script import parseCommandLine
   parseCommandLine()
-  print(SGETimeLeft().getResourceUsage())
+  print SGETimeLeft().getResourceUsage()
 
 # EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#EOF#
 

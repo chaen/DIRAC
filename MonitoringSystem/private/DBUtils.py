@@ -59,10 +59,9 @@ class DBUtils (object):
 
   def __init__(self, db, setup):
     """ c'tor
-
     :param self: self reference
-    :param db: the database module
-    :param str setup: DIRAC setup
+    :param object the database module
+    :param str setup DIRAC setup
     """
     self.__db = db
     self.__setup = setup

@@ -299,9 +299,9 @@ class StompListener (stomp.ConnectionListener):
   def on_message(self, headers, body):
     """
     Function called upon receiving a message
-
-    :param dict headers: message headers
-    :param json body: message body
+    Args:
+      headers(dict): message headers.
+      body(json): message body.
     """
     result = self.callback(headers, json.loads(body))
     if self.ack:

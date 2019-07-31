@@ -116,7 +116,7 @@ class Test_PilotCStoJSONSynchronizer_sync(PilotCStoJSONSynchronizerTestCase):
 
   def test_success(self):
     synchroniser = PilotCStoJSONSynchronizer()
-    res = synchroniser._syncJSONFile()
+    res = synchroniser.sync()
     self.assertTrue(res['OK'])
 
 

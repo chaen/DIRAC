@@ -2,7 +2,6 @@
     Workflow class is the main container of Steps and Modules
 """
 
-from __future__ import print_function
 import os, re, types
 import xml.sax
 from DIRAC.Core.Workflow.Parameter import *
@@ -105,9 +104,15 @@ class Workflow( AttributeCollection ):
     # we have to join all Modules definition from all added steps in the single dictionary
     # and we have to share this dictionary between all included steps
     # we also have to check versions of the modules and instances
-    for type_o in step.module_definitions:
-      if type_o not in self.module_definitions:
-        self.module_definitions.append(step.module_definitions[type_o])
+    for type in step.module_definitions.keys():
+      #if self.module_definitions.has_key(type):
+        # we have the same ModuleDefinition in 2 places
+        # we need to find way to synchronise it
+        #print "Workflow:addStep - we need to write ModuleDefinitions synchronisation code"
+      #else:
+        # new module - just append it
+      if not self.module_definitions.has_key( type ):
+        self.module_definitions.append( step.module_definitions[type] )
     self.step_definitions.append( step )
     del step.module_definitions # we need to clean up all unwanted definitions
     step.module_definitions = None
@@ -118,11 +123,11 @@ class Workflow( AttributeCollection ):
     self.module_definitions.append( module )
     return module
 
-  def createStepInstance(self, type_o, name):
-    """ Creates step instance of type 'type_o' with the name 'name'
+  def createStepInstance( self, type, name ):
+    """ Creates step instance of type 'type' with the name 'name'
     """
-    if type_o in self.step_definitions:
-      stepi = StepInstance(name, self.step_definitions[type_o])
+    if self.step_definitions.has_key( type ):
+      stepi = StepInstance( name, self.step_definitions[type] )
       self.step_instances.append( stepi )
       return stepi
     else:
@@ -213,11 +218,7 @@ class Workflow( AttributeCollection ):
           # print "Workflow self." + wf_parameter.getName(), '=', wf_parameter.getLinkedModule() + '.' + wf_parameter.getLinkedParameter()
           if wf_parameter.getLinkedModule() == 'self':
             # this is not suppose to happen
-            print(
-                "Warning! Job attribute ",
-                wf_parameter.getName(),
-                "refers to the attribute of the same workflow",
-                wf_parameter.getLinkedParameter())
+            print "Warning! Job attribute ", wf_parameter.getName(), "refers to the attribute of the same workflow", wf_parameter.getLinkedParameter()
             wf_exec_attr[wf_parameter.getName()] = wf_exec_attr[wf_parameter.getLinkedParameter()]
           else:
             wf_exec_attr[wf_parameter.getName()] = wf_exec_attr[wf_parameter.getLinkedModule()][wf_parameter.getLinkedParameter()]
@@ -273,8 +274,8 @@ class Workflow( AttributeCollection ):
           error_message = result['Message']
         self.workflowStatus = S_ERROR( result['Message'] )
         self.workflowStatus['Errno'] = result['Errno']
-
-      step_result = result.get('Value', step_result)
+      if result.has_key( 'Value' ):
+        step_result = result['Value']
 
     # now we need to copy output values to the STEP!!! parameters
     #print "WorkflowInstance output assignment"
@@ -284,21 +285,13 @@ class Workflow( AttributeCollection ):
           # print "WorkflowInstance  self." + wf_parameter.getName(), '=', wf_parameter.getLinkedModule() + '.' + wf_parameter.getLinkedParameter()
           if wf_parameter.getLinkedModule() == 'self':
             # this is not suppose to happen
-            print(
-                "Warning! Workflow OUTPUT attribute ",
-                wf_parameter.getName(),
-                "refer on the attribute of the same workflow",
-                wf_parameter.getLinkedParameter())
+            print "Warning! Workflow OUTPUT attribute ", wf_parameter.getName(), "refer on the attribute of the same workflow", wf_parameter.getLinkedParameter()
             wf_exec_attr[wf_parameter.getName()] = wf_exec_attr[wf_parameter.getLinkedParameter()]
           else:
             wf_exec_attr[wf_parameter.getName()] = wf_exec_steps[wf_parameter.getLinkedModule()][wf_parameter.getLinkedParameter()]
         else:
           # it is also does not make sense - we can produce warning
-          print(
-              "Warning! Workflow OUTPUT attribute",
-              wf_parameter.getName(),
-              "assigned constant",
-              wf_parameter.getValue())
+          print "Warning! Workflow OUTPUT attribute", wf_parameter.getName(), "assigned constant", wf_parameter.getValue()
           # print "WorkflowInstance  self."+ wf_parameter.getName(),'=',wf_parameter.getValue()
           wf_exec_attr[wf_parameter.getName()] = wf_parameter.getValue()
         setattr( self, wf_parameter.getName(), wf_exec_attr[wf_parameter.getName()] )
@@ -306,7 +299,8 @@ class Workflow( AttributeCollection ):
     if not self.workflowStatus['OK']:
       #return S_ERROR( error_message )
       return self.workflowStatus
-    return S_OK(step_result)
+    else:
+      return S_OK( step_result )
 
 from DIRAC.Core.Workflow.WorkflowReader import WorkflowXMLHandler
 

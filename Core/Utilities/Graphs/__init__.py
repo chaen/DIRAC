@@ -1,11 +1,10 @@
 """ DIRAC Graphs package provides tools for creation of various plots to provide
     graphical representation of the DIRAC Monitoring and Accounting data
-
+    
     The DIRAC Graphs package is derived from the GraphTool plotting package of the
     CMS/Phedex Project by ... <to be added>
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 # Make sure the the Agg backend is used despite arbitrary configuration
@@ -112,7 +111,10 @@ graph_thumbnail_prefs = {
 def graph( data, fileName, *args, **kw ):
 
   prefs = evalPrefs( *args, **kw )
-  graph_size = prefs.get('graph_size', 'normal')
+  if prefs.has_key( 'graph_size' ):
+    graph_size = prefs['graph_size']
+  else:
+    graph_size = "normal"
 
   if graph_size == "normal":
     defaults = graph_normal_prefs
@@ -168,7 +170,7 @@ def histogram( data, fileName, bins, *args, **kw ):
   try:
     from pylab import hist
   except:
-    print("No pylab module available")
+    print "No pylab module available"
     return
   kw = __checkKW( kw )
   values, vbins, _patches = hist( data, bins )

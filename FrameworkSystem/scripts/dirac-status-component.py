@@ -3,7 +3,6 @@
 Status of DIRAC components using runsvstat utility
 """
 #
-from __future__ import print_function
 from DIRAC.Core.Base import Script
 Script.disableCS()
 
@@ -37,7 +36,7 @@ gComponentInstaller.exitOnError = True
 #
 result = gComponentInstaller.getStartupComponentStatus( [system, component] )
 if not result['OK']:
-  print('ERROR:', result['Message'])
+  print 'ERROR:', result['Message']
   exit( -1 )
 
 gComponentInstaller.printStartupStatus( result['Value'] )

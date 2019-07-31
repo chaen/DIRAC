@@ -3,9 +3,6 @@
     seconds will be assigned the "Stalled" state.
 """
 
-from __future__ import print_function, absolute_import, unicode_literals
-from builtins import str
-
 __RCSID__ = "$Id$"
 
 from DIRAC.WorkloadManagementSystem.DB.JobDB import JobDB
@@ -48,7 +45,7 @@ for the agent restart
   #############################################################################
   def initialize(self):
     """Sets default parameters
-    """
+"""
     self.jobDB = JobDB()
     self.logDB = JobLoggingDB()
     self.am_setOption('PollingTime', 60 * 60)
@@ -60,8 +57,7 @@ for the agent restart
   #############################################################################
   def execute(self):
     """ The main agent execution method
-    """
-
+"""
     self.log.verbose('Waking up Stalled Job Agent')
 
     wms_instance = getSystemInstance('WorkloadManagement')
@@ -88,7 +84,7 @@ for the agent restart
     stalledTime = watchdogCycle * (stalledTime + 0.5)
     failedTime = watchdogCycle * (failedTime + 0.5)
 
-    result = self._markStalledJobs(stalledTime)
+    result = self.__markStalledJobs(stalledTime)
     if not result['OK']:
       self.log.error('Failed to detect stalled jobs', result['Message'])
 
@@ -96,28 +92,28 @@ for the agent restart
     # subsequent status changes will result in jobs not being selected by the
     # stalled job agent.
 
-    result = self._failStalledJobs(failedTime)
+    result = self.__failStalledJobs(failedTime)
     if not result['OK']:
       self.log.error('Failed to process stalled jobs', result['Message'])
 
-    result = self._failCompletedJobs()
+    result = self.__failCompletedJobs()
     if not result['OK']:
       self.log.error('Failed to process completed jobs', result['Message'])
 
-    result = self._failSubmittingJobs()
+    result = self.__failSubmittingJobs()
     if not result['OK']:
       self.log.error('Failed to process jobs being submitted', result['Message'])
 
-    result = self._kickStuckJobs()
+    result = self.__kickStuckJobs()
     if not result['OK']:
       self.log.error('Failed to kick stuck jobs', result['Message'])
 
     return S_OK('Stalled Job Agent cycle complete')
 
   #############################################################################
-  def _markStalledJobs(self, stalledTime):
+  def __markStalledJobs(self, stalledTime):
     """ Identifies stalled jobs running without update longer than stalledTime.
-    """
+"""
     stalledCounter = 0
     runningCounter = 0
     result = self.jobDB.selectJobs({'Status': 'Running'})
@@ -148,7 +144,7 @@ for the agent restart
     return S_OK()
 
   #############################################################################
-  def _failStalledJobs(self, failedTime):
+  def __failStalledJobs(self, failedTime):
     """ Changes the Stalled status to Failed for jobs long in the Stalled status
     """
 
@@ -295,22 +291,22 @@ the stalledTime limit.
   #############################################################################
   def __updateJobStatus(self, job, status, minorstatus=None):
     """ This method updates the job status in the JobDB, this should only be
-        used to fail jobs due to the optimizer chain.
-    """
-    self.log.verbose("self.jobDB.setJobStatus(%s, '%s')" % (job, status))
+used to fail jobs due to the optimizer chain.
+"""
+    self.log.verbose("self.jobDB.setJobAttribute(%s,'Status','%s',update=True)" % (job, status))
 
     if self.am_getOption('Enable', True):
-      result = self.jobDB.setJobStatus(job, status)
+      result = self.jobDB.setJobAttribute(job, 'Status', status, update=True)
     else:
       result = S_OK('DisabledMode')
 
     if result['OK']:
       if minorstatus:
-        self.log.verbose("self.jobDB.setJobStatus(%s, minor ='%s')" % (job, minorstatus))
-        result = self.jobDB.setJobStatus(job, minor=minorstatus)
+        self.log.verbose("self.jobDB.setJobAttribute(%s,'MinorStatus','%s',update=True)" % (job, minorstatus))
+        result = self.jobDB.setJobAttribute(job, 'MinorStatus', minorstatus, update=True)
 
     if not minorstatus:  # Retain last minor status for stalled jobs
-      result = self.jobDB.getJobStatus(job)
+      result = self.jobDB.getJobAttributes(job, ['MinorStatus'])
       if result['OK']:
         minorstatus = result['Value']['MinorStatus']
 
@@ -364,6 +360,7 @@ the stalledTime limit.
                          "for job=%s: endTime=%s, lastHBTime=%s" % (str(jobID), str(endTime), str(lastHeartBeatTime)),
                          lException=e)
       return S_ERROR("Exception")
+
     processingType = self.__getProcessingType(jobID)
 
     accountingReport.setStartTime(startTime)
@@ -458,7 +455,7 @@ the stalledTime limit.
       if not startTime or startTime == 'None':
         startTime = jobDict['SubmissionTime']
 
-    if isinstance(startTime, str):
+    if isinstance(startTime, basestring):
       startTime = fromString(startTime)
       if startTime is None:
         self.log.error('Wrong timestamp in DB', items[3])
@@ -475,9 +472,9 @@ the stalledTime limit.
 
     return startTime, endTime
 
-  def _kickStuckJobs(self):
+  def __kickStuckJobs(self):
     """ Reschedule jobs stuck in initialization status Rescheduled, Matched
-    """
+"""
 
     message = ''
 
@@ -513,7 +510,7 @@ the stalledTime limit.
       return S_ERROR(message)
     return S_OK()
 
-  def _failCompletedJobs(self):
+  def __failCompletedJobs(self):
     """ Failed Jobs stuck in Completed Status for a long time.
       They are due to pilots being killed during the
       finalization of the job execution.
@@ -532,9 +529,9 @@ the stalledTime limit.
 
     # Remove those with Minor Status "Pending Requests"
     for jobID in jobIDs:
-      result = self.jobDB.getJobStatus(jobID)
+      result = self.jobDB.getJobAttributes(jobID, ['Status', 'MinorStatus'])
       if not result['OK']:
-        self.log.error('Failed to get job status', result['Message'])
+        self.log.error('Failed to get job attributes', result['Message'])
         continue
       if result['Value']['Status'] != "Completed":
         continue
@@ -550,7 +547,7 @@ the stalledTime limit.
 
     return S_OK()
 
-  def _failSubmittingJobs(self):
+  def __failSubmittingJobs(self):
     """ Failed Jobs stuck in Submitting Status for a long time.
         They are due to a failed bulk submission transaction.
     """

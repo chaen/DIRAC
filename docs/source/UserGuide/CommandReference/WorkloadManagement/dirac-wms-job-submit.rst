@@ -1,10 +1,8 @@
-.. _dirac-wms-job-submit:
-
-====================
+===========================
 dirac-wms-job-submit
-====================
+===========================
 
-Submit jobs to DIRAC WMS
+  Submit jobs to DIRAC WMS
 
 Usage::
 
@@ -12,14 +10,11 @@ Usage::
 
 Arguments::
 
-  JDL:      Path to JDL file
-
-Options::
-
-  -f  --File <value>           : Writes job ids to file <value>
-  -r  --UseJobRepo <value>     : Use the job repository
+  JDL:      Path to JDL file 
 
 Example::
 
-  $ dirac-wms-job-submit Simple.jdl
+  $ dirac-wms-job-submit Simple.jdl 
   JobID = 11
+
+

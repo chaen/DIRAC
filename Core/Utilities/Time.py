@@ -25,7 +25,6 @@ An timeInterval class provides a method to check
 if a give datetime is in the defined interval.
 
 """
-from __future__ import print_function
 import time as nativetime
 import datetime
 from types import StringTypes
@@ -86,7 +85,7 @@ def timeThis(method):
           except IndexError:
             argsLen = ''
 
-    print("%s Exec time ===> function %r %s -> %2.2f sec" % (pre, method.__name__, argsLen, te - ts))
+    print "%s Exec time ===> function %r %s -> %2.2f sec" % (pre, method.__name__, argsLen, te - ts)
     return result
 
   return timed

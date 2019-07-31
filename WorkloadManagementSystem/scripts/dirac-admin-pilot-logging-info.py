@@ -2,7 +2,6 @@
 """
   Get Pilots Logging for specific Pilot UUID or Job ID.
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import DIRAC

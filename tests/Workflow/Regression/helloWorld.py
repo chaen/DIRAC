@@ -1,7 +1,6 @@
 """ simple hello world job
 """
 
-from __future__ import print_function
 from DIRAC.Interfaces.API.Job import Job
 from DIRAC.Interfaces.API.Dirac import Dirac
 from DIRAC.DataManagementSystem.Utilities.DMSHelpers import DMSHelpers
@@ -23,4 +22,4 @@ j.setBannedSites( tier1s )
 
 # submit the job to dirac
 result = Dirac().submitJob(j)
-print(result)
+print result

@@ -1,7 +1,6 @@
 """
 Do the initial configuration of a DIRAC component
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 from DIRAC import gConfig
@@ -41,6 +40,6 @@ result = gComponentInstaller.addDefaultOptionsToCS(gConfig, componentType, syste
                                                    specialOptions={},
                                                    overwrite=False)
 if not result['OK']:
-  print("ERROR:", result['Message'])
+  print "ERROR:", result['Message']
 else:
   DIRACexit()

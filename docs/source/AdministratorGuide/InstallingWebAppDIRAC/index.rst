@@ -77,7 +77,7 @@ Create the configuration file::
    - ./install_site.sh install.cfg # use -v for specifying a version
    - source /opt/dirac/bashrc
 
-Note: If you do not have the /home/dirac/DIRAC directory, please have a look the instructions given in the :ref:`server_requirements` section.
+ Note: If you do not have the /home/dirac/DIRAC directory, please have a look the instructions given in the :ref:`server_requirements` section.
 
 
 Checks to be done after the installation
@@ -213,9 +213,7 @@ Consequently, if you want to sort the menu, you have to create your own configur
 Running multiple web instances
 ------------------------------
 
-If you want to run more than one instance, you have to use NGIX. The configuration of the NGINX is 
-described in the next section.
-
+If you want to run more than one instance, you have to use NGIX. The configuration of the NGINX is described in the next section.
 You can define the number of processes in the configuration file:  /opt/dirac/pro/WebAppDIRAC/WebApp/web.cfg
 
 NumProcesses = x (by default the NumProcesses is 1), where x the number of instances, you want to run
@@ -244,8 +242,6 @@ You have to configure NGINX to forward the requests to that ports::
        server 127.0.0.1:8002;
        server 127.0.0.1:8003;
    }
-
-Note: you can run NGINX in a separate machine.
 
 
 Install and configure NGINX

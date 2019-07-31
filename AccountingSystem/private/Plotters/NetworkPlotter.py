@@ -1,10 +1,7 @@
-'''A reporter class to prepare reports and network accounting plots.
-
-Supports:
-
-* packet loss rate (standard and magnified),
-* one-way delay, jitter, jitter over one-way delay
-
+'''
+A reporter class to prepare reports and network accounting plots.
+Supports: packet loss rate (standard and magnified),
+          one-way delay, jitter, jitter over one-way delay
 '''
 
 __RCSID__ = "$Id: $"

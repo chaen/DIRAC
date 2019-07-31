@@ -7,7 +7,6 @@
 """
   Print the service ports for the specified setup
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 import DIRAC
 from DIRAC.Core.Base import Script
@@ -30,6 +29,6 @@ result = diracAdmin.getServicePorts( setup, printOutput = True )
 if result['OK']:
   DIRAC.exit( 0 )
 else:
-  print(result['Message'])
+  print result['Message']
   DIRAC.exit( 2 )
 

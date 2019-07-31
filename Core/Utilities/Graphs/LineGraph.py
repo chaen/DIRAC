@@ -44,7 +44,7 @@ class LineGraph( PlotBase ):
     nKeys = self.gdata.getNumberOfKeys()
     tmp_b = []
     for n in range(nKeys):
-      if 'log_yaxis' in self.prefs:
+      if self.prefs.has_key('log_yaxis'):
         tmp_b.append(0.001)
       else:
         tmp_b.append(0.)
@@ -94,7 +94,7 @@ class LineGraph( PlotBase ):
 
     ymax = max( tmp_b ); ymax *= 1.1
     ymin = min( tmp_b, 0. ); ymin *= 1.1
-    if 'log_yaxis' in self.prefs:
+    if self.prefs.has_key('log_yaxis'):
       ymin = 0.001
     xmax=max(tmp_x)
     if self.log_xaxis:

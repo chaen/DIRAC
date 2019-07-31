@@ -22,16 +22,15 @@ __RCSID__ = "$Id$"
 import os
 import re
 import time
-import resource
 
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Utilities import Time
 from DIRAC.Core.Utilities import MJF
-from DIRAC.Core.Utilities.Profiler import Profiler
-from DIRAC.Core.Utilities.TimeLeft.TimeLeft import TimeLeft
-from DIRAC.Core.Utilities.Subprocess import getChildrenPIDs
 from DIRAC.ConfigurationSystem.Client.Config import gConfig
 from DIRAC.ConfigurationSystem.Client.PathFinder import getSystemInstance
+from DIRAC.Core.Utilities.ProcessMonitor import ProcessMonitor
+from DIRAC.Core.Utilities.TimeLeft.TimeLeft import TimeLeft
+from DIRAC.Core.Utilities.Subprocess import getChildrenPIDs
 from DIRAC.WorkloadManagementSystem.Client.JobStateUpdateClient import JobStateUpdateClient
 
 
@@ -60,7 +59,7 @@ class Watchdog(object):
     self.parameters = {}
     self.peekFailCount = 0
     self.peekRetry = 5
-    self.profiler = Profiler(pid)
+    self.processMonitor = ProcessMonitor()
     self.checkError = ''
     self.currentStats = {}
     self.initialized = False
@@ -276,24 +275,32 @@ class Watchdog(object):
 
     msg = ''
 
-    loadAvg = float(os.getloadavg()[0])
-    msg += 'LoadAvg: %d ' % loadAvg
-    heartBeatDict['LoadAverage'] = loadAvg
-    if 'LoadAverage' not in self.parameters:
-      self.parameters['LoadAverage'] = []
-    self.parameters['LoadAverage'].append(loadAvg)
+    loadAvg = self.getLoadAverage()
+    if not loadAvg['OK']:
+      msg += 'LoadAvg: ERROR'
+    else:
+      loadAvg = loadAvg['Value']
+      msg += 'LoadAvg: %d ' % loadAvg
+      heartBeatDict['LoadAverage'] = loadAvg
+      if 'LoadAverage' not in self.parameters:
+        self.parameters['LoadAverage'] = []
+      self.parameters['LoadAverage'].append(loadAvg)
 
     memoryUsed = self.getMemoryUsed()
-    msg += 'MemUsed: %.1f kb ' % (memoryUsed)
-    heartBeatDict['MemoryUsed'] = memoryUsed
-    if 'MemoryUsed' not in self.parameters:
-      self.parameters['MemoryUsed'] = []
-    self.parameters['MemoryUsed'].append(memoryUsed)
+    if not memoryUsed['OK']:
+      msg += 'MemUsed: ERROR '
+    else:
+      memoryUsed = memoryUsed['Value']
+      msg += 'MemUsed: %.1f kb ' % (memoryUsed)
+      heartBeatDict['MemoryUsed'] = memoryUsed
+      if 'MemoryUsed' not in self.parameters:
+        self.parameters['MemoryUsed'] = []
+      self.parameters['MemoryUsed'].append(memoryUsed)
 
-    result = self.profiler.getAllProcessData(withChildren=True)
+    result = self.processMonitor.getMemoryConsumed(self.wrapperPID)
     if result['OK']:
-      vsize = result['Value']['stats']['vSizeUsage'] * 1024.
-      rss = result['Value']['stats']['memoryUsage'] * 1024.
+      vsize = result['Value']['Vsize'] / 1024.
+      rss = result['Value']['RSS'] / 1024.
       heartBeatDict['Vsize'] = vsize
       heartBeatDict['RSS'] = rss
       self.parameters.setdefault('Vsize', [])
@@ -395,15 +402,14 @@ class Watchdog(object):
     """Uses os.times() to get CPU time and returns HH:MM:SS after conversion.
     """
     try:
-      result = self.profiler.getAllProcessData()
-      if not result['OK']:
+      cpuTime = self.processMonitor.getCPUConsumed(self.wrapperPID)
+      if not cpuTime['OK']:
         self.log.warn('Problem while checking consumed CPU')
-        return result
-      cpuTime = result['Value']
+        return cpuTime
+      cpuTime = cpuTime['Value']
       if cpuTime:
-        cpuTimeTotal = cpuTime['stats']['cpuUsageSystem'] + cpuTime['stats']['cpuUsageUser']
-        self.log.verbose("Raw CPU time consumed (s) = %s" % (cpuTimeTotal))
-        return self.__getCPUHMS(cpuTimeTotal)
+        self.log.verbose("Raw CPU time consumed (s) = %s" % (cpuTime))
+        return self.__getCPUHMS(cpuTime)
       else:
         self.log.error("CPU time consumed found to be 0")
         return S_ERROR()
@@ -713,21 +719,33 @@ class Watchdog(object):
     self.initialValues['CPUConsumed'] = cpuConsumed
     self.parameters['CPUConsumed'] = []
 
-    self.initialValues['LoadAverage'] = float(os.getloadavg()[0])
+    loadAvg = self.getLoadAverage()
+    if not loadAvg['OK']:
+      self.log.warn("Could not establish LoadAverage, setting to 0")
+      loadAvg = 0
+    else:
+      loadAvg = loadAvg['Value']
+
+    self.initialValues['LoadAverage'] = loadAvg
     self.parameters['LoadAverage'] = []
 
     memUsed = self.getMemoryUsed()
+    if not memUsed['OK']:
+      self.log.warn("Could not establish MemoryUsed, setting to 0")
+      memUsed = 0
+    else:
+      memUsed = memUsed['Value']
 
     self.initialValues['MemoryUsed'] = memUsed
     self.parameters['MemoryUsed'] = []
 
-    result = self.profiler.getAllProcessData()
+    result = self.processMonitor.getMemoryConsumed(self.wrapperPID)
     self.log.verbose('Job Memory: %s' % (result['Value']))
     if not result['OK']:
       self.log.warn('Could not get job memory usage')
 
-    self.initialValues['Vsize'] = result['Value']['stats']['vSizeUsage'] * 1024.
-    self.initialValues['RSS'] = result['Value']['stats']['memoryUsage'] * 1024.
+    self.initialValues['Vsize'] = result['Value']['Vsize'] / 1024.
+    self.initialValues['RSS'] = result['Value']['RSS'] / 1024.
     self.parameters['Vsize'] = []
     self.parameters['RSS'] = []
 
@@ -929,12 +947,18 @@ class Watchdog(object):
     return S_ERROR('Watchdog: ' + methodName + ' method should be implemented in a subclass')
 
   #############################################################################
+  def getLoadAverage(self):
+    """ Attempts to get the load average, should be overridden in a subclass"""
+    methodName = 'getLoadAverage'
+    self.log.warn('Watchdog: ' + methodName + ' method should be implemented in a subclass')
+    return S_ERROR('Watchdog: ' + methodName + ' method should be implemented in a subclass')
+
+  #############################################################################
   def getMemoryUsed(self):
-    """Obtains the memory used.
-    """
-    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss + \
-        resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
-    return float(mem)
+    """ Attempts to get the memory used, should be overridden in a subclass"""
+    methodName = 'getMemoryUsed'
+    self.log.warn('Watchdog: ' + methodName + ' method should be implemented in a subclass')
+    return S_ERROR('Watchdog: ' + methodName + ' method should be implemented in a subclass')
 
   #############################################################################
   def getDiskSpace(self):

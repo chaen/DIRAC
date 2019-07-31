@@ -127,7 +127,6 @@ class MQConnectionManager(object):
 
   def getConnector(self, mqConnection):
     """ Function returns MQConnector assigned to the mqURI.
-
     Args:
       mqConnection(str): connection name.
     Returns:
