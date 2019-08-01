@@ -29,7 +29,7 @@ class WLCGAccountingJson(object):
 
         :returns: S_OK with dict (keys: Total, Free)
     """
-    spaceReservation = self.se.options.get('SpaceReservation')
+    occupancyLFN = kwargs['occupancyLFN']
 
     if not occupancyLFN:
       return S_ERROR("Failed to get occupancyLFN")
@@ -74,7 +74,9 @@ class WLCGAccountingJson(object):
       return S_ERROR('Could not find storageshares component in %s at %s' % (occupancyLFN, self.name))
     storageShares = occupancyDict['storageservice']['storageshares']
 
+    spaceReservation = self.se.options.get('SpaceReservation')
     storageSharesSR = None
+
     for key in storageShares:
       if key['name'] == spaceReservation:
         storageSharesSR = key
