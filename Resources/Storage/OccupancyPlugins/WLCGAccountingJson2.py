@@ -30,12 +30,12 @@ class WLCGAccountingJson2(object):
 
         :returns: S_OK with dict (keys: Total, Free)
     """
+    print 'Use WLCGAccountingJson2'
     occupancyLFN = kwargs['occupancyLFN']
     print occupancyLFN
     if not occupancyLFN:
       return S_ERROR("Failed to get LFN of occupancy json file")
 
-    occupancyLFN = '../storagesummary.json'
     SpaceToken = None
 
     for storage in self.se.storages:
@@ -51,8 +51,11 @@ class WLCGAccountingJson2(object):
         ctx = gfal2.creat_context()
         params = ctx.transfer_parameters()
         params.overwrite = True
-        occupancyURL = os.path.join(baseURL, occupancyLFN)
-        print occupancyURL
+        res = storage.constructURLFromLFN(occupancyLFN)
+        if not res['OK']:
+          return res
+        occupancyURL = res['Value']
+        print occupancyURL  #must delete
         filePath = os.path.join(tmpDirName, os.path.basename(occupancyLFN))
         ctx.filecopy(params, occupancyURL, 'file://' + filePath)
         with open(filePath, 'r') as path:
@@ -95,4 +98,5 @@ class WLCGAccountingJson2(object):
       return S_ERROR('Could not find usedsize key in storageshares')
     sTokenDict['Free'] = sTokenDict['Total'] - storagesharesST['usedsize']
 
+    print sTokenDict
     return S_OK(sTokenDict)
