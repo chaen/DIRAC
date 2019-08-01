@@ -76,7 +76,6 @@ class WLCGAccountingJson(object):
 
     spaceReservation = self.se.options.get('SpaceReservation')
     storageSharesSR = None
-
     for key in storageShares:
       if key['name'] == spaceReservation:
         storageSharesSR = key
