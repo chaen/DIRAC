@@ -74,7 +74,32 @@ class WLCGAccountingJson(object):
       return S_ERROR('Could not find storageshares component in %s at %s' % (occupancyLFN, self.name))
     storageShares = occupancyDict['storageservice']['storageshares']
 
+    # get storageReservation
     spaceReservation = self.se.options.get('SpaceReservation')
+    if not spaceReservation:
+      self.log.debug(
+          'Get SpaceToken in storage parameters instead of SpaceReservation because it is not defined in CS')
+      for storage in self.se.storages:
+        SEparams = storage.getParameters()
+        if not SEparams:
+          self.log.debug('Could not get storage parameters at %s' % (self.name))
+          continue
+        if 'SpaceToken' in SEparams:
+          spaceReservation = SEparams['SpaceToken']
+          break
+        else:
+          self.log.debug('Could not find SpaceToken key in storage parameters at %s' % (self.name))
+          continue
+    if not spaceReservation:
+      self.log.debug('Get SpaceToken in storageShares')
+      shareLen = []
+      for storage in self.se.storages:
+        basePath = storage.getParameters()['Path']
+        for share in storageShares:
+          shareLen.append((share, len(os.path.commonprefix([share['path'][0], basePath]))))
+      seShare = max(shareLen, key=lambda x: x[1])[0]
+      spaceReservation = seShare.get('name')
+
     storageSharesSR = None
     for key in storageShares:
       if key['name'] == spaceReservation:
