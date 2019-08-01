@@ -30,17 +30,6 @@ class WLCGAccountingJson(object):
         :returns: S_OK with dict (keys: Total, Free)
     """
     spaceReservation = self.se.options.get('SpaceReservation')
-    if not spaceReservation:
-      self.log.debug("Check SpaceToken instead of SpaceReservation because it is not defined in CS")
-      for storage in self.se.storages:
-        SEparams = storage.getParameters()
-        if not SEparams:
-          return S_ERROR('Could not get storage parameters at %s' % (self.name))
-        if 'SpaceToken' not in SEparams:
-          return S_ERROR('Could not find SpaceToken key in storage parameters at %s' % (self.name))
-        spaceReservation = SEparams['SpaceToken']
-
-    # occupancyLFN = '/dpm/na.infn.it/home/belle/storagesummary.json'
 
     if not occupancyLFN:
       return S_ERROR("Failed to get occupancyLFN")
