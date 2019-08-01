@@ -90,26 +90,26 @@ class WLCGAccountingJson(object):
         else:
           self.log.debug('Could not find SpaceToken key in storage parameters at %s' % (self.name))
           continue
-    if not spaceReservation:
-      self.log.debug('Get SpaceToken in storageShares')
+
+    # get storageshares in WLCGAccountingJson file
+    storageSharesSR = None
+    if spaceReservation:
+      for key in storageShares:
+        if key['name'] == spaceReservation:
+          storageSharesSR = key
+          break
+    else:
+      self.log.debug('Get storageShares, and get spaceReservation in storageShares')
       shareLen = []
       for storage in self.se.storages:
         basePath = storage.getParameters()['Path']
         for share in storageShares:
           shareLen.append((share, len(os.path.commonprefix([share['path'][0], basePath]))))
-      seShare = max(shareLen, key=lambda x: x[1])[0]
-      spaceReservation = seShare.get('name')
-
-    storageSharesSR = None
-    for key in storageShares:
-      if key['name'] == spaceReservation:
-        storageSharesSR = key
-        break
-    if not storageSharesSR:
-      return S_ERROR('Could not find %s component in storageshares of %s at %s' % (
-          spaceReservation, occupancyLFN, self.name))
+      storageSharesSR = max(shareLen, key=lambda x: x[1])[0]
+      spaceReservation = storageSharesSR.get('name')
 
     sTokenDict = {}
+    sTokenDict['SpaceReservation'] = spaceReservation
     if 'totalsize' not in storageSharesSR:
       return S_ERROR('Could not find totalsize key in %s storageshares' % spaceReservation)
     sTokenDict['Total'] = storageSharesSR['totalsize']
