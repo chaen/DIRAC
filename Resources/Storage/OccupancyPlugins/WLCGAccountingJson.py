@@ -27,7 +27,7 @@ class WLCGAccountingJson(object):
   def getOccupancy(self, **kwargs):
     """ Returns the space information given by LCG Accouting Json
 
-        :returns: S_OK with dict (keys: Total, Free)
+        :returns: S_OK with dict (keys: SpaceReservation, Total, Free)
     """
     occupancyLFN = kwargs['occupancyLFN']
 
