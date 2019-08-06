@@ -66,13 +66,10 @@ class WLCGAccountingJson(object):
     # delete temp dir
     shutil.rmtree(tmpDirName)
 
-    if 'storageservice' not in occupancyDict:
-      return S_ERROR('Could not find storageservice component in %s at %s' % (occupancyLFN, self.name))
-    storageService = occupancyDict['storageservice']
-
-    if 'storageshares' not in storageService:
-      return S_ERROR('Could not find storageshares component in %s at %s' % (occupancyLFN, self.name))
-    storageShares = occupancyDict['storageservice']['storageshares']
+    try:
+      storageShares = occupancyDict['storageservice']['storageshares']
+    except KeyError as e:
+      return S_ERROR('Could not find %s key in %s at %s' % (str(e), occupancyLFN, self.name))
 
     # get storageReservation
     spaceReservation = self.se.options.get('SpaceReservation')
@@ -94,9 +91,9 @@ class WLCGAccountingJson(object):
     # get storageshares in WLCGAccountingJson file
     storageSharesSR = None
     if spaceReservation:
-      for key in storageShares:
-        if key['name'] == spaceReservation:
-          storageSharesSR = key
+      for storageshare in storageShares:
+        if storageshare.get('name') == spaceReservation:
+          storageSharesSR = storageshare
           break
     else:
       self.log.debug('Get storageShares, and get spaceReservation in storageShares')
@@ -110,12 +107,10 @@ class WLCGAccountingJson(object):
 
     sTokenDict = {}
     sTokenDict['SpaceReservation'] = spaceReservation
-    if 'totalsize' not in storageSharesSR:
-      return S_ERROR('Could not find totalsize key in %s storageshares' % spaceReservation)
-    sTokenDict['Total'] = storageSharesSR['totalsize']
-
-    if 'usedsize' not in storageSharesSR:
-      return S_ERROR('Could not find usedsize key in %s storageshares' % spaceReservation)
-    sTokenDict['Free'] = sTokenDict['Total'] - storageSharesSR['usedsize']
+    try:
+      sTokenDict['Total'] = storageSharesSR['totalsize']
+      sTokenDict['Free'] = sTokenDict['Total'] - storageSharesSR['usedsize']
+    except KeyError as e:
+      return S_ERROR('Could not find %s key in %s storageshares' % (str(e), spaceReservation))
 
     return S_OK(sTokenDict)
