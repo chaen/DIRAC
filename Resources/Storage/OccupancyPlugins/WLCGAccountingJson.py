@@ -44,7 +44,7 @@ class WLCGAccountingJson(object):
         params.overwrite = True
         res = storage.updateURL(occupancyLFN)
         if not res['OK']:
-          return res
+          continue
         occupancyURL = res['Value']
         ctx.filecopy(params, occupancyURL, 'file://' + filePath)
 
