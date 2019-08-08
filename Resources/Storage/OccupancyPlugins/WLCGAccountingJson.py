@@ -5,12 +5,11 @@
   https://docs.google.com/document/d/1yzCvKpxsbcQC5K9MyvXc-vBF1HGPBk4vhjw3MEXoXf8
 """
 import json
-import gfal2  # pylint: disable=import-error
 import os
 import tempfile
 import shutil
+import gfal2  # pylint: disable=import-error
 
-from DIRAC import gLogger, gConfig
 from DIRAC import S_OK, S_ERROR
 
 
@@ -71,22 +70,7 @@ class WLCGAccountingJson(object):
     except KeyError as e:
       return S_ERROR('Could not find %s key in %s at %s' % (str(e), occupancyLFN, self.name))
 
-    # get storageReservation
     spaceReservation = self.se.options.get('SpaceReservation')
-    if not spaceReservation:
-      self.log.debug(
-          'Get SpaceToken in storage parameters instead of SpaceReservation because it is not defined in CS')
-      for storage in self.se.storages:
-        SEparams = storage.getParameters()
-        if not SEparams:
-          self.log.debug('Could not get storage parameters at %s' % (self.name))
-          continue
-        if 'SpaceToken' in SEparams:
-          spaceReservation = SEparams['SpaceToken']
-          break
-        else:
-          self.log.debug('Could not find SpaceToken key in storage parameters at %s' % (self.name))
-          continue
 
     # get storageshares in WLCGAccountingJson file
     storageSharesSR = None
@@ -96,7 +80,8 @@ class WLCGAccountingJson(object):
           storageSharesSR = storageshare
           break
     else:
-      self.log.debug('Get storageShares, and get spaceReservation in storageShares')
+      self.log.debug(
+          'Could not find SpaceReservation in CS, and get storageShares and spaceReservation from WLCGAccoutingJson.')
       shareLen = []
       for storage in self.se.storages:
         basePath = storage.getParameters()['Path']
