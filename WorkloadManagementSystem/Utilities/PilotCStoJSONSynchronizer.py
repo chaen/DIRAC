@@ -343,7 +343,6 @@ class PilotCStoJSONSynchronizer(object):
 
   def _upload(self, pilotDict=None, filename='', pilotScript=''):
     """ Method to upload the pilot json file and the pilot scripts to the server.
-
         :param pilotDict: used only to upload the pilot.json, which is what it is
         :param filename: remote filename
         :param pilotScript: local path to the file to upload

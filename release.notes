@@ -1,60 +1,3 @@
-[v7r0-pre18]
-
-FIX: (#3962) use print function instead of print statement
-FIX: (#3962) remove the usage of the long suffix to distinguish between long and int
-FIX: (#3962) convert octal literals to new syntax
-NEW: (#3962) Add pylint test to check python 3 compatibility
-
-*Accounting
-CHANGE: (Multi)AccountingDB - Grouping Type and Object loader together with the MonitoringSystem ones.
-
-*WorkloadManagementSystem
-NEW: Add JobElasticDB.py with getJobParameters and setJobParameter methods to work with ElasticSearch (ES) backend.
-NEW: Add gJobElasticDB variable and indicates the activation of ES backend.
-CHANGE: Modify export_getJobParameter(s) to report values from ES if available.
-CHANGE: (#3748) Reduced (removed, in fact) interactions of Optimizers with JobParameters, using only OptimizerParameters
-NEW: (#3760) Add Client/JobStateUpdateClient.py
-NEW: (#3760) Add Client/JobManagerClient.py
-CHANGE: (#3760) Use the above Client classes instead of invoking RPCClient()
-NEW: Added ES backend to WMSAdministratorHandler to get JobParameters.
-NEW: Added separate MySQL table for JobsStatus in JobDB, and modified code accordingly.
-CHANGE: ElasticJobDB.py: Modify setJobParameter method to register JobAttributes like Owner, Proxy, JobGroup etc.
-CHANGE: ElasticJobDB.py: added getJobParametersAndAttributes method to retrieve both parameters and attributes for a given JobID.
-CHANGE: Pilot Watchdog - using python UNIX services for some watchdog calls
-CHANGE: (#3890) JobState always connects to DBs directly
-CHANGE: (#3890) remove JobStateSync service
-CHANGE: (#3873) Watchdog: use Profiler instead of ProcessMonitor
-
-*Core
-NEW: (#3744) Add update method to the ElasticSearchDB.py to update or if not available create the values 
-     sent from the setJobParameter function. Uses update_by_query and index ES APIs.
-CHANGE: (#3744) generateFullIndexName() method made static under the ElasticSearchDB class.
-CHANGE: (#3744) removed unused/outdated stuff from Distribution module
-FIX: check for empty /etc/grid-security/certificates dir
-NEW: (#3842) Add createClient decorator to add wrapper for all export_ functions automatically
-NEW: (#3678) dirac-install can install a non released code directly from the git repository
-FIX: (#3931) AuthManager - modified to work with the case of unregistered DN in credDict
-
-*TransformationSystem
-NEW: (#4124) InputDataQuery and OutputDataQuery parameters can be set for Transformations before 
-     they are added to the transformation system. Solves #4071
-
-*ProductionManagement
-NEW: (#3703) ProductionManagement system is introduced
-
-*tests
-NEW: Add ChangeESFlag.py script to modify useES flag in dirac.cfg. To be integrated with Jenkins code.
-CHANGE: (#3760) Use the above Client classes instead of invoking RPCClient()
-NEW: (#3744) Added performance tests for ES and MySQL for WMS DB backends
-NEW: (#3744) Added miniInstallDIRAC function for Jenkins jobs
-
-*Docs
-FIX: Better dirac.cfg example configuration for web
-NEW: (#3744) Add WMS documentation in DeveloperGuide/Systems
-NEW: Added script (docs/Tools/UpdateDiracCFG.py) to collate the ConfigTemplate.cfg 
-     files into the main dirac.cfg file
-CHANGE: (#4110) updated basic tutorial for CC7 instead of SLC6.     
-
 [v6r22p1]
 
 *WMS
@@ -844,6 +787,7 @@ FIX: (#3723) TaskManagerAgentBase - refactor adding operations for transformatio
 
 CHANGE: (#3745) Add the deprecated decorator to native XROOT plugin
 
+
 [v6r20p4]
 
 *DMS
@@ -944,7 +888,8 @@ FIX: MJF utility won't throw exceptions when MJF is not fully deployed at a site
 NEW: WebAppCompiler methods is implemented, which is used to compile the web framework
 NEW: add JsonFormatter for logs
 NEW: add default configuration to CS: only TrustedHost can upload file
-CHANGE: ComponentInstaller - remove the old web portal configuration data used during the installation
+CHANGE: ComponentInstaller - remove the old web portal configuration data
+	used during the installation
 CHANGE: MessageQueue log handler uses JsonFormatter
 
 *Monitoring

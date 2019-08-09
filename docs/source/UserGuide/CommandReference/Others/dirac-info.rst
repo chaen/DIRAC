@@ -1,14 +1,12 @@
-.. _dirac-info:
-
-==========
+=================
 dirac-info
-==========
+=================
 
-Report info about local DIRAC installation
+  Report info about local DIRAC installation
 
 Usage::
 
-  dirac-info [option|cfgfile] ... Site
+  dirac-info [option|cfgfile] ... Site 
 
 Example::
 

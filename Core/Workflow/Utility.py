@@ -3,7 +3,6 @@
     workflow operations
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import re
@@ -29,8 +28,8 @@ def substitute(param, variable, value):
   tmp_string = str(param).replace('@{' + variable + '}', value)
   if isinstance(param, basestring):
     return tmp_string
-  return eval(tmp_string)
-
+  else:
+    return eval(tmp_string)
 
 
 def resolveVariables(varDict):
@@ -52,7 +51,7 @@ def resolveVariables(varDict):
       break
     ntry += 1
   else:
-    print("Failed to resolve referencies in %d attempts" % max_tries)
+    print "Failed to resolve referencies in %d attempts" % max_tries
 
 
 def dataFromOption(parameter):

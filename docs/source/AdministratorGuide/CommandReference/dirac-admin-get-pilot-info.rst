@@ -1,10 +1,8 @@
-.. _admin_dirac-admin-get-pilot-info:
-
-==========================
+=================================
 dirac-admin-get-pilot-info
-==========================
+=================================
 
-Retrieve available info about the given pilot
+  Retrieve available info about the given pilot
 
 Usage::
 
@@ -12,11 +10,13 @@ Usage::
 
 Arguments::
 
-  PilotID:  Grid ID of the pilot
+  PilotID:  Grid ID of the pilot 
+
+ 
 
 Options::
 
-  -e  --extended               : Get extended printout
+  -e   --extended        : Get extended printout 
 
 Example::
 
@@ -38,3 +38,4 @@ Example::
                                                           'Status': 'Done',
                                                           'SubmissionTime': datetime.datetime(2011, 2, 21, 12, 27, 52),
                                                           'TaskQueueID': 399L}}
+

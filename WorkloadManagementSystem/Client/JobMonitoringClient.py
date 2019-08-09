@@ -1,13 +1,10 @@
 """ Class that contains client access to the job monitoring handler. """
 
-from __future__ import absolute_import
-
 __RCSID__ = "$Id$"
 
-from DIRAC.Core.Base.Client import Client, createClient
+from DIRAC.Core.Base.Client import Client
 
 
-@createClient('WorkloadManagement/JobMonitoring')
 class JobMonitoringClient(Client):
 
   def __init__(self, **kwargs):

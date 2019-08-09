@@ -14,7 +14,6 @@
 
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import re
@@ -26,7 +25,6 @@ import tempfile
 import glob
 import tarfile
 import urllib
-import shlex
 import StringIO
 
 import DIRAC
@@ -42,10 +40,10 @@ from DIRAC.Core.Utilities.List import breakListIntoChunks
 from DIRAC.Core.Utilities.SiteSEMapping import getSEsForSite
 from DIRAC.Core.Utilities.PrettyPrint import printTable, printDict
 from DIRAC.Core.Utilities.ClassAd.ClassAdLight import ClassAd
-from DIRAC.Core.Utilities.Subprocess import systemCall
+from DIRAC.Core.Utilities.Subprocess import shellCall
 from DIRAC.Core.Utilities.ModuleFactory import ModuleFactory
 from DIRAC.Core.Security import Locations
-from DIRAC.Core.Security.X509Chain import X509Chain  # pylint: disable=import-error
+from DIRAC.Core.Security.X509Chain import X509Chain
 from DIRAC.Core.Security.ProxyInfo import getProxyInfo
 from DIRAC.ConfigurationSystem.Client.PathFinder import getSystemSection, getServiceURL
 from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getVOForGroup
@@ -146,7 +144,7 @@ class Dirac(API):
       return S_OK()
     jobIDs = self.jobRepo.readRepository()['Value'].keys()
     if printOutput:
-      print(self.pPrint.pformat(jobIDs))
+      print self.pPrint.pformat(jobIDs)
     return S_OK(jobIDs)
 
   def monitorRepository(self, printOutput=False):
@@ -173,7 +171,7 @@ class Dirac(API):
       state = jobDict.get('State', 'Unknown')
       statusDict[state] = statusDict.setdefault(state, 0) + 1
     if printOutput:
-      print(self.pPrint.pformat(statusDict))
+      print self.pPrint.pformat(statusDict)
     return S_OK(statusDict)
 
   def retrieveRepositorySandboxes(self, requestedStates=None, destinationDirectory=''):
@@ -865,6 +863,12 @@ class Dirac(API):
 
     self.log.info('Attempting to submit job to local site: %s' % DIRAC.siteName())
 
+    if 'Executable' in parameters:
+      executable = os.path.expandvars(parameters['Executable'])
+    else:
+      return self._errorReport('Missing job "Executable"')
+
+    command = '%s %s' % (executable, arguments)
     # If not set differently in the CS use the root from the current DIRAC installation
     siteRoot = gConfig.getValue('/LocalSite/Root', DIRAC.rootPath)
 
@@ -872,13 +876,6 @@ class Dirac(API):
     self.log.verbose('DIRACROOT = %s' % (siteRoot))
     os.environ['DIRACPYTHON'] = sys.executable
     self.log.verbose('DIRACPYTHON = %s' % (sys.executable))
-
-    if 'Executable' in parameters:
-      executable = os.path.expandvars(parameters['Executable'])
-    else:
-      return self._errorReport('Missing job "Executable"')
-
-    command = '%s %s' % (executable, arguments)
 
     self.log.info('Executing: %s' % command)
     executionEnv = dict(os.environ)
@@ -895,7 +892,7 @@ class Dirac(API):
 
     cbFunction = self.__printOutput
 
-    result = systemCall(0, cmdSeq=shlex.split(command), env=executionEnv, callbackFunction=cbFunction)
+    result = shellCall(0, command, env=executionEnv, callbackFunction=cbFunction)
     if not result['OK']:
       return result
 
@@ -912,7 +909,7 @@ class Dirac(API):
         os.remove(outputFileName)
       self.log.info('Standard output written to %s' % (outputFileName))
       with open(outputFileName, 'w') as outputFile:
-        print(stdout, file=outputFile)
+        print >> outputFile, stdout
     else:
       self.log.warn('Job JDL has no StdOutput file parameter defined')
 
@@ -922,7 +919,7 @@ class Dirac(API):
         os.remove(errorFileName)
       self.log.verbose('Standard error written to %s' % (errorFileName))
       with open(errorFileName, 'w') as errorFile:
-        print(stderr, file=errorFile)
+        print >> errorFile, stderr
       sandbox = None
     else:
       self.log.warn('Job JDL has no StdError file parameter defined')
@@ -981,15 +978,15 @@ class Dirac(API):
     if fd:
       if isinstance(fd, (int, long)):
         if fd == 0:
-          print(message, file=sys.stdout)
+          print >> sys.stdout, message
         elif fd == 1:
-          print(message, file=sys.stderr)
+          print >> sys.stderr, message
         else:
-          print(message)
+          print message
       elif isinstance(fd, file):
-        print(message, file=fd)
+        print >> fd, message
     else:
-      print(message)
+      print message
 
   #############################################################################
   # def listCatalog( self, directory, printOutput = False ):
@@ -1153,7 +1150,7 @@ class Dirac(API):
       return repsResult
 
     if printOutput:
-      print(self.pPrint.pformat(repsResult['Value']))
+      print self.pPrint.pformat(repsResult['Value'])
 
     return repsResult
 
@@ -1221,7 +1218,7 @@ class Dirac(API):
       lfnGroups += lists
 
     if printOutput:
-      print(self.pPrint.pformat(lfnGroups))
+      print self.pPrint.pformat(lfnGroups)
     return S_OK(lfnGroups)
 
   #############################################################################
@@ -1275,7 +1272,7 @@ class Dirac(API):
         repsResult['Failed'].pop(directory)
 
     if printOutput:
-      print(self.pPrint.pformat(repsResult))
+      print self.pPrint.pformat(repsResult)
 
     return S_OK(repsResult)
 
@@ -1318,7 +1315,7 @@ class Dirac(API):
     if not result['OK']:
       return self._errorReport('Problem during putAndRegister call', result['Message'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1353,11 +1350,11 @@ class Dirac(API):
     if result['Value']['Failed']:
       self.log.error('Failures occurred during rm.getFile')
       if printOutput:
-        print(self.pPrint.pformat(result['Value']))
+        print self.pPrint.pformat(result['Value'])
       return S_ERROR(result['Value'])
 
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1414,7 +1411,7 @@ class Dirac(API):
     if not result['OK']:
       return self._errorReport('Problem during replicateFile call', result['Message'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   def replicate(self, lfn, destinationSE, sourceSE='', printOutput=False):
@@ -1455,7 +1452,7 @@ class Dirac(API):
     if not result['OK']:
       return self._errorReport('Problem during replicate call', result['Message'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1488,7 +1485,7 @@ class Dirac(API):
     if not result['OK']:
       return self._errorReport('Problem during getAccessURL call', result['Message'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1519,7 +1516,7 @@ class Dirac(API):
     if not result['OK']:
       return self._errorReport('Problem during getAccessURL call', result['Message'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1551,7 +1548,7 @@ class Dirac(API):
     if not result['OK']:
       return self._errorReport('Problem during getStorageFileMetadata call', result['Message'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1579,7 +1576,7 @@ class Dirac(API):
     dm = DataManager()
     result = dm.removeFile(lfn)
     if printOutput and result['OK']:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -1606,7 +1603,7 @@ class Dirac(API):
     dm = DataManager()
     result = dm.removeReplica(storageElement, lfn)
     if printOutput and result['OK']:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
     return result
 
   #############################################################################
@@ -2183,7 +2180,7 @@ class Dirac(API):
       self.log.verbose('Output written to %s' % outputFile)
 
     if printOutput:
-      print(self.pPrint.pformat(summary))
+      print self.pPrint.pformat(summary)
 
     return S_OK(summary)
 
@@ -2342,7 +2339,7 @@ class Dirac(API):
         self.log.warn('No heartbeat data for job %s' % job)
 
     if printOutput:
-      print(self.pPrint.pformat(summary))
+      print self.pPrint.pformat(summary)
 
     return S_OK(summary)
 
@@ -2382,8 +2379,8 @@ class Dirac(API):
       return result
 
     if printOutput:
-      print('=================\n', jobID)
-      print(self.pPrint.pformat(result['Value']))
+      print '=================\n', jobID
+      print self.pPrint.pformat(result['Value'])
 
     return result
 
@@ -2423,7 +2420,7 @@ class Dirac(API):
     result['Value'].get(jobID, {}).pop('StandardOutput', None)
 
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
 
     return S_OK(result['Value'][jobID])
 
@@ -2563,7 +2560,7 @@ class Dirac(API):
       result['Message'] = str(x)
 
     if printOutput:
-      print(self.pPrint.pformat(result))
+      print self.pPrint.pformat(result)
     return result
 
   #############################################################################
@@ -2594,7 +2591,7 @@ class Dirac(API):
 
     result = self.__getJDLParameters(result['Value'])
     if printOutput:
-      print(self.pPrint.pformat(result['Value']))
+      print self.pPrint.pformat(result['Value'])
 
     return result
 

@@ -49,7 +49,6 @@ class AgentConfigError(Exception):
 
   def __init__(self, msg):
     """ ctor
-
     :param str msg: error string
     """
     Exception.__init__(self)

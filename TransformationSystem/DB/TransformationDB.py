@@ -9,6 +9,7 @@
 import re
 import time
 import threading
+import json
 
 from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.Base.DB import DB
@@ -45,6 +46,10 @@ class TransformationDB(DB):
       DB.__init__(self, dbname, dbconfig)
 
     self.lock = threading.Lock()
+    self.filters = []
+    res = self.__updateFilters()
+    if not res['OK']:
+      gLogger.fatal("Failed to create filters")
 
     self.allowedStatusForTasks = ('Unused', 'ProbInFC')
 
@@ -106,12 +111,6 @@ class TransformationDB(DB):
                                  'ParameterType'
                                  ]
 
-    # Intialize filter Queries with Input Meta Queries
-    self.filterQueries = []
-    res = self.__updateFilterQueries()
-    if not res['OK']:
-      gLogger.fatal("Failed to create filter queries")
-
     # This is here to ensure full compatibility between different versions of the MySQL DB schema
     self.isTransformationTasksInnoDB = True
     res = self._query("SELECT Engine FROM INFORMATION_SCHEMA.TABLES WHERE table_name = 'TransformationTasks'")
@@ -141,9 +140,7 @@ class TransformationDB(DB):
                         maxTasks=0,
                         eventsPerTask=0,
                         addFiles=True,
-                        connection=False,
-                        inputMetaQuery=None,
-                        outputMetaQuery=None):
+                        connection=False):
     """ Add new transformation definition including its input streams
     """
     connection = self.__getConnection(connection)
@@ -176,22 +173,9 @@ class TransformationDB(DB):
       return res
     transID = res['lastRowId']
     self.lock.release()
-
-    # Add Input and Output Meta Queries to the transformation if they are defined
-    if inputMetaQuery:
-      res = self.createTransformationMetaQuery(transID, inputMetaQuery, 'Input')
-      if not res['OK']:
-        gLogger.error("Failed to add input meta query to the transformation", res['Message'])
-        return self.deleteTransformation(transID, connection=connection)
-    if outputMetaQuery:
-      res = self.createTransformationMetaQuery(transID, outputMetaQuery, 'Output')
-      if not res['OK']:
-        gLogger.error("Failed to add output meta query to the transformation", res['Message'])
-        return self.deleteTransformation(transID, connection=connection)
-
     # If the transformation has an input data specification
-    if inputMetaQuery:
-      self.filterQueries.append((transID, inputMetaQuery))
+    if fileMask:
+      self.filters.append((transID, json.loads(fileMask)))
 
     if inheritedFrom:
       res = self._getTransformationID(inheritedFrom, connection=connection)
@@ -222,10 +206,11 @@ class TransformationDB(DB):
           gLogger.error("Could not insert files, now deleting", res['Message'])
           return self.deleteTransformation(transID, connection=connection)
 
-    # Add files to the DataFiles table
+    ### Add files to the DataFiles table ##################
     catalog = FileCatalog()
-    if addFiles and inputMetaQuery:
-      res = catalog.findFilesByMetadata(inputMetaQuery)
+    if addFiles and fileMask:
+      mqDict = json.loads(fileMask)
+      res = catalog.findFilesByMetadata(mqDict)
       if not res['OK']:
         gLogger.error("Failed to find files to be added to the transformation", res['Message'])
         return res
@@ -385,24 +370,33 @@ class TransformationDB(DB):
     req = "DELETE FROM Transformations WHERE TransformationID=%d;" % transID
     return self._update(req, connection)
 
-  def __updateFilterQueries(self, connection=False):
+  def __updateFilters(self, connection=False):
     """ Get filters for all defined input streams in all the transformations.
+        If transID argument is given, get filters only for this transformation.
     """
     resultList = []
-    res = self.getTransformations(condDict={'Status': {'in': ['New', 'Active', 'Stopped', 'Flush', 'Completing']}},
-                                  connection=connection)
+    req = "SELECT TransformationID,FileMask FROM Transformations;"
+    res = self._query(req, connection)
     if not res['OK']:
       return res
-
-    transIDs = res['Value']
-    for transID in transIDs:
-      res = self.getTransformationMetaQuery(transID, 'Input')
-      if not res['OK']:
-        return res
-      resultList.append(transID, res['Value'])
-
-    self.filterQueries = resultList
+    for transID, mask in res['Value']:
+      if mask:
+        resultList.append((transID, json.loads(mask)))
+    self.filters = resultList
     return S_OK(resultList)
+
+  def __filterFile(self, lfn, filters=None):
+    """Pass the input file through a supplied filter or those currently active """
+    result = []
+    if filters:
+      for transID, refilter in filters:
+        if refilter.search(lfn):
+          result.append(transID)
+    else:
+      for transID, refilter in self.filters:
+        if refilter.search(lfn):
+          result.append(transID)
+    return result
 
   ###########################################################################
   #
@@ -969,35 +963,25 @@ class TransformationDB(DB):
     req = "DELETE FROM TransformationTasks WHERE TransformationID=%d AND TaskID=%d" % (transID, taskID)
     return self._update(req, connection)
 
-  def __deleteTransformationMetaQueries(self, transID, connection=False):
-    """ Delete all the meta queries from the TransformationMetaQueries table for transformation with TransformationID
-    """
-    req = "DELETE FROM TransformationMetaQueries WHERE TransformationID=%d" % transID
-    return self._update(req, connection)
-
   ####################################################################
   #
-  # These methods manipulate the TransformationMetaQueries table. It replaces all methods used to manipulate
-  # the old InputDataQuery table
+  # These methods manipulate the TransformationInputDataQuery table
   #
 
-  def createTransformationMetaQuery(self, transName, queryDict, queryType, author='', connection=False):
-    """ Add a Meta Query to a given transformation """
+  def createTransformationInputDataQuery(self, transName, queryDict, author='', connection=False):
     res = self._getConnectionTransID(connection, transName)
     if not res['OK']:
       return res
     connection = res['Value']['Connection']
     transID = res['Value']['TransformationID']
-    return self.__addMetaQuery(transID, queryDict, queryType, author=author, connection=connection)
+    return self.__addInputDataQuery(transID, queryDict, author=author, connection=connection)
 
-  def __addMetaQuery(self, transID, queryDict, queryType, author='', connection=False):
-    """ Insert the Meta Query into the TransformationMetaQuery table """
-    res = self.getTransformationMetaQuery(transID, queryType, connection=connection)
+  def __addInputDataQuery(self, transID, queryDict, author='', connection=False):
+    res = self.getTransformationInputDataQuery(transID, connection=connection)
     if res['OK']:
-      return S_ERROR("Meta query already exists for transformation")
-    if res['Message'] != 'No MetaQuery found for transformation':
+      return S_ERROR("Input data query already exists for transformation")
+    if res['Message'] != 'No InputDataQuery found for transformation':
       return res
-
     for parameterName in sorted(queryDict):
       parameterValue = queryDict[parameterName]
       if not parameterValue:
@@ -1015,54 +999,42 @@ class TransformationDB(DB):
         if isinstance(parameterValue, dict):
           parameterType = 'Dict'
           parameterValue = str(parameterValue)
-
-      res = self.insertFields('TransformationMetaQueries', ['TransformationID', 'MetaDataName', 'MetaDataValue',
-                                                            'MetaDataType', 'QueryType'],
-                              [transID, parameterName, parameterValue, parameterType, queryType], conn=connection)
+      res = self.insertFields('TransformationInputDataQuery', ['TransformationID', 'ParameterName',
+                                                               'ParameterValue', 'ParameterType'],
+                              [transID, parameterName, parameterValue, parameterType], conn=connection)
       if not res['OK']:
-        message = 'Failed to add meta query'
-        self.deleteTransformationMetaQuery(transID, queryType, connection=connection)
+        message = 'Failed to add input data query'
+        self.deleteTransformationInputDataQuery(transID, connection=connection)
         break
       else:
-        message = 'Added meta data query'
-
+        message = 'Added input data query'
     self.__updateTransformationLogging(transID, message, author, connection=connection)
     return res
 
-  def deleteTransformationMetaQuery(self, transName, queryType, author='', connection=False):
-    """ Remove a Meta Query from the TransformationMetaQueries table """
+  def deleteTransformationInputDataQuery(self, transName, author='', connection=False):
     res = self._getConnectionTransID(connection, transName)
     if not res['OK']:
       return res
     connection = res['Value']['Connection']
     transID = res['Value']['TransformationID']
-    res = self._escapeString(queryType)
-    if not res['OK']:
-      return S_ERROR("Failed to parse the transformation query type")
-    queryType = res['Value']
-    req = "DELETE FROM TransformationMetaQueries WHERE TransformationID=%d AND QueryType=%s;" % (transID, queryType)
+    req = "DELETE FROM TransformationInputDataQuery WHERE TransformationID=%d;" % transID
     res = self._update(req, connection)
     if not res['OK']:
       return res
     if res['Value']:
       # Add information to the transformation logging
-      message = 'Deleted meta data query'
+      message = 'Deleted input data query'
       self.__updateTransformationLogging(transID, message, author, connection=connection)
     return res
 
-  def getTransformationMetaQuery(self, transName, queryType, connection=False):
-    """ Get the Meta Query for a given transformation """
+  def getTransformationInputDataQuery(self, transName, connection=False):
     res = self._getConnectionTransID(connection, transName)
     if not res['OK']:
       return res
     connection = res['Value']['Connection']
     transID = res['Value']['TransformationID']
-    res = self._escapeString(queryType)
-    if not res['OK']:
-      return S_ERROR("Failed to parse the transformation query type")
-    queryType = res['Value']
-    req = "SELECT MetaDataName,MetaDataValue,MetaDataType FROM TransformationMetaQueries"
-    req = req + " WHERE TransformationID=%d AND QueryType=%s;" % (transID, queryType)
+    req = "SELECT ParameterName,ParameterValue,ParameterType FROM TransformationInputDataQuery"
+    req = req + " WHERE TransformationID=%d;" % transID
     res = self._query(req, connection)
     if not res['OK']:
       return res
@@ -1078,7 +1050,7 @@ class TransformationDB(DB):
         parameterValue = eval(parameterValue)
       queryDict[parameterName] = parameterValue
     if not queryDict:
-      return S_ERROR("No MetaQuery found for transformation")
+      return S_ERROR("No InputDataQuery found for transformation")
     return S_OK(queryDict)
 
   ###########################################################################
@@ -1354,9 +1326,6 @@ class TransformationDB(DB):
     res = self.__deleteTransformationTasks(transID, connection=connection)
     if not res['OK']:
       return res
-    res = self.__deleteTransformationMetaQueries(transID, connection=connection)
-    if not res['OK']:
-      return res
 
     self.__updateTransformationLogging(transID, "Transformation Cleaned", author, connection=connection)
 
@@ -1381,7 +1350,7 @@ class TransformationDB(DB):
     res = self.__deleteTransformation(transID, connection=connection)
     if not res['OK']:
       return res
-    res = self.__updateFilterQueries(connection=connection)
+    res = self.__updateFilters()
     if not res['OK']:
       return res
     return S_OK()
@@ -1541,7 +1510,7 @@ class TransformationDB(DB):
     if not res['OK']:
       gLogger.error("TransformationDB.addDirectory: Failed to get files. %s" % res['Message'])
       return res
-    if path not in res['Value']['Successful']:
+    if not path in res['Value']['Successful']:
       gLogger.error("TransformationDB.addDirectory: Failed to get files.")
       return res
     gLogger.info("TransformationDB.addDirectory: Obtained %s files in %s seconds." % (path, time.time() - start))
@@ -1602,8 +1571,6 @@ class TransformationDB(DB):
         return res
       filesToAdd.extend(res['Value'])
     for trans in transIDs:
-      if trans not in transFiles:
-        transFiles[trans] = []
       transFiles[trans].extend(filesToAdd)
 
     # Add the files to the transformations
@@ -1620,8 +1587,7 @@ class TransformationDB(DB):
   def _filterFileByMetadata(self, metadatadict):
     """Pass the input metadatadict through those currently active"""
     transIDs = []
-    queries = self.filterQueries
-
+    queries = self.filters
     catalog = FileCatalog()
     gLogger.info('Filter file by queries', queries)
     res = catalog.getMetadataFields()
@@ -1636,10 +1602,6 @@ class TransformationDB(DB):
     typeDict.update(res['Value']['DirectoryMetaFields'])
 
     for transID, query in queries:
-      gLogger.info("Check the transformation status")
-      res = self.getTransformationParameters(transID, 'Status')
-      if res['Value'] not in ['New', 'Active', 'Stopped', 'Completing', 'Flush']:
-        continue
       mq = MetaQuery(query, typeDict)
       gLogger.info("Apply query %s to metadata %s" % (mq.getMetaQuery(), metadatadict))
       res = mq.applyQuery(metadatadict)

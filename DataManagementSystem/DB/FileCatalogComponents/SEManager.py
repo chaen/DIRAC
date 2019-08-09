@@ -1,13 +1,16 @@
+########################################################################
+# $Id$
+########################################################################
 """ DIRAC FileCatalog Storage Element Manager mix-in class """
 
 __RCSID__ = "$Id$"
 
+from DIRAC import S_OK, S_ERROR, gConfig, gLogger
+from DIRAC.Core.Utilities.Pfn import pfnunparse
 import threading
 import time
 import random
-
-from DIRAC import S_OK, S_ERROR, gConfig, gLogger
-from DIRAC.Core.Utilities.Pfn import pfnunparse
+from types import IntType, LongType, StringTypes
 
 
 class SEManagerBase:
@@ -85,7 +88,7 @@ class SEManagerDB(SEManagerBase):
       self.lock.release()
       return S_OK(seid)
     connection = self.db._getConnection()
-    res = self.db.insertFields('FC_StorageElements', ['SEName'], [seName], connection)
+    res = self.db._insert('FC_StorageElements', ['SEName'], [seName], connection)
     if not res['OK']:
       gLogger.debug("SEManager AddSE lock released. Used %.3f seconds. %s" % (time.time() - waitTime, seName))
       self.lock.release()
@@ -131,7 +134,7 @@ class SEManagerDB(SEManagerBase):
 
   def getSEID(self, seName):
     """ Get ID for a SE specified by its name """
-    if isinstance(seName, (int, long)):
+    if type(seName) in [IntType, LongType]:
       return S_OK(seName)
     if seName in self.db.seNames.keys():
       return S_OK(self.db.seNames[seName])
@@ -154,7 +157,7 @@ class SEManagerDB(SEManagerBase):
   def getSEDefinition(self, seID):
     """ Get the Storage Element definition
     """
-    if isinstance(seID, str):
+    if type(seID) in StringTypes:
       result = self.getSEID(seID)
       if not result['OK']:
         return result

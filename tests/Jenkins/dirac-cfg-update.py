@@ -2,7 +2,6 @@
 """ update local cfg
 """
 
-from __future__ import print_function
 import os
 
 from DIRAC.Core.Base import Script
@@ -41,7 +40,7 @@ localCfg = CFG()
 if cFile:
   localConfigFile = cFile
 else:
-  print("WORKSPACE: %s" % os.path.expandvars('$WORKSPACE'))
+  print "WORKSPACE: %s" % os.path.expandvars('$WORKSPACE')
   if os.path.isfile(os.path.expandvars('$WORKSPACE') + '/PilotInstallDIR/etc/dirac.cfg'):
     localConfigFile = os.path.expandvars('$WORKSPACE') + '/PilotInstallDIR/etc/dirac.cfg'
   elif os.path.isfile(os.path.expandvars('$WORKSPACE') + '/ServerInstallDIR/etc/dirac.cfg'):
@@ -49,7 +48,7 @@ else:
   elif os.path.isfile('./etc/dirac.cfg'):
     localConfigFile = './etc/dirac.cfg'
   else:
-    print("Local CFG file not found")
+    print "Local CFG file not found"
     exit(2)
 
 localCfg.loadFromFile(localConfigFile)

@@ -15,7 +15,6 @@
     test cases for Request class
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 # #
@@ -123,7 +122,7 @@ def createRequest(reqType):
   if reqType == 6:
     return r
 
-  print('This should not happen, reqType =', reqType)
+  print 'This should not happen, reqType =', reqType
 
 ########################################################################
 
@@ -423,7 +422,7 @@ class RequestTests(unittest.TestCase):
     }
     debug = False
     if debug:
-      print('')
+      print ''
     for reqType in title:
 
       r = createRequest(reqType)

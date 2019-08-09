@@ -68,7 +68,7 @@ class StateMachineTests(unittest.TestCase):
     """ ctor tests """
     try:
       StateMachine()
-    except Exception as error:
+    except Exception, error:
       self.assertEqual( type(error), TypeError, "wrong exception" )
     
 

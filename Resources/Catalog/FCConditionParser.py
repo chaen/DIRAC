@@ -58,6 +58,14 @@ class FCConditionParser(object):
   # Binary operator base class
   class _BoolBinOp( object ):
     """ Abstract object to represent a binary operator
+
+           :param token: the token matching a binary operator
+                         it is a list with only one element which itself is a list
+                         [ [ Arg1, Operator, Arg2] ]
+                         The arguments themselves can be of any type, but they need to
+                         provide an "eval" method that takes \*\*kwargs as input,
+                         and return a boolean
+
     """
 
     reprsymbol = None  # Sign to represent the boolean operation
@@ -68,12 +76,6 @@ class FCConditionParser(object):
 
     def __init__( self, token ):
       """
-      :param token: the token matching a binary operator
-                    it is a list with only one element which itself is a list
-                    [ [ Arg1, Operator, Arg2] ]
-                    The arguments themselves can be of any type, but they need to
-                    provide an "eval" method that takes \*\*kwargs as input,
-                    and return a boolean
       """
 
       # Keep the two arguments
@@ -112,16 +114,19 @@ class FCConditionParser(object):
 
   class _BoolNot( object ):
     """ Represents the "not" unitary operator
+
+    :param t: the token matching a unitary operator
+              it is a list with only one element which itself is a list
+              [ [ !, Arg1] ]
+              The argument itself can be of any type, but it needs to
+              provide an "eval" method that takes \*\*kwargs as input,
+              and return a boolean
+
     """
 
     def __init__( self, t ):
       """
-      :param t: the token matching a unitary operator
-                it is a list with only one element which itself is a list
-                [ [ !, Arg1] ]
-                The argument itself can be of any type, but it needs to
-                provide an "eval" method that takes \*\*kwargs as input,
-                and return a boolean
+
       """
 
       # We just keep the argument

@@ -6,7 +6,6 @@
      PilotAgents database.
 """
 
-from __future__ import absolute_import
 __RCSID__ = "$Id$"
 
 from DIRAC import S_OK, S_ERROR, gConfig
@@ -220,7 +219,7 @@ class PilotStatusAgent(AgentModule):
 
     accountingSent = False
     if accountingFlag:
-      retVal = self.pilotDB.getPilotInfo(list(pilotsToAccount.keys()), conn=connection)
+      retVal = self.pilotDB.getPilotInfo(pilotsToAccount.keys(), conn=connection)
       if not retVal['OK']:
         self.log.error('Fail to retrieve Info for pilots', retVal['Message'])
         return retVal
@@ -232,7 +231,7 @@ class PilotStatusAgent(AgentModule):
             dbData[pref]['DestinationSite'] = pilotsToAccount[pref]['DestinationSite']
             dbData[pref]['LastUpdateTime'] = pilotsToAccount[pref]['StatusDate']
 
-      retVal = self._addPilotsAccountingReport(dbData)
+      retVal = self.__addPilotsAccountingReport(dbData)
       if not retVal['OK']:
         self.log.error('Fail to retrieve Info for pilots', retVal['Message'])
         return retVal
@@ -257,7 +256,7 @@ class PilotStatusAgent(AgentModule):
 
     return S_OK()
 
-  def _addPilotsAccountingReport(self, pilotsData):
+  def __addPilotsAccountingReport(self, pilotsData):
     """ fill accounting data
     """
     for pRef in pilotsData:

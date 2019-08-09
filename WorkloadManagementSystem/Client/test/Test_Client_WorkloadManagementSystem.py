@@ -2,7 +2,6 @@
 """
 # pylint: disable=protected-access, missing-docstring, invalid-name, line-too-long
 
-from __future__ import print_function
 import os
 import unittest
 import importlib
@@ -160,7 +159,7 @@ class SandboxStoreTestCaseSuccess(ClientsTestCase):
     ssc = SandboxStoreClient()
     fileList = [StringIO.StringIO('try')]
     res = ssc.uploadFilesAsSandbox(fileList)
-    print(res)
+    print res
 
 
 #############################################################################

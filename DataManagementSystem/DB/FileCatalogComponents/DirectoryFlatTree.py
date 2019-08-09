@@ -5,6 +5,7 @@
 
 __RCSID__ = "$Id$"
 
+import time
 import os
 import stat
 
@@ -151,7 +152,7 @@ class DirectoryFlatTree(DirectoryTreeBase):
       return S_OK(dirID)
     names = ['DirName']
     values = [path]
-    result = self.db.insertFields('DirectoryInfo', names, values)
+    result = self.db._insert('DirectoryInfo', names, values)
     if not result['OK']:
       return result
     return S_OK(result['lastRowId'])

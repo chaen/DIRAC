@@ -3,10 +3,9 @@
 
 __RCSID__ = "$Id$"
 
-from DIRAC.Core.Base.Client import Client, createClient
+from DIRAC.Core.Base.Client import Client
 
 
-@createClient('WorkloadManagement/Matcher')
 class MatcherClient(Client):
 
   """ Exposes the functionality available in the WorkloadManagement/MatcherHandler

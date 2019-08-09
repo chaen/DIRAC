@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """ Enable using one or more Storage Elements
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import DIRAC
@@ -73,7 +72,7 @@ exitCode = 0
 errorList = []
 setup = gConfig.getValue('/DIRAC/Setup', '')
 if not setup:
-  print('ERROR: Could not contact Configuration Service')
+  print 'ERROR: Could not contact Configuration Service'
   exitCode = 2
   DIRAC.exit(exitCode)
 

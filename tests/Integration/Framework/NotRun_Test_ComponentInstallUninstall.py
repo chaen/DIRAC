@@ -4,7 +4,7 @@ as well as the components
 CLI functions are used to ensure the test is as similar as possible to a real user-to-cli interaction
 This test assumes that there is a DIRAC master server running on the local machine
 This test assumes that the Notification service is not installed
-This test assumes that the FTS3DB database is not installed and doesn't exist in MySQL
+This test assumes that the FTSDB database is not installed and doesn't exist in MySQL
 """
 
 # pylint: disable=invalid-name,wrong-import-position
@@ -173,27 +173,27 @@ class ComponentInstallationChain(TestComponentInstallation):
     gComponentInstaller.setMySQLPasswords(self.rootPwd, self.diracPwd)
 
     # Install database
-    self.client.do_install('db FTS3DB')
+    self.client.do_install('db FTSDB')
 
     # Check installation in CS
     self.csClient.downloadCSData()
     cfg = self.csClient.getCurrentCFG()['Value']
-    self.assertTrue(cfg.isSection('Systems/DataManagement/' + self.frameworkSetup + '/Databases/FTS3DB/'))
+    self.assertTrue(cfg.isSection('Systems/DataManagement/' + self.frameworkSetup + '/Databases/FTSDB/'))
 
     # Check in database
-    result = self.monitoringClient.getInstallations({'Instance': 'FTS3DB',
+    result = self.monitoringClient.getInstallations({'Instance': 'FTSDB',
                                                      'UnInstallationTime': None, 'InstalledBy': self.user},
-                                                    {'System': 'DataManagement', 'Type': 'DB', 'Module': 'FTS3DB'},
+                                                    {'System': 'DataManagement', 'Type': 'DB', 'Module': 'FTSDB'},
                                                     {}, False)
     self.assertTrue(result['OK'] and len(result['Value']) == 1)
 
     # Uninstall database
-    self.client.do_uninstall('db FTS3DB')
+    self.client.do_uninstall('db FTSDB')
 
     # Check uninstallation in CS
     self.csClient.downloadCSData()
     cfg = self.csClient.getCurrentCFG()['Value']
-    self.assertTrue(not cfg.isSection('Systems/DataManagement/' + self.frameworkSetup + '/Databases/FTS3DB/'))
+    self.assertTrue(not cfg.isSection('Systems/DataManagement/' + self.frameworkSetup + '/Databases/FTSDB/'))
 
 
 if __name__ == '__main__':

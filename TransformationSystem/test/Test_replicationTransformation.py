@@ -37,8 +37,7 @@ class TestMoving(unittest.TestCase):
 
   def setUp(self):
     self.tClientMock = Mock()
-    # self.tClientMock.createTransformationInputDataQuery.return_value = S_OK()
-    self.tClientMock.createTransformationMetaQuery.return_value = S_OK()
+    self.tClientMock.createTransformationInputDataQuery.return_value = S_OK()
     self.tMock = Mock(return_value=self.tClientMock)
 
   def tearDown(self):
@@ -49,24 +48,27 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())):
+            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=True)
     self.assertTrue(ret['OK'], ret.get('Message', ""))
     self.assertEqual(ret['Value'].getPlugin().get('Value'), 'Broadcast')
-    self.assertEqual(ret['Value'].inputMetaQuery, {'prodID': prodID})
 
   def test_createRepl_NoSource(self):
     """ test creating transformation """
     tSE = 'Target-SRM'
     sSE = ''
     prodID = 12345
+    module_name = 'DIRAC.TransformationSystem.Utilities.ReplicationTransformation'
     trmodule = 'DIRAC.TransformationSystem.Client.Transformation.Transformation'
     with patch(trmodule + '.getTransformation', new=Mock(return_value=S_OK({}))), \
             patch(trmodule + '.addTransformation', new=Mock(return_value=S_OK())), \
-            patch(trmodule + '._Transformation__setSE', new=Mock(return_value=S_OK())):
+            patch(trmodule + '._Transformation__setSE', new=Mock(return_value=S_OK())), \
+            patch('%s.TransformationClient' % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=True)
     self.assertTrue(ret['OK'], ret.get('Message', ''))
     self.assertEqual(ret['Value'].getPlugin().get('Value'), 'Broadcast')
@@ -77,10 +79,12 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())):
+            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=False, extraData={})
     self.assertTrue(ret['OK'], ret.get('Message', ""))
 
@@ -89,10 +93,12 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())):
+            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, extraname="extraName", enable=True)
     self.assertTrue(ret['OK'], ret.get('Message', ""))
 
@@ -101,10 +107,12 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())):
+            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Smelly', tSE, sSE, 'prodID', prodID, extraname="extraName", enable=True)
     self.assertFalse(ret['OK'], ret.get('Message', ""))
     self.assertIn('Unsupported flavour', ret['Message'])
@@ -114,10 +122,12 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(side_effect=(S_OK(), S_ERROR()))):
+            patch(trmodule + "._Transformation__setSE", new=Mock(side_effect=(S_OK(), S_ERROR()))), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=True)
     self.assertFalse(ret['OK'], str(ret))
     self.assertIn("TargetSE not valid", ret['Message'])
@@ -127,10 +137,12 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(side_effect=(S_ERROR(), S_ERROR()))):
+            patch(trmodule + "._Transformation__setSE", new=Mock(side_effect=(S_ERROR(), S_ERROR()))), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=True)
     self.assertFalse(ret['OK'], str(ret))
     self.assertIn("SourceSE not valid", ret['Message'])
@@ -140,10 +152,12 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
             patch(trmodule + ".addTransformation", new=Mock(return_value=S_ERROR("Cannot add Trafo"))), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())):
+            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=True)
     self.assertFalse(ret['OK'], str(ret))
     self.assertIn("Cannot add Trafo", ret['Message'])
@@ -153,13 +167,17 @@ class TestMoving(unittest.TestCase):
     tSE = "Target-SRM"
     sSE = "Source-SRM"
     prodID = 12345
+    self.tClientMock.createTransformationInputDataQuery.return_value = S_ERROR("Failed to create IDQ")
+
+    module_name = "DIRAC.TransformationSystem.Utilities.ReplicationTransformation"
     trmodule = "DIRAC.TransformationSystem.Client.Transformation.Transformation"
     with patch(trmodule + ".getTransformation", new=Mock(return_value=S_OK({}))), \
-            patch(trmodule + ".addTransformation", new=Mock(return_value=S_ERROR('Failed to add IMQ'))), \
-            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())):
+            patch(trmodule + ".addTransformation", new=Mock(return_value=S_OK())), \
+            patch(trmodule + "._Transformation__setSE", new=Mock(return_value=S_OK())), \
+            patch("%s.TransformationClient" % module_name, new=self.tMock):
       ret = createDataTransformation('Moving', tSE, sSE, 'prodID', prodID, enable=True)
     self.assertFalse(ret['OK'], str(ret))
-    self.assertIn("Failed to add IMQ", ret['Message'])
+    self.assertIn("Failed to create IDQ", ret['Message'])
 
 
 class TestParams(unittest.TestCase):

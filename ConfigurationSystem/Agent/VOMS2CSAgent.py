@@ -1,8 +1,9 @@
 """
-VOMS2CSAgent performs the following operations:
+  VOMS2CSAgent performs the following operations:
 
-- Adds new users for the given VO taking into account the VO VOMS information
-- Updates the data in the CS for existing users including DIRAC group membership
+    - Adds new users for the given VO taking into account the VO VOMS information
+    - Updates the data in the CS for existing users including DIRAC group membership
+    -
 
 The following options can be set for the VOMS2CSAgent.
 
@@ -13,8 +14,6 @@ The following options can be set for the VOMS2CSAgent.
   :caption: VOMS2CSAgent options
 
 """
-
-from __future__ import absolute_import, unicode_literals
 
 from DIRAC import S_OK, gConfig, S_ERROR
 from DIRAC.Core.Base.AgentModule import AgentModule

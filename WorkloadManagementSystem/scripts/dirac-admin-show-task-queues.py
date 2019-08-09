@@ -6,7 +6,6 @@
 """
    Show details of currently active Task Queues
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import sys

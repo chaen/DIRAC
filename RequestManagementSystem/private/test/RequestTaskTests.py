@@ -7,7 +7,6 @@
 
     test cases for RequestTask class
 """
-from __future__ import print_function
 __RCSID__ = "$Id $"
 # #
 # @file RequestTaskTests.py
@@ -80,7 +79,7 @@ class RequestTaskTests( unittest.TestCase ):
     self.assertEqual( ret["OK"], True , "call failed" )
 
     ret = self.task.setupProxy()
-    print(ret)
+    print ret
 
 
 # # tests execution

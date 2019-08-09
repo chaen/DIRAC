@@ -29,7 +29,6 @@ class BaseType( object ):
   ########################################################################
   def __init__( self ):
     """ c'tor
-
     :param self: self reference
     """
     self.doc_type = None

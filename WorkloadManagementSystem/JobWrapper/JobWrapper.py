@@ -7,7 +7,6 @@
     and a Watchdog Agent that can monitor its progress.
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import os
@@ -35,25 +34,26 @@ from DIRAC.Core.Utilities.Subprocess import Subprocess
 from DIRAC.Core.Utilities.File import getGlobbedTotalSize, getGlobbedFiles
 from DIRAC.Core.Utilities.Version import getCurrentVersion
 from DIRAC.Core.Utilities.Adler import fileAdler
-from DIRAC.AccountingSystem.Client.Types.Job import Job as AccountingJob
-from DIRAC.ConfigurationSystem.Client.PathFinder import getSystemSection
-from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getVOForGroup
-from DIRAC.ConfigurationSystem.Client.Helpers.Operations import Operations
+
 from DIRAC.DataManagementSystem.Client.DataManager import DataManager
-from DIRAC.DataManagementSystem.Client.FailoverTransfer import FailoverTransfer
-from DIRAC.DataManagementSystem.Utilities.DMSHelpers import resolveSEGroup
-from DIRAC.Resources.Catalog.PoolXMLFile import getGUID
 from DIRAC.Resources.Catalog.FileCatalog import FileCatalog
+from DIRAC.DataManagementSystem.Client.FailoverTransfer import FailoverTransfer
+from DIRAC.Resources.Catalog.PoolXMLFile import getGUID
 from DIRAC.RequestManagementSystem.Client.Request import Request
 from DIRAC.RequestManagementSystem.Client.Operation import Operation
 from DIRAC.RequestManagementSystem.Client.ReqClient import ReqClient
 from DIRAC.RequestManagementSystem.private.RequestValidator import RequestValidator
-from DIRAC.WorkloadManagementSystem.JobWrapper.WatchdogFactory import WatchdogFactory
-from DIRAC.WorkloadManagementSystem.Client.JobStateUpdateClient import JobStateUpdateClient
-from DIRAC.WorkloadManagementSystem.Client.JobMonitoringClient import JobMonitoringClient
-from DIRAC.WorkloadManagementSystem.Client.JobManagerClient import JobManagerClient
 from DIRAC.WorkloadManagementSystem.Client.SandboxStoreClient import SandboxStoreClient
+from DIRAC.WorkloadManagementSystem.Client.JobManagerClient import JobManagerClient
+from DIRAC.WorkloadManagementSystem.Client.JobMonitoringClient import JobMonitoringClient
+from DIRAC.WorkloadManagementSystem.Client.JobStateUpdateClient import JobStateUpdateClient
+from DIRAC.WorkloadManagementSystem.JobWrapper.WatchdogFactory import WatchdogFactory
+from DIRAC.AccountingSystem.Client.Types.Job import Job as AccountingJob
+from DIRAC.ConfigurationSystem.Client.PathFinder import getSystemSection
+from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getVOForGroup
+from DIRAC.ConfigurationSystem.Client.Helpers.Operations import Operations
 from DIRAC.WorkloadManagementSystem.Client.JobReport import JobReport
+from DIRAC.DataManagementSystem.Utilities.DMSHelpers import resolveSEGroup
 
 
 EXECUTION_RESULT = {}
@@ -1254,7 +1254,7 @@ class JobWrapper(object):
         self.log.error("Job will fail, first trying to print out the content of the request")
         reqToJSON = request.toJSON()
         if reqToJSON['OK']:
-          print(str(reqToJSON['Value']))
+          print str(reqToJSON['Value'])
         else:
           self.log.error("Something went wrong creating the JSON from request", reqToJSON['Message'])
       else:
@@ -1392,10 +1392,10 @@ class ExecutionThread(threading.Thread):
   def sendOutput(self, stdid, line):
     if stdid == 0 and self.stdout:
       with open(self.stdout, 'a+') as outputFile:
-        print(line, file=outputFile)
+        print >> outputFile, line
     elif stdid == 1 and self.stderr:
       with open(self.stderr, 'a+') as errorFile:
-        print(line, file=errorFile)
+        print >> errorFile, line
     self.outputLines.append(line)
     size = len(self.outputLines)
     if size > self.maxPeekLines:

@@ -1,10 +1,8 @@
-.. _admin_dirac-admin-delete-user:
-
-=======================
+==============================
 dirac-admin-delete-user
-=======================
+==============================
 
-Remove User from Configuration
+  Remove User from Configuration
 
 Usage::
 
@@ -12,8 +10,10 @@ Usage::
 
 Arguments::
 
-  User:     User name
+  User:     User name 
 
 Example::
 
   $ dirac-admin-delete-user vhamar
+
+

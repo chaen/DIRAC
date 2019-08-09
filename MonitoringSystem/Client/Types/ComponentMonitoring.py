@@ -18,7 +18,6 @@ class ComponentMonitoring( BaseType ):
     super( ComponentMonitoring, self ).__init__()
 
     """ c'tor
-
     :param self: self reference
     """
 

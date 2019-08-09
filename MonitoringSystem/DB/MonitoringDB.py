@@ -8,8 +8,10 @@ import datetime
 
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Base.ElasticDB import ElasticDB
-from DIRAC.Core.Utilities.Plotting.TypeLoader import TypeLoader
+from DIRAC.Core.Utilities.ElasticSearchDB import generateFullIndexName
 from DIRAC.ConfigurationSystem.Client.Helpers import CSGlobals
+
+from DIRAC.MonitoringSystem.private.TypeLoader import TypeLoader
 
 
 ########################################################################
@@ -28,7 +30,7 @@ class MonitoringDB(ElasticDB):
     It loads all monitoring indexes and types.
     """
 
-    objectsLoaded = TypeLoader('Monitoring').getTypes()
+    objectsLoaded = TypeLoader().getTypes()
 
     # Load the files
     for pythonClassName in sorted(objectsLoaded):
@@ -77,7 +79,7 @@ class MonitoringDB(ElasticDB):
     if self.exists(all_index):
       indexes = self.getIndexes()
       if indexes:
-        actualindexName = self.generateFullIndexName(index, period)
+        actualindexName = generateFullIndexName(index, period)
         if self.exists(actualindexName):
           self.log.info("The index is exists:", actualindexName)
         else:

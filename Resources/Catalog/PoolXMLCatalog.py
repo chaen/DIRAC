@@ -3,7 +3,6 @@
     POOL project schema. It presents a DIRAC generic File Catalog interface
     although not complete and with several extensions
 """
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import os, xml.dom.minidom, types
@@ -48,16 +47,16 @@ class PoolFile( object ):
     """ Dumps the contents to the standard output
     """
 
-    print("\nPool Catalog file entry:")
-    print("   guid:", self.guid)
+    print "\nPool Catalog file entry:"
+    print "   guid:", self.guid
     if len( self.lfns ) > 0:
-      print("   lfns:")
+      print "   lfns:"
       for l in self.lfns:
-        print('     ', l)
+        print '     ', l
     if len( self.pfns ) > 0:
-      print("   pfns:")
+      print "   pfns:"
       for p in self.pfns:
-        print('     ', p[0], 'type:', p[1], 'SE:', p[2])
+        print '     ', p[0], 'type:', p[1], 'SE:', p[2]
 
   def getPfns( self ):
     """ Retrieves all the PFNs
@@ -195,7 +194,7 @@ class PoolXMLCatalog( object ):
       os.rename( self.backend_file, self.backend_file + '.bak' )
 
     bfile = open( self.backend_file, 'w' )
-    print(self.toXML(), file=bfile)
+    print >> bfile, self.toXML()
     bfile.close()
 
   def getName( self ):

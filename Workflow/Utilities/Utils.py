@@ -13,16 +13,10 @@ from DIRAC.Core.Workflow.Step import StepDefinition
 #############################################################################
 
 
-def getStepDefinition(stepName, modulesNameList=None, importLine="""""", parametersList=None):
+def getStepDefinition(stepName, modulesNameList=[], importLine="""""", parametersList=[]):
   """ Given a name, a list of modules name, and a list of parameters, returns a step definition.
       Remember that Step definition = Parameters + Module Instances
   """
-
-  if modulesNameList is None:
-    modulesNameList = []
-
-  if parametersList is None:
-    parametersList = []
 
   # In case the importLine is not set, this is looking for a DIRAC extension, if any.
   # The extension is supposed to be called ExtDIRAC.

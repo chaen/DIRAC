@@ -220,7 +220,7 @@ function fullInstallDIRAC(){
     return
   fi
 
-  # Dealing with security stuff
+  #Dealing with security stuff
   # generateCertificates
   generateUserCredentials
   if [ $? -ne 0 ]
@@ -378,7 +378,7 @@ function miniInstallDIRAC(){
 
   killRunsv
 
-  # basic install, with only the CS (and ComponentMonitoring) running, together with DB InstalledComponentsDB, which is needed)
+  #basic install, with only the CS (and ComponentMonitoring) running, together with DB InstalledComponentsDB, which is needed)
   installSite
   if [ $? -ne 0 ]
   then
@@ -402,7 +402,7 @@ function miniInstallDIRAC(){
     return
   fi
 
-  # just add a site
+  #just add a site
   diracAddSite
   if [ $? -ne 0 ]
   then
@@ -421,13 +421,13 @@ function miniInstallDIRAC(){
 
 function clean(){
 
-  # Uninstalling the services
+  #Uninstalling the services
   diracUninstallServices
 
-  # stopping runsv of services and agents
+  #stopping runsv of services and agents
   stopRunsv
 
-  # DBs
+  #DBs
   findDatabases
   dropDBs
   mysql -u$DB_ROOTUSER -p$DB_ROOTPWD -h$DB_HOST -P$DB_PORT -e "DROP DATABASE IF EXISTS FileCatalogDB;"
@@ -435,7 +435,7 @@ function clean(){
 
   killES
 
-  # clean all
+  #clean all
   finalCleanup
 }
 

@@ -1,10 +1,8 @@
-.. _dirac-wms-job-peek:
-
-==================
+=========================
 dirac-wms-job-peek
-==================
+=========================
 
-Peek StdOut of the given DIRAC job
+  Peek StdOut of the given DIRAC job
 
 Usage::
 
@@ -12,8 +10,9 @@ Usage::
 
 Arguments::
 
-  JobID:    DIRAC Job ID
+  JobID:    DIRAC Job ID 
 
 Example::
 
   $ dirac-wms-job-peek 1
+

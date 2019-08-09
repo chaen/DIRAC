@@ -83,8 +83,7 @@ fts3OperationTable = Table('Operations', metadata,
                            Column('operationID', Integer, primary_key=True),
                            Column('username', String(255)),
                            Column('userGroup', String(255)),
-                           # -1 because with 0 we would get any random request
-                           # when performing reqClient.getRequest
+                           # -1 because with 0 we get any request
                            Column('rmsReqID', Integer, server_default='-1'),
                            Column('rmsOpID', Integer, server_default='0', index=True),
                            Column('sourceSEs', String(255)),
@@ -331,7 +330,7 @@ class FTS3DB(object):
 
         TODO: maybe it should query first the status and filter the rows I want to update !
 
-       :param fileStatusDict: { fileID : { status , error, ftsGUID } }
+       :param fileStatusDict : { fileID : { status , error, ftsGUID } }
        :param ftsGUID: If specified, only update the rows where the ftsGUID matches this value.
                        This avoids two jobs handling the same file one after another to step on each other foot.
                        Note that for the moment it is an optional parameter, but it may turn mandatory soon.
@@ -400,7 +399,7 @@ class FTS3DB(object):
         The update is only done if the job is not in a final state
         The assignment flag is released
 
-       :param jobStatusDict: { jobID : { status , error, completeness } }
+       :param jobStatusDict : { jobID : { status , error, completeness } }
     """
     session = self.dbSession()
     try:

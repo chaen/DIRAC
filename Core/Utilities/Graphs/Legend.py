@@ -8,7 +8,6 @@
     CMS/Phedex Project by ... <to be added>
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 from matplotlib.patches import Rectangle
@@ -55,7 +54,7 @@ class Legend( object ):
   def dumpPrefs(self):
   
     for key in self.prefs:
-      print(key.rjust(20), ':', str(self.prefs[key]).ljust(40))
+      print key.rjust(20),':',str(self.prefs[key]).ljust(40)
       
   def setLabels(self,labels):
   

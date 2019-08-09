@@ -237,7 +237,6 @@ class ReqProxyHandler(RequestHandler):
 
   def export_listCacheDir(self):
     """List the content of the Cache directory
-
         :returns: list of file
     """
     cacheDir = self.cacheDir()

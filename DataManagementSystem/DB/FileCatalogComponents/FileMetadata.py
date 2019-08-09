@@ -1,9 +1,14 @@
+########################################################################
+# $HeadURL$
+########################################################################
+
 """ DIRAC FileCatalog plugin class to manage file metadata. This contains only
     non-indexed metadata for the moment.
 """
 
 __RCSID__ = "$Id$"
 
+from types import IntType, ListType, LongType, DictType, StringTypes, FloatType
 from DIRAC import S_OK, S_ERROR
 from DIRAC.Core.Utilities.Time import queryTime
 from DIRAC.Core.Utilities.List import intListToString
@@ -59,7 +64,7 @@ class FileMetadata:
     if not result['OK']:
       return result
 
-    result = self.db.insertFields('FC_FileMetaFields', ['MetaName', 'MetaType'], [pname, ptype])
+    result = self.db._insert('FC_FileMetaFields', ['MetaName', 'MetaType'], [pname, ptype])
     if not result['OK']:
       return result
 
@@ -127,9 +132,7 @@ class FileMetadata:
       if metaName not in metaFields:
         result = self.__setFileMetaParameter(fileID, metaName, metaValue, credDict)
       else:
-        result = self.db.insertFields('FC_FileMeta_%s' % metaName,
-                                      ['FileID', 'Value'],
-                                      [fileID, metaValue])
+        result = self.db._insert('FC_FileMeta_%s' % metaName, ['FileID', 'Value'], [fileID, metaValue])
         if not result['OK']:
           if result['Message'].find('Duplicate') != -1:
             req = "UPDATE FC_FileMeta_%s SET Value='%s' WHERE FileID=%d" % (metaName, metaValue, fileID)
@@ -194,9 +197,9 @@ class FileMetadata:
     """ Set an meta parameter - metadata which is not used in the the data
         search operations
     """
-    result = self.db.insertFields('FC_FileMeta',
-                                  ['FileID', 'MetaKey', 'MetaValue'],
-                                  [fileID, metaName, str(metaValue)])
+    result = self.db._insert('FC_FileMeta',
+                             ['FileID', 'MetaKey', 'MetaValue'],
+                             [fileID, metaName, str(metaValue)])
     return result
 
   def setFileMetaParameter(self, path, metaName, metaValue, credDict):
@@ -283,7 +286,7 @@ class FileMetadata:
     metaDict = {}
     for fileID, key, value in result['Value']:
       if key in metaDict:
-        if isinstance(metaDict[key], list):
+        if isinstance(metaDict[key], ListType):
           metaDict[key].append(value)
         else:
           metaDict[key] = [metaDict[key]].append(value)
@@ -338,11 +341,11 @@ class FileMetadata:
     ''' Create selection string to be used in the SQL query
     '''
     queryList = []
-    if isinstance(value, float):
+    if isinstance(value, FloatType):
       queryList.append(('=', '%f' % value))
-    elif isinstance(value, (int, long)):
+    elif isinstance(value, (IntType, LongType)):
       queryList.append(('=', '%d' % value))
-    elif isinstance(value, str):
+    elif isinstance(value, StringTypes):
       if value.lower() == 'any':
         queryList.append(('IS', 'NOT NULL'))
       elif value.lower() == 'missing':
@@ -360,7 +363,7 @@ class FileMetadata:
           queryList.append(('=', eValue))
       else:
         queryList.append(('', ''))
-    elif isinstance(value, list):
+    elif isinstance(value, ListType):
       if not value:
         queryList.append(('', ''))
       else:
@@ -369,18 +372,18 @@ class FileMetadata:
           return result
         query = '( $s )' % ', '.join(result['Value'])
         queryList.append(('IN', query))
-    elif isinstance(value, dict):
+    elif isinstance(value, DictType):
       for operation, operand in value.items():
 
         # Prepare the escaped operand first
-        if isinstance(operand, list):
+        if isinstance(operand, ListType):
           result = self.db._escapeValues(operand)
           if not result['OK']:
             return result
           escapedOperand = ', '.join(result['Value'])
-        elif isinstance(operand, (int, long)):
+        elif isinstance(operand, (IntType, LongType)):
           escapedOperand = '%d' % operand
-        elif isinstance(operand, float):
+        elif isinstance(operand, FloatType):
           escapedOperand = '%f' % operand
         else:
           result = self.db._escapeString(operand)
@@ -390,17 +393,17 @@ class FileMetadata:
 
         # Treat the operations
         if operation in ['>', '<', '>=', '<=']:
-          if isinstance(operand, list):
+          if isinstance(operand, ListType):
             return S_ERROR('Illegal query: list of values for comparison operation')
           else:
             queryList.append((operation, escapedOperand))
         elif operation == 'in' or operation == "=":
-          if isinstance(operand, list):
+          if isinstance(operand, ListType):
             queryList.append(('IN', '( %s )' % escapedOperand))
           else:
             queryList.append(('=', escapedOperand))
         elif operation == 'nin' or operation == "!=":
-          if isinstance(operand, list):
+          if isinstance(operand, ListType):
             queryList.append(('NOT IN', '( %s )' % escapedOperand))
           else:
             queryList.append(('!=', escapedOperand))
@@ -504,7 +507,7 @@ class FileMetadata:
     leftJoinTables = []
     for meta, value in metaDict.items():
       if meta == "SE":
-        if isinstance(value, dict):
+        if isinstance(value, DictType):
           storageElements = value.get('in', [])
         else:
           storageElements = [value]

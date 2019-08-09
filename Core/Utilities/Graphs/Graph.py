@@ -5,7 +5,6 @@
     CMS/Phedex Project by ... <to be added>
 """
 
-from __future__ import print_function
 __RCSID__ = "$Id$"
 
 import datetime
@@ -181,10 +180,10 @@ class Graph(object):
     prefs = self.prefs
 
     if DEBUG:
-      print("makeGraph time 1", time.time() - start)
+      print "makeGraph time 1",time.time()-start
       start = time.time()
 
-    if 'text_image' in prefs:
+    if prefs.has_key('text_image'):
       self.makeTextGraph(str(prefs['text_image']))
       return
 
@@ -202,7 +201,7 @@ class Graph(object):
     else:
       if not isinstance( data, list ):
         #return S_ERROR('Single data for multiplot graph')
-        print('Single data for multiplot graph')
+        print 'Single data for multiplot graph'
         return
       if not isinstance(metadata, list):
         metaList = []
@@ -217,19 +216,19 @@ class Graph(object):
       plot_prefs.append(evalPrefs(prefs,metadata[i]))
       gdata = GraphData(data[i])
       if i == 0: plot_type = plot_prefs[i]['plot_type']
-      if 'sort_labels' in plot_prefs[i]:
+      if plot_prefs[i].has_key('sort_labels'):
         reverse = plot_prefs[i].get( 'reverse_labels', False )
         gdata.sortLabels(plot_prefs[i]['sort_labels'], reverse_order = reverse )
-      if 'limit_labels' in plot_prefs[i]:
+      if plot_prefs[i].has_key('limit_labels'):
         if plot_prefs[i]['limit_labels'] > 0:
           gdata.truncateLabels(plot_prefs[i]['limit_labels'])
-      if 'cumulate_data' in plot_prefs[i]:
+      if plot_prefs[i].has_key('cumulate_data'):
         gdata.makeCumulativeGraph()
       plot_title = plot_prefs[i].get('plot_title','')
       if plot_title != "NoTitle":
         begin = ''
         end = ''
-        if 'starttime' in plot_prefs[i] and 'endtime'in plot_prefs[i]:
+        if plot_prefs[i].has_key('starttime') and plot_prefs[i].has_key('endtime'):
           begin = to_timestamp(plot_prefs[i]['starttime'])
           end = to_timestamp(plot_prefs[i]['endtime'])
         elif gdata.key_type == "time" :
@@ -258,16 +257,16 @@ class Graph(object):
     legend_ax, plot_axes = self.layoutFigure(legend)
 
     if DEBUG:
-      print("makeGraph time layout", time.time() - start)
+      print "makeGraph time layout",time.time()-start
       start = time.time()
 
     # Make plots
     for i in range(nPlots):
       plot_type = plot_prefs[i]['plot_type']
       try:
-        exec("import %s" % plot_type)
-      except ImportError as x:
-        print("Failed to import graph type %s: %s" % (plot_type, str(x)))
+        exec "import %s" % plot_type
+      except ImportError, x:
+        print "Failed to import graph type %s: %s" % ( plot_type, str( x ) )
         return None
 
       ax = plot_axes[i]
@@ -275,7 +274,7 @@ class Graph(object):
       plot.draw()
 
     if DEBUG:
-      print("makeGraph time plots", time.time() - start)
+      print "makeGraph time plots",time.time()-start
       start = time.time()
 
     # Make legend
@@ -284,7 +283,7 @@ class Graph(object):
       legend.draw()
 
     if DEBUG:
-      print("makeGraph time legend", time.time() - start)
+      print "makeGraph time legend",time.time()-start
       start = time.time()
     #return S_OK()
 
@@ -300,11 +299,10 @@ class Graph(object):
       return
 
     if not imagePath:
-      if 'watermark' in prefs:
+      if prefs.has_key('watermark'):
         imagePath = os.path.expandvars( os.path.expanduser( prefs['watermark'] ))
 
-    if not imagePath:
-      return
+    if not imagePath: return
 
     try:
       image = Image.open( imagePath )
@@ -327,7 +325,7 @@ class Graph(object):
       ax_wm.set_frame_on( False )
       ax_wm.set_clip_on( False )
     except Exception as e:
-      print(e)
+      print e
 
   def writeGraph( self, fname, fileFormat = 'PNG' ):
     """ Write out the resulting graph to a file with fname in a given format
