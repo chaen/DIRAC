@@ -319,7 +319,7 @@ class SandboxMetadataDB(DB):
         return result
     return S_OK()
 
-  def getSandboxId(self, SEName, SEPFN, requesterName, requesterGroup, field='SBId'):
+  def getSandboxId(self, SEName, SEPFN, requesterName, requesterGroup, field='SBId', requesterDN=None):
     """
     Get the sandboxId if it exists
     """
@@ -327,7 +327,7 @@ class SandboxMetadataDB(DB):
                "s.SEName=%s" % self._escapeString(SEName)['Value'],
                's.OwnerId=o.OwnerId']
     sqlCmd = "SELECT s.%s FROM `sb_SandBoxes` s, `sb_Owners` o WHERE" % field
-    requesterProps = Registry.getPropertiesForEntity(requesterGroup, name=requesterName)
+    requesterProps = Registry.getPropertiesForEntity(requesterGroup, name=requesterName, dn=requesterDN)
     if Properties.JOB_ADMINISTRATOR in requesterProps or Properties.JOB_MONITOR in requesterProps:
       # Do nothing, just ensure it doesn't fit in the other cases
       pass
@@ -348,10 +348,10 @@ class SandboxMetadataDB(DB):
       return S_ERROR("No sandbox matches the requirements")
     return S_OK(data[0][0])
 
-  def getSandboxOwner(self, SEName, SEPFN, requesterName, requesterGroup):
+  def getSandboxOwner(self, SEName, SEPFN, requesterDN, requesterGroup):
     """ get the sandbox owner, if such sandbox exists
     """
-    res = self.getSandboxId(SEName, SEPFN, requesterName, requesterGroup, 'OwnerId')
+    res = self.getSandboxId(SEName, SEPFN, None, requesterGroup, 'OwnerId', requesterDN=requesterDN)
     if not res['OK']:
       return res
 
