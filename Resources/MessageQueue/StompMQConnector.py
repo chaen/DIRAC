@@ -22,6 +22,9 @@ class StompMQConnector(MQConnector):
   """
   Class for management of message queue connections
   Allows to both send and receive messages from a queue
+
+  When several IPs are behind an alias, we shuffle the ips, and connect to one.
+  The others are used as failover by stomp's internals
   """
   # Setting for the reconnection handling by stomp interface.
   # See e.g. the description of Transport class in
@@ -38,7 +41,8 @@ class StompMQConnector(MQConnector):
     """ Standard constructor
     """
     super(StompMQConnector, self).__init__()
-    self.connections = {}
+    # self.connections = {}
+    self.connection = None
 
     if 'DIRAC_DEBUG_STOMP' in os.environ:
       gLogger.enableLogsFromExternalLibs()
@@ -104,20 +108,31 @@ class StompMQConnector(MQConnector):
         return S_ERROR(EMQCONN, 'Invalid SSL version provided: %s' % sslVersion)
 
     try:
-      # Get IP addresses of brokers and ignoring two first returned arguments which are hostname and aliaslist.
-      _, _, ip_addresses = socket.gethostbyname_ex(host)
-      log.info('Broker name resolved', 'to %s IP(s)' % len(ip_addresses))
 
-      for ip in ip_addresses:
-        connectionArgs.update({'host_and_ports': [(ip, int(port))]})
-        log.debug("Connection args: %s" % str(connectionArgs))
-        self.connections[ip] = stomp.Connection(**connectionArgs)
+      # Get IP addresses of brokers
+      # Start with the IPv6, and randomize it
+      ipv6_addrInfo = socket.getaddrinfo(host, port, socket.AF_INET6, socket.SOCK_STREAM)
+      random.shuffle(ipv6_addrInfo)
+      # Same with IPv4
+      ipv4_addrInfo = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
+      random.shuffle(ipv4_addrInfo)
+
+      # Create the host_port tuples, keeping the ipv6 in front
+      host_and_ports = []
+      for _family, _socktype, _proto, _canonname, sockaddr in (ipv6_addrInfo + ipv4_addrInfo):
+        host_and_ports.append((sockaddr[0], sockaddr[1]))
+
+      connectionArgs.update({'host_and_ports': host_and_ports})
+      log.debug("Connection args: %s" % str(connectionArgs))
+      self.connection = stomp.Connection(**connectionArgs)
 
     except Exception as e:
+      log.debug("Failed setting up connection", repr(e))
       return S_ERROR(EMQCONN, 'Failed to setup connection: %s' % e)
+
     return S_OK('Setup successful')
 
-  def reconnect(self, serverIP):
+  def reconnect(self, serverIP=None):
     """
       Callback method when a disconnection happens
 
@@ -137,29 +152,14 @@ class StompMQConnector(MQConnector):
       message(str): string or any json encodable structure.
       parameters(dict): parameters with 'destination' key defined.
     """
+    log = LOG.getSubLogger('put')
     destination = parameters.get('destination', '')
-    error = False
 
-    # Randomize the brokers to spread the load
-    randConn = self.connections.values()
-    random.shuffle(randConn)
-
-    for connection in randConn:
-      try:
-        if isinstance(message, (list, set, tuple)):
-          for msg in message:
-            connection.send(body=json.dumps(msg), destination=destination)
-            error = False
-            break
-        else:
-          connection.send(body=json.dumps(message), destination=destination)
-          error = False
-          break
-      except Exception as e:
-        error = e
-
-    if error is not False:
-      return S_ERROR(EMQUKN, 'Failed to send message: %s' % error)
+    try:
+      self.connection.send(body=json.dumps(message), destination=destination)
+    except Exception as e:
+      log.debug("Failed to send message", repr(e))
+      S_ERROR(EMQUKN, 'Failed to send message: %s' % repr(e))
 
     return S_OK('Message sent successfully')
 
@@ -172,54 +172,55 @@ class StompMQConnector(MQConnector):
 
     log = LOG.getSubLogger('connect')
 
-    host = self.parameters.get('Host')
-    port = self.parameters.get('Port')
+    # Since I use a dirty trick to know to what IP I am connected,
+    # I'd rather not rely too much on it
+    remoteIP = 'unknown'
     user = self.parameters.get('User')
     password = self.parameters.get('Password')
 
-    if serverIP:
-      connections = {serverIP: self.connections[serverIP]}
-    else:
-      connections = self.connections
-
-    connected = False
-    for ip, connection in connections.iteritems():
+    # try reconnecting 10 times...
+    for _ in xrange(10):
       try:
-        listener = connection.get_listener('ReconnectListener')
-        if listener is None:
-          listener = ReconnectListener(callback=self.reconnect, serverIP=ip)
-          connection.set_listener('ReconnectListener', listener)
-        connection.connect(username=user, passcode=password, wait=True)
-        time.sleep(1)
-        if connection.is_connected():
-          log.info("Connected to %s:%s" % (ip, port))
-          connected = True
-      except Exception as e:
-        log.error('Failed to connect: %s' % e)
+        listener = self.connection.get_listener('ReconnectListener')
+        if not listener:
+          listener = ReconnectListener(callback=self.reconnect)
+          self.connection.set_listener('ReconnectListener', listener)
+        self.connection.connect(username=user, passcode=password, wait=True)
 
-    if not connected:
-      return S_ERROR(EMQCONN, "Failed to connect to  %s" % host)
-    return S_OK("Connected to %s" % host)
+        if self.connection.is_connected():
+          # Go to the socket of the Stomp to find the remote host
+          try:
+            remoteIP = self.connection.transport.socket.getpeername()[0]
+          except Exception:
+            pass
+          log.info("MQ Connected to %s" % remoteIP)
+          return S_OK("Connected to %s" % remoteIP)
+        else:
+          log.warn("Not connected")
+      except Exception as e:
+        log.error('Failed to connect: %s' % repr(e))
+
+      # Wait a bit before retrying
+      time.sleep(5)
+
+    return S_ERROR(EMQCONN, "Failed to connect")
 
   def disconnect(self, parameters=None):
     """
     Disconnects from the message queue server
     """
     log = LOG.getSubLogger('disconnect')
-    fail = False
-    for ip, connection in self.connections.iteritems():
-      try:
-        if connection.get_listener('ReconnectListener'):
-          connection.remove_listener('ReconnectListener')
-        connection.disconnect()
-        log.info("Disconnected from broker", ip)
-      except Exception as e:
-        log.error("Failed to disconnect from broker", "%s: %s" % (ip, e))
-        fail = True
 
-    if fail:
-      return S_ERROR(EMQUKN, 'Failed to disconnect from at least one broker')
-    return S_OK('Successfully disconnected from all brokers')
+    try:
+      if self.connection.get_listener('ReconnectListener'):
+        self.connection.remove_listener('ReconnectListener')
+      self.connection.disconnect()
+      log.info("Disconnected from broker")
+    except Exception as e:
+      log.error("Failed to disconnect from broker", repr(e))
+      return S_ERROR(EMQUKN, 'Failed to disconnect from broker %s' % repr(e))
+
+    return S_OK('Successfully disconnected from broker')
 
   def subscribe(self, parameters=None):
     log = LOG.getSubLogger('subscribe')
@@ -240,20 +241,17 @@ class StompMQConnector(MQConnector):
       # If it is an error, why not returning ?!
       log.error("No callback specified!")
 
-    fail = False
-    for connection in self.connections.itervalues():
-      try:
-        listener = StompListener(callback, acknowledgement, connection, mId)
-        connection.set_listener('StompListener', listener)
-        connection.subscribe(destination=dest,
-                             id=mId,
-                             ack=ack,
-                             headers=headers)
-      except Exception as e:
-        log.error('Failed to subscribe: %s' % e)
-        fail = True
-    if fail:
-      return S_ERROR(EMQUKN, 'Failed to subscribe to at least one broker')
+    try:
+      listener = StompListener(callback, acknowledgement, self.connection, mId)
+      self.connection.set_listener('StompListener', listener)
+      self.connection.subscribe(destination=dest,
+                                id=mId,
+                                ack=ack,
+                                headers=headers)
+    except Exception as e:
+      log.error('Failed to subscribe: %s' % e)
+      return S_ERROR(EMQUKN, 'Failed to subscribe to broker: %s' % repr(e))
+
     return S_OK('Subscription successful')
 
   def unsubscribe(self, parameters):
@@ -261,16 +259,13 @@ class StompMQConnector(MQConnector):
 
     dest = parameters.get('destination', '')
     mId = parameters.get('messengerId', '')
-    fail = False
-    for ip, connection in self.connections.iteritems():
-      try:
-        connection.unsubscribe(destination=dest, id=mId)
-      except Exception as e:
-        log.error('Failed to unsubscribe', '%s: %s' % (ip, e))
-        fail = True
 
-    if fail:
-      return S_ERROR(EMQUKN, 'Failed to unsubscribe from at least one destination')
+    try:
+      self.connection.unsubscribe(destination=dest, id=mId)
+    except Exception as e:
+      log.error('Failed to unsubscribe', repr(e))
+      return S_ERROR(EMQUKN, 'Failed to unsubscribe: %s' % repr(e))
+
     return S_OK('Successfully unsubscribed from all destinations')
 
 
