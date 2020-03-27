@@ -147,9 +147,9 @@ for st in ['Resources/Sites/DIRAC/',
            'Resources/StorageElements/SE-2/DIP',
            ]:
   res = csAPI.createSection(st)
-if not res['OK']:
-  print(res['Message'])
-  exit(1)
+  if not res['OK']:
+    print(res['Message'])
+    exit(1)
 
 csAPI.setOption('Resources/Sites/DIRAC/DIRAC.Jenkins.ch/CEs/jenkins.cern.ch/CEType', 'Test')
 csAPI.setOption(
@@ -171,6 +171,46 @@ csAPI.setOption('Resources/StorageElements/SE-2/DIP/Port', '9147')
 csAPI.setOption('Resources/StorageElements/SE-2/DIP/Protocol', 'dips')
 csAPI.setOption('Resources/StorageElements/SE-2/DIP/Path', '/DataManagement/SE-2')
 csAPI.setOption('Resources/StorageElements/SE-2/DIP/Access', 'remote')
+
+
+# Setting up S3 resources for the Test_Resources_S3.py
+
+# Resources
+# {
+#   StorageElements
+#   {
+#     S3-DIRECT
+#     {
+#       AccessProtocols = s3
+#       WriteProtocols = s3
+#       S3
+#       {
+#         Host = s3-direct
+#         Port = 9090
+#         Protocol = s3
+#         Path = myFirstBucket
+#         Access = remote
+#       }
+#     }
+#   }
+# }
+
+for st in ['Resources/StorageElements',
+           'Resources/StorageElements/S3-DIRECT',
+           'Resources/StorageElements/S3-DIRECT/S3',
+           ]:
+  res = csAPI.createSection(st)
+  if not res['OK']:
+    print(res['Message'])
+    exit(1)
+
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/AccessProtocols', 's3')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/WriteProtocols', 's3')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Host', 's3-direct')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Port', '9090')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Protocol', 's3')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Path', 'myFirstBucket')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Access', 'remote')
 
 
 # Now setting up the following option:
@@ -328,6 +368,26 @@ if not res['OK']:
   print(res['Message'])
   exit(1)
 csAPI.setOption('Operations/Defaults/Services/Catalogs/CatalogList', 'FileCatalog, TSCatalog')
+
+
+# Adding DataManagement section of Operations
+# Operations
+# {
+#   Defaults
+#   {
+#     DataManagement
+#     {
+#       RegistrationProtocols = srm,dips,s3
+#     }
+#   }
+# }
+
+res = csAPI.createSection('Operations/Defaults/DataManagement')
+if not res['OK']:
+  print(res['Message'])
+  exit(1)
+csAPI.setOption('Operations/Defaults/DataManagement/RegistrationProtocols', 'srm,dips,s3')
+
 
 
 # Now setting the Registry section
