@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   Integration:
     runs-on: ubuntu-latest
-    if: github.event_name != 'push' || github.repository == 'DIRACGrid/DIRAC'
+    # if: github.event_name != 'push' || github.repository == 'DIRACGrid/DIRAC'
     timeout-minutes: 30
 
     strategy:
@@ -16,13 +16,13 @@ jobs:
           # - 8.0
         HOST_OS:
           - slc6
-          - cc7
-        SERVER_USE_M2CRYPTO:
-          - Yes
-          - No
-        CLIENT_USE_M2CRYPTO:
-          - Yes
-          - No
+          # - cc7
+        # SERVER_USE_M2CRYPTO:
+        #   - Yes
+        #   - No
+        # CLIENT_USE_M2CRYPTO:
+        #   - Yes
+        #   - No
 
     steps:
     - uses: actions/checkout@v2
