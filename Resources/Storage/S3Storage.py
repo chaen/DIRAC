@@ -10,39 +10,15 @@
 #   diracgrid/docker-compose-dirac:latest bash \
 #   DIRAC/tests/CI/run_docker_setup.sh
 
-""" Base Storage Class provides the base interface for all storage plug-ins
+"""
+Configuration of an S3 storage
+Like others, but in protocol S3 add:
 
-      exists()
+SecureConnection: true if https, false otherwise
+Aws_access_key_id
+Aws_secret_access_key
 
-These are the methods for manipulating files:
-      isFile()
-      getFile()
-      putFile()
-      removeFile()
-      getFileMetadata()
-      getFileSize()
-      prestageFile()
-      getTransportURL()
-
-These are the methods for manipulating directories:
-      isDirectory()
-      getDirectory()
-      putDirectory()
-      createDirectory()
-      removeDirectory()
-      listDirectory()
-      getDirectoryMetadata()
-      getDirectorySize()
-
-These are the methods for manipulating the client:
-      changeDirectory()
-      getCurrentDirectory()
-      getName()
-      getParameters()
-      getCurrentURL()
-
-These are the methods for getting information about the Storage:
-      getOccupancy()
+if the Aws variables are not defined, it will try to go throught the S3GW
 
 """
 __RCSID__ = "$Id$"
@@ -54,6 +30,7 @@ import copy
 import functools
 import json
 import os
+import requests
 import shutil
 import tempfile
 
@@ -61,8 +38,10 @@ from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Utilities.Adler import fileAdler
 from DIRAC.Core.Utilities.Pfn import pfnparse, pfnunparse
 from DIRAC.Core.Utilities.ReturnValues import returnSingleResult
+from DIRAC.DataManagementSystem.Client.S3GWClient import S3GWClient
 from DIRAC.Resources.Storage.Utilities import checkArgumentFormat
 from DIRAC.Resources.Storage.StorageBase import StorageBase
+
 
 LOG = gLogger.getSubLogger(__name__)
 
@@ -130,9 +109,11 @@ class S3Storage(StorageBase):
 
     self.isok = True
 
-    endpoint_url = 'http://%s:%s' % (parameters['Host'], parameters.get('Port', 443))
-    aws_access_key_id = '123'
-    aws_secret_access_key = 'abc'
+    aws_access_key_id = parameters.get('Aws_access_key_id')
+    aws_secret_access_key = parameters.get('Aws_secret_access_key')
+    secureConnection = (parameters.get('SecureConnection', False) == 'True')
+    proto = 'https' if secureConnection else 'http'
+    endpoint_url = '%s://%s:%s' % (proto, parameters['Host'], parameters.get('Port', 443))
     self.bucketName = parameters['Path']
 
     self.s3_client = boto3.client(
@@ -143,6 +124,11 @@ class S3Storage(StorageBase):
 
     self.srmSpecificParse = False
     self.pluginName = 'S3'
+
+    # if we have the credentials loaded, we can perform direct access
+    # otherwise we have to go through the S3GW
+    self.directAccess = aws_access_key_id and aws_secret_access_key
+    self.s3GWClient = S3GWClient()
 
   @_extractKeyFromS3Path
   def exists(self, keys):
@@ -158,17 +144,38 @@ class S3Storage(StorageBase):
     successful = {}
     failed = {}
 
-    for key in keys:
-      try:
-        self.s3_client.head_object(Bucket=self.bucketName, Key=key)
-        successful[key] = True
-      except ClientError as exp:
-        if exp.response['Error']['Code'] == '404':
-          successful[key] = False
-        else:
+    # If we have a direct access, we can just do the request directly
+    if self.directAccess:
+      for key in keys:
+        try:
+          self.s3_client.head_object(Bucket=self.bucketName, Key=key)
+          successful[key] = True
+        except ClientError as exp:
+          if exp.response['Error']['Code'] == '404':
+            successful[key] = False
+          else:
+            failed[key] = repr(exp)
+        except Exception as exp:
           failed[key] = repr(exp)
-      except Exception as exp:
-        failed[key] = repr(exp)
+    else:
+      # Otherwise, ask the gw for a presigned URL,
+      # and perform it with requests
+      for key in keys:
+        try:
+          res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', key)
+          if not res['OK']:
+            failed[key] = res['Message']
+            continue
+          presignedURL = res['Value']
+          response = requests.get(presignedURL)
+          if response.status_code == 200:
+            successful[key] = True
+          elif response.status_code == 404:  # not found
+            successful[key] = False
+          else:
+            failed[key] = response.reason
+        except Exception as e:
+          failed[key] = repr(e)
 
     resDict = {'Failed': failed, 'Successful': successful}
     return S_OK(resDict)
@@ -209,7 +216,23 @@ class S3Storage(StorageBase):
         fileName = os.path.basename(src_key)
         dest_file = os.path.join(localPath if localPath else os.getcwd(), fileName)
         log.debug("Trying to download %s to %s" % (src_key, dest_file))
-        self.s3_client.download_file(self.bucketName, src_key, dest_file)
+        if self.directAccess:
+          self.s3_client.download_file(self.bucketName, src_key, dest_file)
+        else:
+          res = self.s3GWClient.createPresignedUrl(self.name, 'get_object', src_key)
+          if not res['OK']:
+            failed[src_key] = res['Message']
+            continue
+          presignedURL = res['Value']
+          # Stream download to save memory
+          # https://requests.readthedocs.io/en/latest/user/advanced/#body-content-workflow
+          with requests.get(presignedURL, stream=True) as r:
+            r.raise_for_status()
+            with open(dest_file, 'wb') as f:
+              for chunk in r.iter_content():
+                if chunk:  # filter out keep-alive new chuncks
+                  f.write(chunk)
+
         successful[src_key] = os.path.getsize(dest_file)
       except Exception as exp:
         failed[src_key] = repr(exp)
@@ -241,14 +264,35 @@ class S3Storage(StorageBase):
         if not cks:
           log.warn("Cannot get ADLER32 checksum for %s" % src_file)
 
-        with open(src_file) as src_fd:
-          self.s3_client.put_object(
-              Body=src_fd,
-              Bucket=self.bucketName,
-              Key=dest_key,
-              Metadata={
-                  'Checksum': cks})
+        if self.directAccess:
+
+          with open(src_file) as src_fd:
+            self.s3_client.put_object(
+                Body=src_fd,
+                Bucket=self.bucketName,
+                Key=dest_key,
+                Metadata={
+                    'Checksum': cks})
+
+        else:
+          res = self.s3GWClient.createPresignedUrl(self.name, 'put_object', dest_key)
+
+          if not res['OK']:
+            raise res
+
+          presignedResponse = res['Value']
+          presignedURL = presignedResponse['url']
+          presignedFields = presignedResponse['fields']
+          with open(src_file, 'rb') as src_fd:
+            files = {'file': (dest_key, src_fd)}
+            response = requests.post(presignedURL, data=presignedFields,
+                                     files=files)
+
+            if not response.ok:
+              raise Exception(response.reason)
+
         successful[dest_key] = os.path.getsize(src_file)
+
       except Exception as e:
         failed[dest_key] = repr(e)
 
@@ -269,8 +313,23 @@ class S3Storage(StorageBase):
 
     for key in keys:
       try:
-        response = self.s3_client.head_object(Bucket=self.bucketName, Key=key)
-        responseMetadata = response['ResponseMetadata']['HTTPHeaders']
+        if self.directAccess:
+          response = self.s3_client.head_object(Bucket=self.bucketName, Key=key)
+          responseMetadata = response['ResponseMetadata']['HTTPHeaders']
+        else:
+          res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', key)
+          if not res['OK']:
+            failed[key] = res['Message']
+            continue
+          presignedURL = res['Value']
+          response = requests.get(presignedURL)
+          if not response.ok:
+            raise Exception(response.reason)
+
+          # Although the interesting fields are the same as when doing the query directly
+          # the case is not quite the same, so make it lower everywhere
+          responseMetadata = {headerKey.lower(): headerVal for headerKey, headerVal in response.headers.iteritems()}
+
         metadataDict = self._addCommonMetadata(responseMetadata)
         metadataDict['File'] = True
         metadataDict['Size'] = int(metadataDict['content-length'])
@@ -299,7 +358,18 @@ class S3Storage(StorageBase):
 
     for key in keys:
       try:
-        self.s3_client.delete_object(Bucket=self.bucketName, Key=key)
+        if self.directAccess:
+          self.s3_client.delete_object(Bucket=self.bucketName, Key=key)
+        else:
+          res = self.s3GWClient.createPresignedUrl(self.name, 'delete_object', key)
+          if not res['OK']:
+            failed[key] = res['Message']
+            continue
+          presignedURL = res['Value']
+          response = requests.delete(presignedURL)
+          if not response.ok:
+            raise Exception(response.reason)
+
         successful[key] = True
       except Exception as exp:
         failed[key] = repr(exp)
@@ -373,3 +443,29 @@ class S3Storage(StorageBase):
   #   resDict = {'Failed': failed, 'Successful': successful}
   #   return S_OK(resDict)
 
+  def createPresignedUrl(self, methodName, objectName, expiration=3600):
+    """Generate a presigned URL to share an S3 object
+
+    :param methodName: name of the method for which to generate a presigned URL
+    :param objectName: key for which to generate a presigned URL
+    :param expiration: Time in seconds for the presigned URL to remain valid
+    :return: Presigned URL as string. If error, returns None.
+    """
+
+    # Generate a presigned URL for the S3 object
+    log = LOG.getSubLogger('createPresignedUrl')
+
+    try:
+      if methodName != 'put_object':
+        response = self.s3_client.generate_presigned_url(ClientMethod=methodName,
+                                                         Params={'Bucket': self.bucketName,
+                                                                 'Key': objectName},
+                                                         ExpiresIn=expiration)
+      else:
+        response = self.s3_client.generate_presigned_post(self.bucketName, objectName, ExpiresIn=expiration)
+    except ClientError as e:
+      log.debug(e)
+      return S_ERROR(repr(e))
+
+    # The response contains the presigned URL
+    return S_OK(response)

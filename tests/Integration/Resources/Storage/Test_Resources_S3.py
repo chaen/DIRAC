@@ -4,7 +4,7 @@ It creates a local hierarchy, and then tries to upload, download, remove, get me
 
 .. warn::
 
-  The storage element you test is supposed to be called 'S3-DIRECT'.
+  The storage element you test is supposed to be called 'S3-DIRECT' and 'S3-INDIRECT.
   (pylint does not play friendly with command line params...)
 
 
@@ -53,7 +53,8 @@ from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getVOForGroup
 # Name of the storage element that has to be tested
 gLogger.setLevel('DEBUG')
 
-STORAGE_NAME = 'S3-DIRECT'
+# Run the full sequence of tests for these two storages
+STORAGE_NAMES = ['S3-DIRECT', 'S3-INDIRECT']
 # Size in bytes of the file we want to produce
 FILE_SIZE = 5 * 1024  # 5kB
 # base path on the storage where the test files/folders will be created
@@ -126,7 +127,10 @@ def clearDirectory(se, local_path, target_path):
   print("==================================================")
 
 
-@pytest.fixture(scope="module")
+# Since this is a module wise fixture, we parametrize it 
+# to run the full series of tests on the two SEs
+# https://docs.pytest.org/en/latest/fixture.html#parametrizing-fixtures
+@pytest.fixture(scope="module", params=STORAGE_NAMES)
 def setuptest(request):
   global local_path, download_dir, putDir, createDir, putFile, isFile, listDir,\
       getDir, getFile, rmDir, removeFile, se, filesInFolderAandB, fileAdlers, fileSizes
@@ -154,7 +158,8 @@ def setuptest(request):
     with open(os.path.join(workPath, fn), 'w') as f:
       f.write(_mul(fn))
 
-  se = StorageElement(STORAGE_NAME)
+  # request.param is the SE name one after the other
+  se = StorageElement(request.param)
 
   putDir = {os.path.join(DESTINATION_PATH,
                          'Workflow/FolderA'): os.path.join(local_path,
@@ -276,6 +281,12 @@ def test_createDirectory(setuptest):
 @pytest.mark.order4
 def test_putFile(setuptest):
   """ Copy a file """
+  # XXX: this is not good ! 
+  # The mock I use for S3 seem to have a bug uploading files
+  # with presigned URL. So for the time being, I upload directly, 
+  # but this should be checked
+  # https://github.com/adobe/S3Mock/issues/219
+  se = StorageElement('S3-DIRECT')
   res = se.putFile(putFile)
   assert res['OK'], res
   for lfn in putFile:
@@ -345,7 +356,7 @@ def test_getFile(setuptest):
 def test_getDirectory_shouldFail(setuptest):
   """Get directory cannot work on Echo"""
 
-  res=se.getDirectory(getDir, os.path.join(local_path, 'getDir'))
+  res = se.getDirectory(getDir, os.path.join(local_path, 'getDir'))
   for dn in getDir:
     assert dn in res['Value']['Failed'], res
 
@@ -353,11 +364,11 @@ def test_getDirectory_shouldFail(setuptest):
 @pytest.mark.order8
 def test_removeFile(setuptest):
   """ Remove files """
-  res=se.removeFile(removeFile)
+  res = se.removeFile(removeFile)
   assert res['OK'], res
   for fn in removeFile:
     assert fn in res['Value']['Successful']
-  res=se.exists(removeFile)
+  res = se.exists(removeFile)
   assert res['OK'], res
   assert res['Value']['Successful'][removeFile[0]] is False
 
@@ -365,9 +376,9 @@ def test_removeFile(setuptest):
 @pytest.mark.order9
 def test_removeNonExistingFile(setuptest):
   """ remove non existing file """
-  res=se.removeFile(removeFile)
+  res = se.removeFile(removeFile)
   assert res['OK'], res
-  res=se.exists(removeFile)
+  res = se.exists(removeFile)
   assert res['OK'], res
   for fn in removeFile:
     assert res['Value']['Successful'][fn] is False

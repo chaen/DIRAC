@@ -190,6 +190,9 @@ csAPI.setOption('Resources/StorageElements/SE-2/DIP/Access', 'remote')
 #         Protocol = s3
 #         Path = myFirstBucket
 #         Access = remote
+#         SecureConnection = False
+#         Aws_access_key_id = fakeId #useless
+#         Aws_secret_access_key = fakeKey #useles
 #       }
 #     }
 #   }
@@ -211,6 +214,55 @@ csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Port', '9090')
 csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Protocol', 's3')
 csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Path', 'myFirstBucket')
 csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Access', 'remote')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/SecureConnection', 'False')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Aws_access_key_id', 'FakeId')
+csAPI.setOption('Resources/StorageElements/S3-DIRECT/S3/Aws_secret_access_key', 'True')
+
+
+# Setting up S3 indirect resources for the Test_Resources_S3.py
+# The Aws_access_key_id and Aws_secret_access_key have to be in the server local file only
+# so cannot be added here
+# Resources
+# {
+#   StorageElements
+#   {
+#     S3-INDIRECT
+#     {
+#       AccessProtocols = s3
+#       WriteProtocols = s3
+#       S3
+#       {
+#         Host = s3-direct
+#         Port = 9090
+#         Protocol = s3
+#         Path = myFirstBucket
+#         Access = remote
+#         SecureConnection = False
+#       }
+#     }
+#   }
+# }
+
+for st in ['Resources/StorageElements',
+           'Resources/StorageElements/S3-INDIRECT',
+           'Resources/StorageElements/S3-INDIRECT/S3',
+           ]:
+  res = csAPI.createSection(st)
+  if not res['OK']:
+    print(res['Message'])
+    exit(1)
+
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/AccessProtocols', 's3')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/WriteProtocols', 's3')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/S3/Host', 's3-direct')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/S3/Port', '9090')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/S3/Protocol', 's3')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/S3/Path', 'myFirstBucket')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/S3/Access', 'remote')
+csAPI.setOption('Resources/StorageElements/S3-INDIRECT/S3/SecureConnection', 'False')
+
+
+
 
 
 # Now setting up the following option:
