@@ -23,8 +23,6 @@ if the Aws variables are not defined, it will try to go throught the S3GW
 """
 __RCSID__ = "$Id$"
 
-import boto3
-from botocore.exceptions import ClientError
 
 import copy
 import functools
@@ -33,6 +31,9 @@ import os
 import requests
 import shutil
 import tempfile
+
+import boto3
+from botocore.exceptions import ClientError
 
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Utilities.Adler import fileAdler
@@ -82,6 +83,8 @@ def _extractKeyFromS3Path(meth):
 
     result = meth(self, keyArgs, *args, **kwargs)
 
+    if not result['OK']:
+      return result
     # Restore original paths
 
     for key in result['Value']['Failed']:
@@ -130,12 +133,75 @@ class S3Storage(StorageBase):
     self.directAccess = aws_access_key_id and aws_secret_access_key
     self.s3GWClient = S3GWClient()
 
-  @_extractKeyFromS3Path
-  def exists(self, keys):
-    """ Check if the keys exists on the storage
+  # @_extractKeyFromS3Path
+  # def direct_exists(self, keys):
+  #   """ Check if the keys exists on the storage
 
-    :param self: self reference
-    :param keys: list of keys
+  #   :param self: self reference
+  #   :param keys: list of keys
+  #   :returns: Failed dictionary: {pfn : error message}
+  #             Successful dictionary: {pfn : bool}
+  #             S_ERROR in case of argument problems
+  #   """
+
+  #   successful = {}
+  #   failed = {}
+
+  #   # If we have a direct access, we can just do the request directly
+  #   if self.directAccess:
+  #     for key in keys:
+  #       try:
+  #         self.s3_client.head_object(Bucket=self.bucketName, Key=key)
+  #         successful[key] = True
+  #       except ClientError as exp:
+  #         if exp.response['Error']['Code'] == '404':
+  #           successful[key] = False
+  #         else:
+  #           failed[key] = repr(exp)
+  #       except Exception as exp:
+  #         failed[key] = repr(exp)
+  #   else:
+  #     # Otherwise, ask the gw for a presigned URL,
+  #     # and perform it with requests
+  #     for key in keys:
+  #       try:
+  #         res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', key)
+  #         if not res['OK']:
+  #           failed[key] = res['Message']
+  #           continue
+  #         presignedURL = res['Value']
+  #         response = requests.get(presignedURL)
+  #         if response.status_code == 200:
+  #           successful[key] = True
+  #         elif response.status_code == 404:  # not found
+  #           successful[key] = False
+  #         else:
+  #           failed[key] = response.reason
+  #       except Exception as e:
+  #         failed[key] = repr(e)
+
+  #   resDict = {'Failed': failed, 'Successful': successful}
+  #   return S_OK(resDict)
+
+  def exists(self, urls):
+    """ Check if the urls exists on the storage
+
+    :param urls: list of URLs
+    :returns: Failed dictionary: {url : error message}
+              Successful dictionary: {url : bool}
+              S_ERROR in case of argument problems
+    """
+
+    if self.directAccess:
+      return self._direct_exists(urls)
+
+    return self._presigned_exists(urls)
+
+  @_extractKeyFromS3Path
+  def _direct_exists(self, urls):
+    """ Check if the files exists on the storage
+
+    :param urls: list of urls
     :returns: Failed dictionary: {pfn : error message}
               Successful dictionary: {pfn : bool}
               S_ERROR in case of argument problems
@@ -144,43 +210,60 @@ class S3Storage(StorageBase):
     successful = {}
     failed = {}
 
-    # If we have a direct access, we can just do the request directly
-    if self.directAccess:
-      for key in keys:
-        try:
-          self.s3_client.head_object(Bucket=self.bucketName, Key=key)
-          successful[key] = True
-        except ClientError as exp:
-          if exp.response['Error']['Code'] == '404':
-            successful[key] = False
-          else:
-            failed[key] = repr(exp)
-        except Exception as exp:
+    # the @_extractKeyFromS3Path transformed URL into keys
+    keys = urls
+
+    for key in keys:
+      try:
+        self.s3_client.head_object(Bucket=self.bucketName, Key=key)
+        successful[key] = True
+      except ClientError as exp:
+        if exp.response['Error']['Code'] == '404':
+          successful[key] = False
+        else:
           failed[key] = repr(exp)
-    else:
-      # Otherwise, ask the gw for a presigned URL,
-      # and perform it with requests
-      for key in keys:
-        try:
-          res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', key)
-          if not res['OK']:
-            failed[key] = res['Message']
-            continue
-          presignedURL = res['Value']
-          response = requests.get(presignedURL)
-          if response.status_code == 200:
-            successful[key] = True
-          elif response.status_code == 404:  # not found
-            successful[key] = False
-          else:
-            failed[key] = response.reason
-        except Exception as e:
-          failed[key] = repr(e)
+      except Exception as exp:
+        failed[key] = repr(exp)
 
     resDict = {'Failed': failed, 'Successful': successful}
     return S_OK(resDict)
 
-  @_extractKeyFromS3Path
+  def _presigned_exists(self, urls):
+    """ Check if the URLs exists on the storage
+
+    :param urls: list of urls
+    :returns: Failed dictionary: {pfn : error message}
+              Successful dictionary: {pfn : bool}
+              S_ERROR in case of argument problems
+    """
+
+    successful = {}
+    failed = {}
+
+    res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', urls)
+    if not res['OK']:
+      return res
+
+    failed.update(res['Value']['Failed'])
+    presignedURLs = res['Value']['Successful']
+
+    # Otherwise, ask the gw for a presigned URL,
+    # and perform it with requests
+    for url, presignedURL in presignedURLs.items():
+      try:
+        response = requests.get(presignedURL)
+        if response.status_code == 200:
+          successful[url] = True
+        elif response.status_code == 404:  # not found
+          successful[url] = False
+        else:
+          failed[url] = response.reason
+      except Exception as e:
+        failed[url] = repr(e)
+
+    resDict = {'Failed': failed, 'Successful': successful}
+    return S_OK(resDict)
+
   def isFile(self, urls):
     """ Check if the urls provided are a file or not
 
@@ -193,13 +276,59 @@ class S3Storage(StorageBase):
 
     """
 
-    return self.exists(urls, extractKeys=False)  # pylint: disable=unexpected-keyword-arg
+    return self.exists(urls)
+
+  def getFile(self, urls, localPath=False):
+    """  Make a local copy of the urls.
+
+    :param  urls: list of urls on the storage
+    :param localPath: destination folder. Default is from current directory
+    :returns: Successful dict: {path : size}
+              Failed dict: {path : errorMessage}
+              S_ERROR in case of argument problems
+    """
+
+    if self.directAccess:
+      return self._direct_getFile(urls, localPath=localPath)
+    return self._presigned_getFile(urls, localPath=localPath)
 
   @_extractKeyFromS3Path
-  def getFile(self, keys, localPath=False):
+  def _direct_getFile(self, urls, localPath=False):
     """ Make a local copy of the keys.
 
-    :param  keys: list of keys  on storage
+    :param  urls: list of urls  on storage
+    :param localPath: destination folder. Default is from current directory
+    :returns: Successful dict: {path : size}
+              Failed dict: {path : errorMessage}
+              S_ERROR in case of argument problems
+    """
+
+    log = LOG.getSubLogger('getFile')
+
+    # the @_extractKeyFromS3Path transformed URL into keys
+    keys = urls
+
+    failed = {}
+    successful = {}
+
+    for src_key in keys:
+      try:
+        fileName = os.path.basename(src_key)
+        dest_file = os.path.join(localPath if localPath else os.getcwd(), fileName)
+        log.debug("Trying to download %s to %s" % (src_key, dest_file))
+
+        self.s3_client.download_file(self.bucketName, src_key, dest_file)
+
+        successful[src_key] = os.path.getsize(dest_file)
+      except Exception as exp:
+        failed[src_key] = repr(exp)
+
+    return S_OK({'Failed': failed, 'Successful': successful})
+
+  def _presigned_getFile(self, urls, localPath=False):
+    """ Make a local copy of the files.
+
+    :param  urls: list of urls  on storage
     :param localPath: destination folder. Default is from current directory
     :returns: Successful dict: {path : size}
               Failed dict: {path : errorMessage}
@@ -211,40 +340,99 @@ class S3Storage(StorageBase):
     failed = {}
     successful = {}
 
-    for src_key in keys:
-      try:
-        fileName = os.path.basename(src_key)
-        dest_file = os.path.join(localPath if localPath else os.getcwd(), fileName)
-        log.debug("Trying to download %s to %s" % (src_key, dest_file))
-        if self.directAccess:
-          self.s3_client.download_file(self.bucketName, src_key, dest_file)
-        else:
-          res = self.s3GWClient.createPresignedUrl(self.name, 'get_object', src_key)
-          if not res['OK']:
-            failed[src_key] = res['Message']
-            continue
-          presignedURL = res['Value']
-          # Stream download to save memory
-          # https://requests.readthedocs.io/en/latest/user/advanced/#body-content-workflow
-          with requests.get(presignedURL, stream=True) as r:
-            r.raise_for_status()
-            with open(dest_file, 'wb') as f:
-              for chunk in r.iter_content():
-                if chunk:  # filter out keep-alive new chuncks
-                  f.write(chunk)
+    res = self.s3GWClient.createPresignedUrl(self.name, 'get_object', urls)
+    if not res['OK']:
+      return res
 
-        successful[src_key] = os.path.getsize(dest_file)
+    failed.update(res['Value']['Failed'])
+
+    presignedURLs = res['Value']['Successful']
+
+    for src_url, presignedURL in presignedURLs.items():
+      try:
+        fileName = os.path.basename(src_url)
+        dest_file = os.path.join(localPath if localPath else os.getcwd(), fileName)
+        log.debug("Trying to download %s to %s" % (src_url, dest_file))
+
+        # Stream download to save memory
+        # https://requests.readthedocs.io/en/latest/user/advanced/#body-content-workflow
+        with requests.get(presignedURL, stream=True) as r:
+          r.raise_for_status()
+          with open(dest_file, 'wb') as f:
+            for chunk in r.iter_content():
+              if chunk:  # filter out keep-alive new chuncks
+                f.write(chunk)
+
+        successful[src_url] = os.path.getsize(dest_file)
       except Exception as exp:
-        failed[src_key] = repr(exp)
+        failed[src_url] = repr(exp)
 
     return S_OK({'Failed': failed, 'Successful': successful})
 
-  @_extractKeyFromS3Path
-  def putFile(self, keys, sourceSize=0):
+  def putFile(self, urls, sourceSize=0):
     """ Upload a local file.
         :warning: no 3rd party copy possible
 
-        :param urls: dictionary { keys : localFile }
+        :param urls: dictionary { urls : localFile }
+        :param sourceSize: size of the file in byte. Mandatory for third party copy (WHY ???)
+                             Also, this parameter makes it essentially a non bulk operation for
+                             third party copy, unless all files have the same size...
+        :returns: Successful dict: { path : size }
+                  Failed dict: { path : error message }
+                  S_ERROR in case of argument problems
+    """
+    if self.directAccess:
+      return self._direct_putFile(urls, sourceSize=sourceSize)
+    return self._presigned_putFile(urls, sourceSize=sourceSize)
+
+  @_extractKeyFromS3Path
+  def _direct_putFile(self, urls, sourceSize=0):
+    """ Upload a local file.
+        :warning: no 3rd party copy possible
+
+        :param urls: dictionary { urls : localFile }
+        :param sourceSize: size of the file in byte. Mandatory for third party copy (WHY ???)
+                             Also, this parameter makes it essentially a non bulk operation for
+                             third party copy, unless all files have the same size...
+        :returns: Successful dict: { path : size }
+                  Failed dict: { path : error message }
+                  S_ERROR in case of argument problems
+    """
+
+    log = LOG.getSubLogger('putFile')
+
+    # the @_extractKeyFromS3Path transformed URL into keys
+    keys = urls
+
+    failed = {}
+    successful = {}
+
+    for dest_key, src_file in keys.iteritems():
+      try:
+        cks = fileAdler(src_file)
+        if not cks:
+          log.warn("Cannot get ADLER32 checksum for %s" % src_file)
+
+        with open(src_file) as src_fd:
+          self.s3_client.put_object(
+              Body=src_fd,
+              Bucket=self.bucketName,
+              Key=dest_key,
+              Metadata={
+                  'Checksum': cks})
+
+        successful[dest_key] = os.path.getsize(src_file)
+
+      except Exception as e:
+        failed[dest_key] = repr(e)
+
+    return S_OK({'Failed': failed, 'Successful': successful})
+
+  def _presigned_putFile(self, urls, sourceSize=0):
+    """ Upload a local file.
+        :warning: no 3rd party copy possible
+
+        :param urls: dictionary { urls : localFile }
         :param sourceSize: size of the file in byte. Mandatory for third party copy (WHY ???)
                              Also, this parameter makes it essentially a non bulk operation for
                              third party copy, unless all files have the same size...
@@ -258,77 +446,74 @@ class S3Storage(StorageBase):
     failed = {}
     successful = {}
 
-    for dest_key, src_file in keys.iteritems():
+    res = self.s3GWClient.createPresignedUrl(self.name, 'put_object', urls)
+    if not res['OK']:
+      return res
+
+    failed.update(res['Value']['Failed'])
+
+    presignedResponses = res['Value']['Successful']
+
+    for dest_url, presignedResponse in presignedResponses.items():
+
+      src_file = urls[dest_url]
+
       try:
         cks = fileAdler(src_file)
         if not cks:
           log.warn("Cannot get ADLER32 checksum for %s" % src_file)
 
-        if self.directAccess:
+        presignedURL = presignedResponse['url']
+        presignedFields = presignedResponse['fields']
+        with open(src_file, 'rb') as src_fd:
+          # files = {'file': (dest_key, src_fd)}
+          files = {'file': src_fd}
+          response = requests.post(presignedURL, data=presignedFields,
+                                   files=files)
 
-          with open(src_file) as src_fd:
-            self.s3_client.put_object(
-                Body=src_fd,
-                Bucket=self.bucketName,
-                Key=dest_key,
-                Metadata={
-                    'Checksum': cks})
+          if not response.ok:
+            raise Exception(response.reason)
 
-        else:
-          res = self.s3GWClient.createPresignedUrl(self.name, 'put_object', dest_key)
-
-          if not res['OK']:
-            raise res
-
-          presignedResponse = res['Value']
-          presignedURL = presignedResponse['url']
-          presignedFields = presignedResponse['fields']
-          with open(src_file, 'rb') as src_fd:
-            files = {'file': (dest_key, src_fd)}
-            response = requests.post(presignedURL, data=presignedFields,
-                                     files=files)
-
-            if not response.ok:
-              raise Exception(response.reason)
-
-        successful[dest_key] = os.path.getsize(src_file)
+        successful[dest_url] = os.path.getsize(src_file)
 
       except Exception as e:
-        failed[dest_key] = repr(e)
+        failed[dest_url] = repr(e)
 
     return S_OK({'Failed': failed, 'Successful': successful})
 
-  @_extractKeyFromS3Path
-  def getFileMetadata(self, keys):
+  def getFileMetadata(self, urls):
     """ Get metadata associated to the file(s)
 
-    :param  keys: list of keys on the storage
+    :param  urls: list of urls on the storage
     :returns: successful dict { path : metadata }
              failed dict { path : error message }
              S_ERROR in case of argument problems
     """
+    if self.directAccess:
+      return self._direct_getFileMetadata(urls)
+    return self._presigned_getFileMetadata(urls)
+
+  @_extractKeyFromS3Path
+  def _direct_getFileMetadata(self, urls):
+    """ Get metadata associated to the file(s)
+
+    :param  urls: list of urls on the storage
+    :returns: successful dict { path : metadata }
+             failed dict { path : error message }
+             S_ERROR in case of argument problems
+    """
+
+    # the @_extractKeyFromS3Path transformed URL into keys
+    keys = urls
 
     failed = {}
     successful = {}
 
     for key in keys:
       try:
-        if self.directAccess:
-          response = self.s3_client.head_object(Bucket=self.bucketName, Key=key)
-          responseMetadata = response['ResponseMetadata']['HTTPHeaders']
-        else:
-          res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', key)
-          if not res['OK']:
-            failed[key] = res['Message']
-            continue
-          presignedURL = res['Value']
-          response = requests.get(presignedURL)
-          if not response.ok:
-            raise Exception(response.reason)
 
-          # Although the interesting fields are the same as when doing the query directly
-          # the case is not quite the same, so make it lower everywhere
-          responseMetadata = {headerKey.lower(): headerVal for headerKey, headerVal in response.headers.iteritems()}
+        response = self.s3_client.head_object(Bucket=self.bucketName, Key=key)
+        responseMetadata = response['ResponseMetadata']['HTTPHeaders']
 
         metadataDict = self._addCommonMetadata(responseMetadata)
         metadataDict['File'] = True
@@ -341,13 +526,70 @@ class S3Storage(StorageBase):
 
     return S_OK({'Failed': failed, 'Successful': successful})
 
-  @_extractKeyFromS3Path
-  def removeFile(self, keys):
+  def _presigned_getFileMetadata(self, urls):
+    """ Get metadata associated to the file(s)
+
+    :param  urls: list of urls on the storage
+    :returns: successful dict { path : metadata }
+             failed dict { path : error message }
+             S_ERROR in case of argument problems
+    """
+
+    failed = {}
+    successful = {}
+
+    res = self.s3GWClient.createPresignedUrl(self.name, 'head_object', urls)
+    if not res['OK']:
+      return res
+
+    failed.update(res['Value']['Failed'])
+
+    presignedURLs = res['Value']['Successful']
+
+    for url, presignedURL in presignedURLs.items():
+      try:
+
+        response = requests.get(presignedURL)
+        if not response.ok:
+          raise Exception(response.reason)
+
+        # Although the interesting fields are the same as when doing the query directly
+        # the case is not quite the same, so make it lower everywhere
+        responseMetadata = {headerKey.lower(): headerVal for headerKey, headerVal in response.headers.iteritems()}
+
+        metadataDict = self._addCommonMetadata(responseMetadata)
+        metadataDict['File'] = True
+        metadataDict['Size'] = int(metadataDict['content-length'])
+        metadataDict['Checksum'] = metadataDict.get('x-amz-meta-checksum', '')
+
+        successful[url] = metadataDict
+      except Exception as exp:
+        failed[url] = repr(exp)
+
+    return S_OK({'Failed': failed, 'Successful': successful})
+
+  def removeFile(self, urls):
     """ Physically remove the file specified by keys
 
     A non existing file will be considered as successfully removed
 
-    :param keys: list of keys on the storage
+    :param urls: list of urls on the storage
+    :returns: Successful dict {path : True}
+               Failed dict {path : error message}
+               S_ERROR in case of argument problems
+    """
+
+    if self.directAccess:
+      return self._direct_removeFile(urls)
+    return self._presigned_removeFile(urls)
+
+  @_extractKeyFromS3Path
+  def _direct_removeFile(self, urls):
+    """ Physically remove the file specified by keys
+
+    A non existing file will be considered as successfully removed
+
+    :param urls: list of urls on the storage
     :returns: Successful dict {path : True}
                Failed dict {path : error message}
                S_ERROR in case of argument problems
@@ -356,42 +598,68 @@ class S3Storage(StorageBase):
     failed = {}
     successful = {}
 
+    # the @_extractKeyFromS3Path transformed URL into keys
+    keys = urls
+
     for key in keys:
       try:
-        if self.directAccess:
-          self.s3_client.delete_object(Bucket=self.bucketName, Key=key)
-        else:
-          res = self.s3GWClient.createPresignedUrl(self.name, 'delete_object', key)
-          if not res['OK']:
-            failed[key] = res['Message']
-            continue
-          presignedURL = res['Value']
-          response = requests.delete(presignedURL)
-          if not response.ok:
-            raise Exception(response.reason)
-
+        self.s3_client.delete_object(Bucket=self.bucketName, Key=key)
         successful[key] = True
       except Exception as exp:
         failed[key] = repr(exp)
 
     return S_OK({'Failed': failed, 'Successful': successful})
 
-  @_extractKeyFromS3Path
-  def getFileSize(self, keys):
+  def _presigned_removeFile(self, urls):
+    """ Physically remove the file specified by keys
+
+    A non existing file will be considered as successfully removed
+
+    :param urls: list of urls on the storage
+    :returns: Successful dict {path : True}
+               Failed dict {path : error message}
+               S_ERROR in case of argument problems
+    """
+
+    failed = {}
+    successful = {}
+
+    res = self.s3GWClient.createPresignedUrl(self.name, 'delete_object', urls)
+    if not res['OK']:
+      return res
+
+    failed.update(res['Value']['Failed'])
+
+    presignedURLs = res['Value']['Successful']
+
+    for url, presignedURL in presignedURLs.items():
+      try:
+
+        response = requests.delete(presignedURL)
+        if not response.ok:
+          raise Exception(response.reason)
+
+        successful[url] = True
+      except Exception as exp:
+        failed[url] = repr(exp)
+
+    return S_OK({'Failed': failed, 'Successful': successful})
+
+  def getFileSize(self, urls):
     """Get the physical size of the given file
 
-      :param keys: list of keys on the storage
+      :param urls: list of urls on the storage
       :returns: Successful dict {path : size}
              Failed dict {path : error message }
              S_ERROR in case of argument problem
     """
 
-    res = self.getFileMetadata(keys, extractKeys=False)  # pylint: disable=unexpected-keyword-arg
+    res = self.getFileMetadata(urls)
     if not res['OK']:
       return res
 
     failed = res['Value']['Failed']
-    successful = {key: metadata['Size'] for key, metadata in res['Value']['Successful'].iteritems()}
+    successful = {url: metadata['Size'] for url, metadata in res['Value']['Successful'].iteritems()}
 
     return S_OK({'Successful': successful, 'Failed': failed})
 
@@ -411,11 +679,12 @@ class S3Storage(StorageBase):
     return S_OK({'Failed': {}, 'Successful': {url: True for url in urls}})
 
   @staticmethod
-  def notAvailable(*args, **kwargs):
+  def notAvailable(*_args, **_kwargs):
     """ Generic method for unavailable method on S3"""
     return S_ERROR("Functionality not available on S3")
 
-  listDirectory = isDirectory = getDirectory = removeDirectory = getDirectorySize = getDirectoryMetadata = putDirectory = notAvailable
+  listDirectory = isDirectory = getDirectory = removeDirectory = getDirectorySize \
+      = getDirectoryMetadata = putDirectory = notAvailable
 
   # def getTransportURL(self, pathDict, protocols):
   #   """ Get a transport URL for a given URL. For a simple storage plugin
@@ -443,29 +712,40 @@ class S3Storage(StorageBase):
   #   resDict = {'Failed': failed, 'Successful': successful}
   #   return S_OK(resDict)
 
-  def createPresignedUrl(self, methodName, objectName, expiration=3600):
+  @_extractKeyFromS3Path
+  def createPresignedUrl(self, urls, methodName, expiration=3600):
     """Generate a presigned URL to share an S3 object
 
+    :param urls: urls for which to generate a presigned URL
     :param methodName: name of the method for which to generate a presigned URL
-    :param objectName: key for which to generate a presigned URL
     :param expiration: Time in seconds for the presigned URL to remain valid
     :return: Presigned URL as string. If error, returns None.
     """
 
+    # the decorator transformed the urls into keys
+    keys = urls
+
+    successful = {}
+    failed = {}
+
     # Generate a presigned URL for the S3 object
     log = LOG.getSubLogger('createPresignedUrl')
 
-    try:
-      if methodName != 'put_object':
-        response = self.s3_client.generate_presigned_url(ClientMethod=methodName,
-                                                         Params={'Bucket': self.bucketName,
-                                                                 'Key': objectName},
-                                                         ExpiresIn=expiration)
-      else:
-        response = self.s3_client.generate_presigned_post(self.bucketName, objectName, ExpiresIn=expiration)
-    except ClientError as e:
-      log.debug(e)
-      return S_ERROR(repr(e))
+    for key in keys:
+      try:
+        if methodName != 'put_object':
+          response = self.s3_client.generate_presigned_url(ClientMethod=methodName,
+                                                           Params={'Bucket': self.bucketName,
+                                                                   'Key': key},
+                                                           ExpiresIn=expiration)
+        else:
+          response = self.s3_client.generate_presigned_post(self.bucketName, key, ExpiresIn=expiration)
+
+        successful[key] = response
+      except ClientError as e:
+        log.debug(e)
+
+        failed[key] = repr(e)
 
     # The response contains the presigned URL
-    return S_OK(response)
+    return S_OK({'Successful': successful, 'Failed': failed})
