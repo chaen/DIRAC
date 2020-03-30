@@ -1,5 +1,6 @@
 """
-Service handler for generating pre-signed URLs for S3 storages
+Service handler for generating pre-signed URLs for S3 storages.
+Permissions to request a URL for a given action are mapped against FC permissions
 
 .. literalinclude:: ../ConfigTemplate.cfg
   :start-after: ##BEGIN S3GW
@@ -16,12 +17,16 @@ import os
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getDNForUsername
 from DIRAC.Core.DISET.RequestHandler import RequestHandler, getServiceOption
+from DIRAC.Core.DISET.ThreadConfig import ThreadConfig
 from DIRAC.Core.Utilities.Pfn import pfnparse, pfnunparse
 from DIRAC.Core.Utilities.ReturnValues import returnSingleResult
+
 
 from DIRAC.Core.Security.Properties import FULL_DELEGATION, LIMITED_DELEGATION, TRUSTED_HOST
 from DIRAC.Core.Utilities import DErrno
 from DIRAC.DataManagementSystem.Utilities.DMSHelpers import DMSHelpers
+
+from DIRAC.Resources.Catalog.FileCatalog import FileCatalog
 
 from DIRAC.Resources.Storage.StorageElement import StorageElement
 ########################################################################
@@ -35,7 +40,22 @@ class S3GWHandler(RequestHandler):
 
   """
 
+  # FC instance to check whether access is permitted or not
+  _fc = None
+
+  # Mapping between the S3 methods and the DFC methods
+  _s3ToFC_methods = {'head_object': 'getFileMetadata',
+                     'get_object': 'getFileMetadata',  # consider that if we are allowed to see the file metadata
+                     # we can also download it
+                     'put_object': 'addFile',
+                     'delete_object': 'removeFile'}
+
   _S3Storages = {}
+
+  # This allows us to perform the DFC queries on behalf of a user
+  # without having to recreate a DFC object every time and
+  # pass it the "delegatedDN" and "delegatedGroup" values
+  _tc = ThreadConfig()
 
   @classmethod
   def initializeHandler(cls, serviceInfoDict):
@@ -60,40 +80,78 @@ class S3GWHandler(RequestHandler):
           break
 
     log.info("S3GW initialized storages", "%s" % cls._S3Storages.keys())
+
+    cls._fc = FileCatalog()
+
     return S_OK()
+
+  def _hasAccess(self, lfn, s3_method):
+    """  Check if we have permission to execute given operation on the given file (if exists) or its directory
+    """
+
+    opType = self._s3ToFC_methods.get(s3_method)
+    if not opType:
+      return S_ERROR("Unknown S3 method %s" % s3_method)
+
+    return returnSingleResult(self._fc.hasAccess(lfn, opType))
 
   types_createPresignedUrl = [basestring, basestring, (dict, list), (int, long)]
 
-  def export_createPresignedUrl(self, storageName, methodName, urls, expiration=3600):
+  def export_createPresignedUrl(self, storageName, s3_method, urls, expiration=3600):
     """ Generate a presigned URL for a given object, given method, and given storage
+        Permissions are checked against the DFC
 
         :param storageName: SE name
-        :param methodName: name of the method we want to perform
+        :param s3_method: name of the S3 client method we want to perform.
         :param urls: urls
         :param expiration: duration of the token
     """
 
     log = LOG.getSubLogger('createPresignedUrl')
-    log.debug("Creating presigned URL for %s %s %s %s" % (storageName, methodName, urls, expiration))
+
+    # Fetch the remote credentials, and set them in the ThreadConfig
+    credDict = self.getRemoteCredentials()
+    if not credDict:
+      return S_ERROR("Could not obtain remote credentials")
+
+    self._tc.setDN(credDict['DN'])
+    self._tc.setGroup(credDict['group'])
+
     successful = {}
     failed = {}
     s3Plugin = self._S3Storages[storageName]
     for url in urls:
       try:
+        log.verbose(
+            "Creating presigned URL", "SE: %s Method: %s URL: %s Expiration: %s" %
+            (storageName, s3_method, url, expiration))
 
+        # Finding the LFN to query the FC
         res = pfnparse(url, srmSpecific=False)
         if not res['OK']:
           failed[url] = res['Message']
+          log.debug("Could not parse the url %s %s" % (url, res))
           continue
 
         splitURL = res['Value']
         path = splitURL['Path']
         lfn = os.path.join(path, splitURL['FileName'])
 
-        log.debug("This corresponds to LFN %s" % lfn)
-        res = returnSingleResult(s3Plugin.createPresignedUrl({url:False}, methodName, expiration=expiration))
+        log.debug("URL: %s -> LFN %s" % (url, lfn))
 
-        log.debug("Returns %s" % res)
+        # Checking whether access is permitted
+        res = self._hasAccess(lfn, s3_method)
+        if not res['OK']:
+          failed[url] = res['Message']
+          continue
+
+        if not res['Value']:
+          failed[url] = "Permission denied"
+          continue
+
+        res = returnSingleResult(s3Plugin.createPresignedUrl({url: False}, s3_method, expiration=expiration))
+
+        log.debug("Presigned URL for %s: %s" % (url, res))
         if res['OK']:
           successful[url] = res['Value']
         else:

@@ -26,21 +26,18 @@ __RCSID__ = "$Id$"
 
 import copy
 import functools
-import json
+
 import os
 import requests
-import shutil
-import tempfile
+
 
 import boto3
 from botocore.exceptions import ClientError
 
 from DIRAC import S_OK, S_ERROR, gLogger
 from DIRAC.Core.Utilities.Adler import fileAdler
-from DIRAC.Core.Utilities.Pfn import pfnparse, pfnunparse
-from DIRAC.Core.Utilities.ReturnValues import returnSingleResult
+from DIRAC.Core.Utilities.Pfn import pfnparse
 from DIRAC.DataManagementSystem.Client.S3GWClient import S3GWClient
-from DIRAC.Resources.Storage.Utilities import checkArgumentFormat
 from DIRAC.Resources.Storage.StorageBase import StorageBase
 
 
