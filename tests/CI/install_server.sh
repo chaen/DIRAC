@@ -50,7 +50,7 @@ echo -e "*** $(date -u) **** Adding S3-INDIRECT SERVER CONFIGURATION"
 
 
 # This specific configuration has to be local to the server only
-cat >> $SERVERINSTALLDIR/etc/dirac.cfg <<EOL
+cat >> "$SERVERINSTALLDIR"/etc/dirac.cfg <<EOL
 Resources
 {
   StorageElements
@@ -67,6 +67,6 @@ Resources
 }
 EOL
 
-dirac-restart-component DataManagement S3GW $DEBUG
+dirac-restart-component DataManagement S3GW "$DEBUG"
 
 echo -e "*** $(date -u) **** DONE Adding S3-INDIRECT SERVER CONFIGURATION"

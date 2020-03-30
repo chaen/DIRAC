@@ -12,11 +12,12 @@ Permissions to request a URL for a given action are mapped against FC permission
 
 __RCSID__ = "$Id$"
 
+import errno
 import os
 # from DIRAC
 from DIRAC import S_OK, S_ERROR, gLogger
-from DIRAC.ConfigurationSystem.Client.Helpers.Registry import getDNForUsername
-from DIRAC.Core.DISET.RequestHandler import RequestHandler, getServiceOption
+
+from DIRAC.Core.DISET.RequestHandler import RequestHandler
 from DIRAC.Core.DISET.ThreadConfig import ThreadConfig
 from DIRAC.Core.Utilities.Pfn import pfnparse, pfnunparse
 from DIRAC.Core.Utilities.ReturnValues import returnSingleResult
@@ -91,7 +92,7 @@ class S3GWHandler(RequestHandler):
 
     opType = self._s3ToFC_methods.get(s3_method)
     if not opType:
-      return S_ERROR("Unknown S3 method %s" % s3_method)
+      return S_ERROR(errno.EINVAL, "Unknown S3 method %s" % s3_method)
 
     return returnSingleResult(self._fc.hasAccess(lfn, opType))
 
@@ -110,9 +111,11 @@ class S3GWHandler(RequestHandler):
     log = LOG.getSubLogger('createPresignedUrl')
 
     # Fetch the remote credentials, and set them in the ThreadConfig
+    # This allows to perform the FC operations on behalf of the user
     credDict = self.getRemoteCredentials()
     if not credDict:
-      return S_ERROR("Could not obtain remote credentials")
+      # If we can't obtain remote credentials, consider it permission denied
+      return S_ERROR(errno.EACCES, "Could not obtain remote credentials")
 
     self._tc.setDN(credDict['DN'])
     self._tc.setGroup(credDict['group'])
@@ -157,7 +160,7 @@ class S3GWHandler(RequestHandler):
         else:
           failed['url'] = res['Message']
       except Exception as e:
-        log.exception("boom")
+        log.exception("Exception presigning URL")
         failed[url] = repr(e)
 
     return S_OK({'Successful': successful, 'Failed': failed})
