@@ -127,7 +127,7 @@ def clearDirectory(se, local_path, target_path):
   print("==================================================")
 
 
-# Since this is a module wise fixture, we parametrize it 
+# Since this is a module wise fixture, we parametrize it
 # to run the full series of tests on the two SEs
 # https://docs.pytest.org/en/latest/fixture.html#parametrizing-fixtures
 @pytest.fixture(scope="module", params=STORAGE_NAMES)
@@ -281,9 +281,9 @@ def test_createDirectory(setuptest):
 @pytest.mark.order4
 def test_putFile(setuptest):
   """ Copy a file """
-  # XXX: this is not good ! 
+  # XXX: this is not good !
   # The mock I use for S3 seem to have a bug uploading files
-  # with presigned URL. So for the time being, I upload directly, 
+  # with presigned URL. So for the time being, I upload directly,
   # but this should be checked
   # https://github.com/adobe/S3Mock/issues/219
   se = StorageElement('S3-DIRECT')
