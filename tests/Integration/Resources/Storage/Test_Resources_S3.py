@@ -5,7 +5,7 @@ It creates a local hierarchy, and then tries to upload, download, remove, get me
 .. warn::
 
   The storage element you test is supposed to be called 'S3-DIRECT' and 'S3-INDIRECT.
-  (pylint does not play friendly with command line params...)
+  (pytest does not play friendly with command line params...)
 
 
 """
@@ -222,7 +222,7 @@ def setuptest(request):
   fileAdlers = {}
   fileSizes = {}
 
-  for lfn, localFn in putFile.iteritems():
+  for lfn, localFn in putFile.items():
     fileAdlers[lfn] = fileAdler(localFn)
     fileSizes[lfn] = getSize(localFn)
 

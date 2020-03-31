@@ -98,7 +98,7 @@ class S3GWHandler(RequestHandler):
 
   types_createPresignedUrl = [basestring, basestring, (dict, list), (int, long)]
 
-  def export_createPresignedUrl(self, storageName, s3_method, urls, expiration=3600):
+  def export_createPresignedUrl(self, storageName, s3_method, urls, expiration):
     """ Generate a presigned URL for a given object, given method, and given storage
         Permissions are checked against the DFC
 

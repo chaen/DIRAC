@@ -74,7 +74,6 @@ def _extractKeyFromS3Path(meth):
         key = os.path.join(path, splitURL['FileName'])
         keysToUrls[key] = url
         keyArgs[key] = urls[url]
-
     else:
       keyArgs = copy.copy(urls)
 
@@ -404,7 +403,7 @@ class S3Storage(StorageBase):
     failed = {}
     successful = {}
 
-    for dest_key, src_file in keys.iteritems():
+    for dest_key, src_file in keys.items():
       try:
         cks = fileAdler(src_file)
         if not cks:
@@ -508,7 +507,6 @@ class S3Storage(StorageBase):
 
     for key in keys:
       try:
-
         response = self.s3_client.head_object(Bucket=self.bucketName, Key=key)
         responseMetadata = response['ResponseMetadata']['HTTPHeaders']
 
@@ -545,14 +543,13 @@ class S3Storage(StorageBase):
 
     for url, presignedURL in presignedURLs.items():
       try:
-
         response = requests.get(presignedURL)
         if not response.ok:
           raise Exception(response.reason)
 
         # Although the interesting fields are the same as when doing the query directly
         # the case is not quite the same, so make it lower everywhere
-        responseMetadata = {headerKey.lower(): headerVal for headerKey, headerVal in response.headers.iteritems()}
+        responseMetadata = {headerKey.lower(): headerVal for headerKey, headerVal in response.headers.items()}
 
         metadataDict = self._addCommonMetadata(responseMetadata)
         metadataDict['File'] = True
@@ -631,7 +628,6 @@ class S3Storage(StorageBase):
 
     for url, presignedURL in presignedURLs.items():
       try:
-
         response = requests.delete(presignedURL)
         if not response.ok:
           raise Exception(response.reason)
@@ -656,7 +652,7 @@ class S3Storage(StorageBase):
       return res
 
     failed = res['Value']['Failed']
-    successful = {url: metadata['Size'] for url, metadata in res['Value']['Successful'].iteritems()}
+    successful = {url: metadata['Size'] for url, metadata in res['Value']['Successful'].items()}
 
     return S_OK({'Successful': successful, 'Failed': failed})
 
@@ -741,7 +737,6 @@ class S3Storage(StorageBase):
         successful[key] = response
       except ClientError as e:
         log.debug(e)
-
         failed[key] = repr(e)
 
     # The response contains the presigned URL
