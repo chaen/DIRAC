@@ -47,6 +47,32 @@ class Test_SubLogger(Test_Logging):
     self.assertIn(" Framework/log/sublog/subsublog ", self.buffer.getvalue())
     self.buffer.truncate(0)
 
+  def test_03changeSubLoggerLevel(self):
+    """
+    Create subloggers, and check that the changes of log levels are effective
+    """
+
+    # log has level DEBUG, sublog has level INFO
+    # ERROR messages should come from both
+    # DEBUG message should come from log only
+
+    log = gLogger.getSubLogger('log')
+
+    sublog = log.getSubLogger('sublog')
+    sublog.setLevel('INFO')
+
+    log.error("changeLevel")
+    self.assertIn(" Framework/log ERROR: changeLevel", self.buffer.getvalue())
+    sublog.error("changeLevel")
+    self.assertIn(" Framework/log/sublog ERROR: changeLevel", self.buffer.getvalue())
+
+    log.debug("changeLevel")
+    self.assertIn(" Framework/log DEBUG: changeLevel", self.buffer.getvalue())
+    sublog.debug("changeLevel")
+    self.assertNotIn(" Framework/log/sublog DEBUG: changeLevel", self.buffer.getvalue())
+
+    self.buffer.truncate(0)
+
 
 if __name__ == '__main__':
   suite = unittest.defaultTestLoader.loadTestsFromTestCase(Test_SubLogger)

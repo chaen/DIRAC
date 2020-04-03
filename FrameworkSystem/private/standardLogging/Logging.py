@@ -87,6 +87,10 @@ class Logging(object):
     # name of the Logging
     self.name = str(name)
     self._logger = logging.getLogger(fatherName).getChild(self.name)
+
+    # if self._parent:
+    #   self._logger.propagate = False
+
     # update the custom name of the Logging adding the new Logging name in the
     # entire path
     self._customName = os.path.join("/", customName, self.name)
