@@ -15,6 +15,7 @@ from DIRAC.Core.Utilities.Decorators import deprecated
 DEFAULT_RPC_TIMEOUT = 600
 
 
+
 class Client(object):
   """ Simple class to redirect unknown actions directly to the server. Arguments
       to the constructor are passed to the RPCClient constructor as they are.
