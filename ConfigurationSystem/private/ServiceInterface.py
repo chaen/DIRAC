@@ -3,10 +3,11 @@
 
 import time
 import threading
-from DIRAC import gLogger
+from DIRAC import gLogger, S_OK
 
 from DIRAC.ConfigurationSystem.private.ServiceInterfaceBase import ServiceInterfaceBase
 from DIRAC.ConfigurationSystem.Client.ConfigurationData import gConfigurationData
+from DIRAC.Core.Utilities.ThreadPool import ThreadPool
 
 __RCSID__ = "$Id$"
 
@@ -20,9 +21,8 @@ class ServiceInterface(ServiceInterfaceBase, threading.Thread):
   def __init__(self, sURL):
     threading.Thread.__init__(self)
     ServiceInterfaceBase.__init__(self, sURL)
-    self.__launchCheckSlaves()
 
-  def __launchCheckSlaves(self):
+  def _launchCheckSlaves(self):
     """
       Start loop which check if slaves are alive
     """
@@ -36,3 +36,23 @@ class ServiceInterface(ServiceInterfaceBase, threading.Thread):
       time.sleep(iWaitTime)
       self._checkSlavesStatus()
 
+  def _updateServiceConfiguration(self, urlSet, fromMaster=False):
+    """
+    Update configuration in a set of service in parallel
+
+    :param set urlSet: a set of service URLs
+    :param fromMaster: flag to force updating from the master CS
+    :return: S_OK/S_ERROR, Value Successful/Failed dict with service URLs
+    """
+    pool = ThreadPool(len(urlSet))
+    for url in urlSet:
+      pool.generateJobAndQueueIt(self._forceServiceUpdate,
+                                 args=[url, fromMaster],
+                                 kwargs={},
+                                 oCallback=self.__processResults)
+    pool.processAllResults()
+    return S_OK(self.__updateResultDict)
+
+  def __processResults(self, _id, result):
+    if not result['OK']:
+      gLogger.warn("Failed to update configuration on", result['URL'] + ':' + result['Message'])
