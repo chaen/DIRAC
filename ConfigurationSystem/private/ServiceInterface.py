@@ -51,7 +51,7 @@ class ServiceInterface(ServiceInterfaceBase, threading.Thread):
                                  kwargs={},
                                  oCallback=self.__processResults)
     pool.processAllResults()
-    return S_OK(self.__updateResultDict)
+    return S_OK()
 
   def __processResults(self, _id, result):
     if not result['OK']:
