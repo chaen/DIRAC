@@ -759,7 +759,7 @@ class TornadoFileCatalogHandler(TornadoService):
       for lfn in retVal:
         writer.writerow(lfn)
 
-      #csvOutput.seek(0)
+      # csvOutput.seek(0)
       ret = csvOutput.getvalue()
       return ret
 
