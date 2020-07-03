@@ -264,9 +264,9 @@ if [[ "${0}" = "${BASH_SOURCE[0]}" ]]; then
   prepareEnvironment
   installServer
   installClient
-  #testServer
-  #testClient
-  #checkErrors
+  testServer
+  testClient
+  checkErrors
 else
   echo "Skipping setup, installation and testing as ${BASH_SOURCE[0]} is being sourced"
 fi
