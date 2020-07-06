@@ -10,6 +10,7 @@ from DIRAC.ConfigurationSystem.Client.CSAPI import CSAPI
 csAPI = CSAPI()
 
 csAPI.setOption('Resources/FileCatalogs/FileCatalog/Master', 'False')
+csAPI.setOption('Resources/FileCatalogs/MultiVOFileCatalog/Master', 'True')
 csAPI.setOption('Systems/DataManagement/Production/Services/MultiVOFileCatalog/SecurityManager',
                 'NoSecurityManager')
 
