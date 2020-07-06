@@ -99,6 +99,7 @@ Managing DIRAC installation:
     dirac-install-component
     dirac-install-db
     dirac-install-web-portal
+    dirac-install-tornado-service
     dirac-install
     dirac-uninstall-component
     dirac-restart-component

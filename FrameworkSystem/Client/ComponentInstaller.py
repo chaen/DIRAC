@@ -462,7 +462,7 @@ class ComponentInstaller(object):
             centralCfg['Registry']['Groups'][group].addKey(  # pylint: disable=unsubscriptable-object
                 'Properties', '', '')
 
-        properties = centralCfg['Registry']['Groups'][adminGroupName].getOption(  # pylint: disable=unsubscriptable-object # noqa
+        properties = centralCfg['Registry']['Groups'][adminGroupName].getOption(  # noqa # pylint: disable=unsubscriptable-object
             'Properties', [])
         for prop in adminGroupProperties:
           if prop not in properties:
@@ -470,7 +470,7 @@ class ComponentInstaller(object):
             centralCfg['Registry']['Groups'][adminGroupName].appendToOption(  # pylint: disable=unsubscriptable-object
                 'Properties', ', %s' % prop)
 
-        properties = centralCfg['Registry']['Groups'][defaultGroupName].getOption(  # pylint: disable=unsubscriptable-object # noqa
+        properties = centralCfg['Registry']['Groups'][defaultGroupName].getOption(  # noqa # pylint: disable=unsubscriptable-object
             'Properties', [])
         for prop in defaultGroupProperties:
           if prop not in properties:
