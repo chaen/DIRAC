@@ -192,6 +192,9 @@ Server Certificates
 Server certificates are used for validating the identity of the host a given client is connecting to. We follow the RFC 6125.
 Basically, that means that the DNS name used to contact the host must be present in the ``SubjectAlternativeName``. 
 
+
+.. _using_own_CA:
+
 -----------------
 Using your own CA
 -----------------

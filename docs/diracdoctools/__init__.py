@@ -17,4 +17,5 @@ DIRAC_DOC_MOCK_LIST = ['_arc',
                        'pylab',
                        'pythonjsonlogger',
                        'stomp',
+                       'tornado',
                        ]
