@@ -68,14 +68,14 @@ class TornadoRefresher(RefresherBase):
         while self._automaticUpdate:
 
             # This is the sleep from Tornado, like a sleep it wait some time
-            # But this version is non-blocking, so IOLoop can continue execution
+            # But this version is non-blocking, so IOLoop  can continue execution
             yield gen.sleep(gConfigurationData.getPropagationTime())
             # Publish step is blocking so we have to run it in executor
             # If we are not doing it, when master try to ping we block the IOLoop
 
             yield _IOLoop.current().run_in_executor(None, self.__AutoRefresh)
 
-    def __AutoRefresh(self):
+    async def __AutoRefresh(self):
         """
         Auto refresh the configuration
         We disable pylint error because this class must be instanciated
