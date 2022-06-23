@@ -5,7 +5,7 @@ import json
 import logging
 import socket
 
-from DIRAC.Resources.MessageQueue.MQCommunication import createProducer
+from DIRAC.Resources.MessageQueue.Simple.StompInterface import createProducer
 
 
 class MessageQueueHandler(logging.Handler):
@@ -28,7 +28,7 @@ class MessageQueueHandler(logging.Handler):
         """
         super(MessageQueueHandler, self).__init__()
         self.producer = None
-        result = createProducer(queue)
+        result = createProducer(queue, destination="dirac.logging")
         if result["OK"]:
             self.producer = result["Value"]
         else:
@@ -46,4 +46,4 @@ class MessageQueueHandler(logging.Handler):
         record.hostname = self.hostname
         strRecord = self.format(record)
         if self.producer is not None:
-            self.producer.put(json.loads(strRecord))
+            self.producer.send(strRecord)
