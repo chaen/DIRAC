@@ -43,14 +43,12 @@ class DataOperationSender:
 
     def _sendDataMonitoring(self, baseDict, commitFlag=False, delayedCommit=False, startTime=False, endTime=False):
         """Send the data to the monitoring system"""
-        # Some fields added here are not known to the Accounting, so we have to make a copy
-        monitoringDict = copy.deepcopy(baseDict)
 
-        monitoringDict["Channel"] = monitoringDict["Source"] + "->" + monitoringDict["Destination"]
+        baseDict["Channel"] = baseDict["Source"] + "->" + baseDict["Destination"]
         # Add timestamp if not already added
-        if "timestamp" not in monitoringDict:
-            monitoringDict["timestamp"] = int(toEpochMilliSeconds())
-        self.dataOperationReporter.addRecord(monitoringDict)
+        if "timestamp" not in baseDict:
+            baseDict["timestamp"] = int(toEpochMilliSeconds())
+        self.dataOperationReporter.addRecord(baseDict)
         if commitFlag:
             result = self.dataOperationReporter.commit()
             sLog.debug("Committing data operation to monitoring")
@@ -64,6 +62,11 @@ class DataOperationSender:
     @convertToReturnValue
     def _sendDataAccounting(self, baseDict, commitFlag=False, delayedCommit=False, startTime=False, endTime=False):
         """Send the data to the accounting system"""
+
+        # Cleanup the data
+        for nonValidKey in set(baseDict) - set(self.dataOp.fieldsList):
+            baseDict.pop(nonValidKey)
+
         returnValueOrRaise(self.dataOp.setValuesFromDict(baseDict))
 
         if startTime:
@@ -108,8 +111,14 @@ class DataOperationSender:
 
         # Send data and commit prioritizing the first monitoring option in the list
         for methId, _sendDataMeth in enumerate(self._sendDataMethods):
+            # Some fields added here are not known to the Accounting, so we have to make a copy
+            # of the baseDict
             res = _sendDataMeth(
-                baseDict, commitFlag=commitFlag, delayedCommit=delayedCommit, startTime=startTime, endTime=endTime
+                copy.deepcopy(baseDict),
+                commitFlag=commitFlag,
+                delayedCommit=delayedCommit,
+                startTime=startTime,
+                endTime=endTime,
             )
             if not res["OK"]:
                 sLog.error("DataOperationSender.sendData: could not send data", f"{res}")
