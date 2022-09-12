@@ -44,6 +44,9 @@ class DataOperationSender:
     def _sendDataMonitoring(self, baseDict, commitFlag=False, delayedCommit=False, startTime=False, endTime=False):
         """Send the data to the monitoring system"""
 
+        # Since we are adding elements that the accounting
+        # may not like, work on a copy
+        baseDict = copy.copy(baseDict)
         baseDict["Channel"] = baseDict["Source"] + "->" + baseDict["Destination"]
         # Add timestamp if not already added
         if "timestamp" not in baseDict:
@@ -63,9 +66,8 @@ class DataOperationSender:
     def _sendDataAccounting(self, baseDict, commitFlag=False, delayedCommit=False, startTime=False, endTime=False):
         """Send the data to the accounting system"""
 
-        # Cleanup the data
-        for nonValidKey in set(baseDict) - set(self.dataOp.fieldsList):
-            baseDict.pop(nonValidKey)
+        # Only work with the keys we know about
+        baseDict = {key: baseDict[key] for key in self.dataOp.fieldsList if key in baseDict}
 
         returnValueOrRaise(self.dataOp.setValuesFromDict(baseDict))
 
@@ -114,7 +116,7 @@ class DataOperationSender:
             # Some fields added here are not known to the Accounting, so we have to make a copy
             # of the baseDict
             res = _sendDataMeth(
-                copy.deepcopy(baseDict),
+                baseDict,
                 commitFlag=commitFlag,
                 delayedCommit=delayedCommit,
                 startTime=startTime,
