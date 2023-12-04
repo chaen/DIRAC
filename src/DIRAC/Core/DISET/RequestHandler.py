@@ -3,7 +3,7 @@
 import os
 import time, datetime
 import psutil
-
+from time import sleep
 import DIRAC
 
 from DIRAC.Core.DISET.private.FileHelper import FileHelper
@@ -526,6 +526,30 @@ class RequestHandler:
         if "x509Chain" in credDict:
             del credDict["x509Chain"]
         return S_OK(credDict)
+
+    types_sleep = [int]
+    auth_sleep = ["all"]
+
+    def export_sleep(self, sleepTime):
+        """
+        A simple sleep
+        """
+        sleep(sleepTime)
+        return S_OK(sleepTime)
+
+    types_dbSleep = [int]
+    auth_dbSleep = ["all"]
+
+    def export_dbSleep(self, sleepTime):
+        """
+        A simple sleep
+        """
+        try:
+            dbInst = [getattr(self, attr) for attr in dir(self)][0]
+            dbInst._query(f"SELECT 'IN DB', SLEEP({sleepTime})")
+            return S_OK(sleepTime)
+        except Exception as e:
+            return S_ERROR(f"Issue doing DB sleep {e!r}")
 
     types_echo = [str]
 

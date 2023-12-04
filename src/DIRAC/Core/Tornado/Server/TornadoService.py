@@ -7,10 +7,11 @@ It directly inherits from :py:class:`tornado.web.RequestHandler`
 import os
 from datetime import datetime
 from tornado.web import url as TornadoURL
+from time import sleep
 
 import DIRAC
 
-from DIRAC import gLogger, S_OK
+from DIRAC import gLogger, S_OK, S_ERROR
 from DIRAC.Core.Tornado.Server.private.BaseRequestHandler import BaseRequestHandler
 from DIRAC.ConfigurationSystem.Client import PathFinder
 
@@ -232,3 +233,25 @@ class TornadoService(BaseRequestHandler):  # pylint: disable=abstract-method
             # Not serializable
             del credDict["x509Chain"]
         return S_OK(credDict)
+
+    auth_sleep = ["authenticated"]
+
+    def export_sleep(self, sleepTime):
+        """
+        A simple sleep, returns all credential dictionary, except certificate chain object.
+        """
+        sleep(sleepTime)
+        return S_OK(sleepTime)
+
+    auth_dbSleep = ["all"]
+
+    def export_dbSleep(self, sleepTime):
+        """
+        A simple sleep
+        """
+        try:
+            dbInst = [getattr(self, attr) for attr in dir(self)][0]
+            dbInst._query(f"SELECT 'IN DB', SLEEP({sleepTime})")
+            return S_OK(sleepTime)
+        except Exception as e:
+            return S_ERROR(f"Issue doing DB sleep {e!r}")
