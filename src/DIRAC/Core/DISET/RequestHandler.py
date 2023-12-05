@@ -545,7 +545,9 @@ class RequestHandler:
         A simple sleep
         """
         try:
-            dbInst = [getattr(self, attr) for attr in dir(self)][0]
+            from DIRAC.Core.Base.DB import DB
+
+            dbInst = [attrObj for attr in dir(self) if isinstance(attrObj := getattr(self, attr), DB)][0]
             dbInst._query(f"SELECT 'IN DB', SLEEP({sleepTime})")
             return S_OK(sleepTime)
         except Exception as e:
