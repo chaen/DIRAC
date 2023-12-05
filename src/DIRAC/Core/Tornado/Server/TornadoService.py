@@ -253,7 +253,12 @@ class TornadoService(BaseRequestHandler):  # pylint: disable=abstract-method
             print(f"CHRIS dir {dir(self)}")
             selfAttr = [getattr(self, attr) for attr in dir(self)]
             print(f"CHRIS {selfAttr=}")
-            dbInst = [0]
+            from DIRAC.Core.Base.DB import DB
+
+            dbInstances = [attr for attr in selfAttr if isinstance(attr, DB)]
+            print(f"CHRIS {dbInstances=}")
+
+            dbInst = dbInstances[0]
             dbInst._query(f"SELECT 'IN DB', SLEEP({sleepTime})")
             return S_OK(sleepTime)
         except Exception as e:
