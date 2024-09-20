@@ -8,6 +8,7 @@ The following options can be set for the TransformationAgent.
   :dedent: 2
   :caption: TransformationAgent options
 """
+
 import time
 import os
 import datetime
@@ -241,7 +242,7 @@ class TransformationAgent(AgentModule, TransformationAgentsUtilities):
         if transID not in self.replicaCache:
             self.__readCache(transID)
         transFiles = transFiles["Value"]
-        unusedLfns = [f["LFN"] for f in transFiles]
+        unusedLfns = {f["LFN"] for f in transFiles}
         unusedFiles = len(unusedLfns)
 
         plugin = transDict.get("Plugin", "Standard")
@@ -250,7 +251,7 @@ class TransformationAgent(AgentModule, TransformationAgentsUtilities):
             maxFiles = Operations().getValue(f"TransformationPlugins/{plugin}/MaxFilesToProcess", 0)
             # Get plugin-specific limit in number of files (0 means no limit)
             totLfns = len(unusedLfns)
-            lfnsToProcess = self.__applyReduction(unusedLfns, maxFiles=maxFiles)
+            lfnsToProcess = set(self.__applyReduction(unusedLfns, maxFiles=maxFiles))
             if len(lfnsToProcess) != totLfns:
                 self._logInfo(
                     "Reduced number of files from %d to %d" % (totLfns, len(lfnsToProcess)),
