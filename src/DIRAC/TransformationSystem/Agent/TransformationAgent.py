@@ -534,8 +534,10 @@ class TransformationAgent(AgentModule, TransformationAgentsUtilities):
             method=method,
             transID=transID,
         )
+        successful_set = set(replicas["Successful"])
+        failed_set = set(replicas["Failed"])
         # If files are neither Successful nor Failed, they are set problematic in the FC
-        problematicLfns = [lfn for lfn in lfns if lfn not in replicas["Successful"] and lfn not in replicas["Failed"]]
+        problematicLfns = [lfn for lfn in lfns if lfn not in successful_set and lfn not in failed_set]
         if problematicLfns:
             self._logInfo(f"{len(problematicLfns)} files found problematic in the catalog, set ProbInFC")
             res = clients["TransformationClient"].setFileStatusForTransformation(
