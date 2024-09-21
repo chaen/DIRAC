@@ -1,10 +1,14 @@
 """ Helper for /Registry section
 """
+
 import errno
+from cachetools import TTLCache, cached
 
 from DIRAC import S_OK, S_ERROR
 from DIRAC.ConfigurationSystem.Client.Config import gConfig
 from DIRAC.ConfigurationSystem.Client.Helpers.CSGlobals import getVO
+
+from DIRAC.Core.Utilities.ReturnValues import returnValueOrRaise, convertToReturnValue
 
 ID_DN_PREFIX = "/O=DIRAC/CN="
 
@@ -31,6 +35,44 @@ def getUsernameForDN(dn, usersList=None):
         if dn in gConfig.getValue(f"{gBaseRegistrySection}/Users/{username}/DN", []):
             return S_OK(username)
     return S_ERROR(f"No username found for dn {dn}")
+
+
+dn_cache = TTLCache(1, 60)
+
+
+@cached(dn_cache)
+def _get_dn_user_mapping():
+    user_section = returnValueOrRaise(gConfig.getOptionsDictRecursively("/Registry/Users"))
+
+    dn_user = {}
+    for user, user_info in user_section.items():
+        dns = user_info.get("DN", "").split(",")
+        for dn in dns:
+            dn_user[dn] = user
+    return dn_user
+
+
+@convertToReturnValue
+def getUsernameForDN_fast(dn, usersList=None):
+    """Find DIRAC user for DN
+
+    :param str dn: user DN
+    :param list usersList: list of possible users
+
+    :return: S_OK(str)/S_ERROR()
+    """
+    dn = dn.strip()
+
+    dn_user = _get_dn_user_mapping()
+    username = dn_user.get(dn)
+    if not username:
+        return S_ERROR(f"No username found for dn {dn}")
+
+    if usersList:
+        if username not in set(usersList):
+            return S_ERROR(f"No username found for dn {dn}")
+
+    return username
 
 
 def getDNForUsername(username):
