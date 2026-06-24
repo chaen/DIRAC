@@ -80,6 +80,10 @@ class RemoveFile(DMSRequestOperationsBase):
         # No idea what to do with the others...
         replicas = res["Value"]["Successful"]
         targetSEs = {se for lfn in replicas for se in replicas[lfn]}
+        fakeRemoval = False
+        if targetSEs == {"HLTFarm-BUFFER"}:
+            print("CHRIS faking")
+            fakeRemoval = True
 
         if targetSEs:
             # Check if SEs are allowed for remove but don't fail yet the operation if SEs are always banned
@@ -124,7 +128,7 @@ class RemoveFile(DMSRequestOperationsBase):
                 self.rmsMonitoringReporter.addRecord(self.createRMSRecord("Attempted", len(toRemoveDict)))
             # # 1st step - bulk removal
             self.log.debug(f"bulk removal of {len(toRemoveDict)} files")
-            bulkRemoval = self.bulkRemoval(toRemoveDict)
+            bulkRemoval = self.bulkRemoval(toRemoveDict, fakeRemoval=fakeRemoval)
             if not bulkRemoval["OK"]:
                 self.log.error("Bulk file removal failed", bulkRemoval["Message"])
             else:
@@ -161,13 +165,17 @@ class RemoveFile(DMSRequestOperationsBase):
             return S_OK(f"{','.join(sorted(bannedTargets))} targets are banned for removal")
         return S_OK()
 
-    def bulkRemoval(self, toRemoveDict):
+    def bulkRemoval(self, toRemoveDict, fakeRemoval=False):
         """bulk removal using request owner DN
 
         :param dict toRemoveDict: { lfn: opFile, ... }
         :return: S_ERROR or S_OK( { lfn: opFile, ... } ) -- dict with files still waiting to be removed
         """
-        bulkRemoval = self.dm.removeFile(list(toRemoveDict), force=True)
+        if not fakeRemoval:
+            bulkRemoval = self.dm.removeFile(list(toRemoveDict), force=True)
+        else:
+            self.bulkRemoval = S_OK({"Failed": {}, "Successful": set(toRemoveDict.keys())})
+
         if not bulkRemoval["OK"]:
             error = bulkRemoval["Message"]
             self.log.error("Bulk file removal failed", error)
