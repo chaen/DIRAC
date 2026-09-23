@@ -89,7 +89,12 @@ class InputDataResolution:
 
         self.arguments.setdefault("Job", {})
 
-        policy = self.arguments["Job"].get("InputDataPolicy", [])
+        if site == "DIRAC.HLTFarm.lhcb":
+            policy = ["DIRAC.WorkloadManagementSystem.Client.InputDataByProtocol"]
+            self.log.info("OVERWRITE JOB POLICY")
+        else:
+            policy = self.arguments["Job"].get("InputDataPolicy", [])
+
         if policy:
             # In principle this can be a list of modules with the first taking precedence
             if isinstance(policy, str):
