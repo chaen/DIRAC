@@ -2,6 +2,7 @@
 """
 Utilities for using M2Crypto SSL with DIRAC.
 """
+
 import os
 import tempfile
 import M2Crypto
@@ -45,8 +46,10 @@ elif Version(M2Crypto.__version__) >= Version("0.38.0"):
 def __loadM2SSLCTXHostcert(ctx):
     """Load hostcert & key from the default location and set them as the
     credentials for SSL context ctx.
+
     Returns None.
     """
+
     certKeyTuple = Locations.getHostCertificateAndKeyLocation()
     if not certKeyTuple:
         raise RuntimeError("Hostcert/key location not set")
@@ -58,6 +61,28 @@ def __loadM2SSLCTXHostcert(ctx):
     # Make sure we never stall on a password prompt if the hostkey has a password
     # by specifying a blank string.
     ctx.load_cert(hostcert, hostkey, callback=lambda: "")
+
+
+def __loadM2SSLCTXHostcertForClient(ctx):
+    """
+    HIGHLY EXPERIMENTAL
+    Load client certificate in context of server
+
+    Returns None.
+    """
+
+    host_client_certificate = os.environ.get("DIRAC_EXPERIMENTAL_X509_HOST_CLIENT_CERTIFICATE")
+    host_client_key = os.environ.get("DIRAC_EXPERIMENTAL_X509_HOST_CLIENT_KEY")
+    if not host_client_certificate:
+        raise ValueError("This should never be called without DIRAC_EXPERIMENTAL_X509_HOST_CLIENT_CERTIFICATE")
+    if not host_client_key:
+        raise ValueError("This should never be called without DIRAC_EXPERIMENTAL_X509_HOST_CLIENT_KEY")
+
+    if not os.path.isfile(host_client_certificate):
+        raise RuntimeError(f"Hostcert file ({host_client_certificate}) is missing")
+    if not os.path.isfile(host_client_key):
+        raise RuntimeError(f"Hostkey file ({host_client_key}) is missing")
+    ctx.load_cert(host_client_certificate, host_client_certificate, callback=lambda: "")
 
 
 def __loadM2SSLCTXProxy(ctx, proxyPath=None):
@@ -116,11 +141,22 @@ def getM2SSLContext(ctx=None, **kwargs):
     # CHRIS: I think clientMode was just an internal of pyGSI implementation
     # if kwargs.get('clientMode', False) and not kwargs.get('useCertificates', False):
     # if not kwargs.get('useCertificates', False):
+    # Server mode always uses hostcert
     if kwargs.get("bServerMode", False) or (
         kwargs.get("useCertificates", False) and not kwargs.get("proxyLocation", False)
     ):
-        # Server mode always uses hostcert
-        __loadM2SSLCTXHostcert(ctx)
+        # By default, stick to the host certificate, no matter what
+        if not os.environ.get("DIRAC_EXPERIMENTAL_X509_HOST_CLIENT_CERTIFICATE", False):
+            __loadM2SSLCTXHostcert(ctx)
+        # You are entering uncharted teritory
+        else:
+            # Are we in a server context, use the server certificate
+            if kwargs.get("bServerMode", False):
+                __loadM2SSLCTXHostcert(ctx)
+            # We are in the server, but in client mode
+            # (for example, getting the configuration at startup)
+            else:
+                __loadM2SSLCTXHostcertForClient(ctx)
 
     else:
         # Client mode has a choice of possible options
