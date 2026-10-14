@@ -229,6 +229,7 @@ class AuthManager:
         :return: Boolean with the result
         """
         if self.KW_EXTRA_CREDENTIALS in credDict and isinstance(credDict[self.KW_EXTRA_CREDENTIALS], (tuple, list)):
+            # THIS IS PROBABLY WHERE CLIENT CERTIFICATE WILL FAIL
             if self.KW_DN in credDict:
                 retVal = Registry.getHostnameForDN(credDict[self.KW_DN])
                 if retVal["OK"]:
